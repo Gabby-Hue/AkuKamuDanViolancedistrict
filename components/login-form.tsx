@@ -8,10 +8,10 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useSonner } from "sonner";
+import { toast } from "sonner";
 import type { AppRole } from "@/lib/supabase/roles";
 
 const DASHBOARD_BY_ROLE: Record<AppRole, string> = {
@@ -25,26 +25,27 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const router = useRouter();
-  const { toasts } = useSonner();
   const [isLoading, setIsLoading] = useState(false);
 
-  type AuthFormValues = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    remember: boolean;
-  };
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  const handleSubmit = async (values: AuthFormValues) => {
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+
+    if (!email || !password) {
+      toast.error("Email dan password wajib diisi");
+      return;
+    }
+
     const supabase = createClient();
     setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: values.email,
-        password: values.password,
+        email,
+        password,
       });
 
       if (error) {
@@ -84,10 +85,8 @@ export function LoginForm({
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      toasts({
-        title: "Unable to sign in",
+      toast.error("Tidak dapat masuk", {
         description: message,
-        variant: "error",
       });
     } finally {
       setIsLoading(false);
@@ -98,6 +97,7 @@ export function LoginForm({
     <form
       className={cn("flex flex-col gap-6", className)}
       onSubmit={handleSubmit}
+      {...props}
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
@@ -109,7 +109,15 @@ export function LoginForm({
         </div>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            autoComplete="email"
+            required
+            disabled={isLoading}
+          />
         </Field>
         <Field>
           <div className="flex items-center">
@@ -121,14 +129,23 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            disabled={isLoading}
+          />
         </Field>
         <Field>
-          <Button>Login</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Memproses..." : "Login"}
+          </Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
-          <Button variant="outline" type="button">
+          <Button variant="outline" type="button" disabled={isLoading}>
             <svg
               width="256px"
               height="262px"

@@ -839,13 +839,7 @@ export async function fetchCourtDetail(
   };
 }
 
-type FetchExploreDataOptions = {
-  disableCookieAccess?: boolean;
-};
-
-export async function fetchExploreData(
-  options: FetchExploreDataOptions = {}
-): Promise<{
+export async function fetchExploreData(): Promise<{
   courts: CourtSummary[];
   threads: ForumThreadSummary[];
   totalReplies: number;

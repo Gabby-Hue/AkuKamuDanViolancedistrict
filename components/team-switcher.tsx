@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, House } from "lucide-react";
+import { Building2, ChevronsUpDown, House } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -17,21 +18,45 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function TeamSwitcher({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export type TeamOption = {
+  id: string;
+  name: string;
+  description?: string | null;
+  icon?: React.ElementType<{ className?: string }>;
+  href?: string;
+};
+
+export function TeamSwitcher({ teams }: { teams: TeamOption[] }) {
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const [activeTeamId, setActiveTeamId] = React.useState<string | null>(
+    teams[0]?.id ?? null,
+  );
+
+  React.useEffect(() => {
+    if (!teams.length) {
+      setActiveTeamId(null);
+      return;
+    }
+
+    const hasActive = teams.some((team) => team.id === activeTeamId);
+    if (!hasActive) {
+      setActiveTeamId(teams[0]?.id ?? null);
+    }
+  }, [teams, activeTeamId]);
+
+  const activeTeam = React.useMemo(() => {
+    if (!activeTeamId) {
+      return teams[0] ?? null;
+    }
+
+    return teams.find((team) => team.id === activeTeamId) ?? teams[0] ?? null;
+  }, [teams, activeTeamId]);
 
   if (!activeTeam) {
     return null;
   }
+
+  const ActiveIcon = activeTeam.icon ?? Building2;
 
   return (
     <SidebarMenu>
@@ -43,13 +68,17 @@ export function TeamSwitcher({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeTeam.logo className="size-4" />
+                <ActiveIcon className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+                {activeTeam.description ? (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {activeTeam.description}
+                  </span>
+                ) : null}
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -59,11 +88,37 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Mode
+              Pilih venue
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {teams.map((team) => {
+              const TeamIcon = team.icon ?? Building2;
+              return (
+                <DropdownMenuItem
+                  key={team.id}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    setActiveTeamId(team.id);
+                  }}
+                >
+                  <TeamIcon className="mr-2 size-4" />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium leading-none">
+                      {team.name}
+                    </span>
+                    {team.description ? (
+                      <span className="text-muted-foreground text-xs">
+                        {team.description}
+                      </span>
+                    ) : null}
+                  </div>
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator />
             <Link href="/">
               <DropdownMenuItem>
-                <House className="mr-2" />
+                <House className="mr-2 size-4" />
                 Home
               </DropdownMenuItem>
             </Link>

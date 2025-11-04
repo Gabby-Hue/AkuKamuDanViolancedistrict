@@ -1,4 +1,12 @@
-import { ShieldCheck, LayoutDashboard, Building2, Users, LineChart, Settings2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  Building2,
+  CalendarClock,
+  LineChart,
+  Settings2,
+  MapPin,
+  Users,
+} from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -18,52 +26,73 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
+import { fetchVenueDashboardData } from "@/lib/supabase/queries";
 
 export default async function Page() {
-  const profile = await requireRole("admin");
+  const profile = await requireRole("venue_partner");
   const identity = await getAuthenticatedProfile();
+  const dashboardData = await fetchVenueDashboardData(profile);
 
-  const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
-  const email = identity?.email ?? "admin@courtease.id";
+  const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
+  const email = identity?.email ?? "partner@courtease.id";
   const avatarUrl = identity?.avatarUrl ?? null;
 
   const navMain = [
     {
       title: "Dashboard",
-      url: "/dashboard/admin",
+      url: "/dashboard/venue",
       icon: LayoutDashboard,
       isActive: true,
     },
     {
-      title: "Kelola Venue",
-      url: "/dashboard/admin/venues",
+      title: "Lapangan Saya",
+      url: "/dashboard/venue/courts",
       icon: Building2,
     },
     {
-      title: "Pengguna",
-      url: "/dashboard/admin/users",
+      title: "Jadwal & Booking",
+      url: "/dashboard/venue/bookings",
+      icon: CalendarClock,
+    },
+    {
+      title: "Tim & Staff",
+      url: "/dashboard/venue/staff",
       icon: Users,
     },
     {
       title: "Laporan",
-      url: "/dashboard/admin/reports",
+      url: "/dashboard/venue/reports",
       icon: LineChart,
     },
     {
       title: "Pengaturan",
-      url: "/dashboard/admin/settings",
+      url: "/dashboard/venue/settings",
       icon: Settings2,
     },
   ];
 
-  const teams = [
-    {
-      id: "admin",
-      name: "Courtease Admin",
-      description: "Panel administrasi",
-      icon: ShieldCheck,
-    },
-  ];
+  const teams = (dashboardData.venues.length
+    ? dashboardData.venues
+    : [
+        {
+          id: "placeholder",
+          name: "Venue belum tersedia",
+          city: null,
+          district: null,
+        },
+      ]
+  ).map((venue) => ({
+    id: venue.id,
+    name: venue.name,
+    description: [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    icon: MapPin,
+  }));
+
+  const navProjects = dashboardData.venues.map((venue) => ({
+    name: venue.name,
+    url: `/dashboard/venue/venues/${venue.id}`,
+    icon: MapPin,
+  }));
 
   return (
     <SidebarProvider>
@@ -71,6 +100,7 @@ export default async function Page() {
         user={{ name: displayName, email, avatarUrl }}
         teams={teams}
         navMain={navMain}
+        navProjects={navProjects}
       />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -83,11 +113,11 @@ export default async function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard/admin">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink href="/dashboard/venue">Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Ringkasan</BreadcrumbPage>
+                  <BreadcrumbPage>Ringkasan Venue</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
