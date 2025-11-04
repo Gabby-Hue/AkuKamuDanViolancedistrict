@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 import {
   Folder,
   Forward,
   MoreHorizontal,
   Trash2,
   type LucideIcon,
-} from "lucide-react"
+  icons,
+} from "lucide-react";
 
 import {
   DropdownMenu,
@@ -24,37 +25,51 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+
+type IconName = keyof typeof icons;
+
+type IconLike = LucideIcon | IconName;
+
+function resolveIcon(icon: IconLike): LucideIcon {
+  if (typeof icon === "string") {
+    return icons[icon as IconName] ?? Folder;
+  }
+
+  return icon;
+}
 
 export type NavProject = {
-  name: string
-  url: string
-  icon: LucideIcon
-}
+  name: string;
+  url: string;
+  icon: IconLike;
+};
 
 export function NavProjects({
   projects,
 }: {
-  projects: NavProject[]
+  projects: NavProject[];
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
 
   if (!projects.length) {
-    return null
+    return null;
   }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Venue</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <Link href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </Link>
-            </SidebarMenuButton>
+        {projects.map((item) => {
+          const Icon = resolveIcon(item.icon);
+          return (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton asChild>
+                <Link href={item.url}>
+                  <Icon />
+                  <span>{item.name}</span>
+                </Link>
+              </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuAction showOnHover>
@@ -81,10 +96,11 @@ export function NavProjects({
                   <span>Hapus</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        ))}
+              </DropdownMenu>
+            </SidebarMenuItem>
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

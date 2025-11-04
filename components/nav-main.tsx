@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import Link from "next/link";
+import { ChevronRight, type LucideIcon, icons } from "lucide-react";
 
 import {
   Collapsible,
@@ -19,27 +19,46 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
-export type NavMainItem = {
-  title: string
-  url: string
-  icon?: LucideIcon
-  isActive?: boolean
-  items?: {
-    title: string
-    url: string
-  }[]
+type IconName = keyof typeof icons;
+
+type IconLike = LucideIcon | IconName;
+
+function resolveIcon(icon?: IconLike): LucideIcon | null {
+  if (!icon) {
+    return null;
+  }
+
+  if (typeof icon === "string") {
+    const IconComponent = icons[icon as IconName];
+    return IconComponent ?? null;
+  }
+
+  return icon;
 }
+
+export type NavMainItem = {
+  title: string;
+  url: string;
+  icon?: IconLike;
+  isActive?: boolean;
+  items?: {
+    title: string;
+    url: string;
+  }[];
+};
 
 export function NavMain({
   items,
 }: {
-  items: NavMainItem[]
+  items: NavMainItem[];
 }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
+          const Icon = resolveIcon(item.icon);
+
           if (item.items && item.items.length > 0) {
             return (
               <Collapsible
@@ -51,7 +70,7 @@ export function NavMain({
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
+                      {Icon ? <Icon /> : null}
                       <span>{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
@@ -78,7 +97,7 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={item.isActive}>
                 <Link href={item.url}>
-                  {item.icon && <item.icon />}
+                  {Icon ? <Icon /> : null}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

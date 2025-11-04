@@ -1,13 +1,3 @@
-import {
-  LayoutDashboard,
-  Building2,
-  CalendarClock,
-  LineChart,
-  Settings2,
-  MapPin,
-  Users,
-} from "lucide-react";
-
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
@@ -27,6 +17,9 @@ import {
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import type { NavMainItem } from "@/components/nav-main";
+import type { TeamOption } from "@/components/team-switcher";
+import type { NavProject } from "@/components/nav-projects";
 
 export default async function Page() {
   const profile = await requireRole("venue_partner");
@@ -37,41 +30,41 @@ export default async function Page() {
   const email = identity?.email ?? "partner@courtease.id";
   const avatarUrl = identity?.avatarUrl ?? null;
 
-  const navMain = [
+  const navMain: NavMainItem[] = [
     {
       title: "Dashboard",
       url: "/dashboard/venue",
-      icon: LayoutDashboard,
+      icon: "LayoutDashboard",
       isActive: true,
     },
     {
       title: "Lapangan Saya",
       url: "/dashboard/venue/courts",
-      icon: Building2,
+      icon: "Building2",
     },
     {
       title: "Jadwal & Booking",
       url: "/dashboard/venue/bookings",
-      icon: CalendarClock,
+      icon: "CalendarClock",
     },
     {
       title: "Tim & Staff",
       url: "/dashboard/venue/staff",
-      icon: Users,
+      icon: "Users",
     },
     {
       title: "Laporan",
       url: "/dashboard/venue/reports",
-      icon: LineChart,
+      icon: "LineChart",
     },
     {
       title: "Pengaturan",
       url: "/dashboard/venue/settings",
-      icon: Settings2,
+      icon: "Settings2",
     },
   ];
 
-  const teams = (dashboardData.venues.length
+  const teams: TeamOption[] = (dashboardData.venues.length
     ? dashboardData.venues
     : [
         {
@@ -85,13 +78,13 @@ export default async function Page() {
     id: venue.id,
     name: venue.name,
     description: [venue.city, venue.district].filter(Boolean).join(", ") || null,
-    icon: MapPin,
+    icon: "MapPin",
   }));
 
-  const navProjects = dashboardData.venues.map((venue) => ({
+  const navProjects: NavProject[] = dashboardData.venues.map((venue) => ({
     name: venue.name,
     url: `/dashboard/venue/venues/${venue.id}`,
-    icon: MapPin,
+    icon: "MapPin",
   }));
 
   return (

@@ -1,5 +1,3 @@
-import { ShieldCheck, LayoutDashboard, Building2, Users, LineChart, Settings2 } from "lucide-react";
-
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
@@ -18,6 +16,8 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
+import type { NavMainItem } from "@/components/nav-main";
+import type { TeamOption } from "@/components/team-switcher";
 
 export default async function Page() {
   const profile = await requireRole("admin");
@@ -27,41 +27,41 @@ export default async function Page() {
   const email = identity?.email ?? "admin@courtease.id";
   const avatarUrl = identity?.avatarUrl ?? null;
 
-  const navMain = [
+  const navMain: NavMainItem[] = [
     {
       title: "Dashboard",
       url: "/dashboard/admin",
-      icon: LayoutDashboard,
+      icon: "LayoutDashboard",
       isActive: true,
     },
     {
       title: "Kelola Venue",
       url: "/dashboard/admin/venues",
-      icon: Building2,
+      icon: "Building2",
     },
     {
       title: "Pengguna",
       url: "/dashboard/admin/users",
-      icon: Users,
+      icon: "Users",
     },
     {
       title: "Laporan",
       url: "/dashboard/admin/reports",
-      icon: LineChart,
+      icon: "LineChart",
     },
     {
       title: "Pengaturan",
       url: "/dashboard/admin/settings",
-      icon: Settings2,
+      icon: "Settings2",
     },
   ];
 
-  const teams = [
+  const teams: TeamOption[] = [
     {
       id: "admin",
       name: "Courtease Admin",
       description: "Panel administrasi",
-      icon: ShieldCheck,
+      icon: "ShieldCheck",
     },
   ];
 

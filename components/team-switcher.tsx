@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Building2, ChevronsUpDown, House } from "lucide-react";
+import {
+  Building2,
+  ChevronsUpDown,
+  House,
+  type LucideIcon,
+  icons,
+} from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -18,11 +24,27 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+type IconName = keyof typeof icons;
+
+type IconLike = React.ElementType<{ className?: string }> | IconName;
+
+function resolveIcon(icon?: IconLike): LucideIcon {
+  if (!icon) {
+    return Building2;
+  }
+
+  if (typeof icon === "string") {
+    return icons[icon as IconName] ?? Building2;
+  }
+
+  return icon as LucideIcon;
+}
+
 export type TeamOption = {
   id: string;
   name: string;
   description?: string | null;
-  icon?: React.ElementType<{ className?: string }>;
+  icon?: IconLike;
   href?: string;
 };
 
@@ -56,7 +78,7 @@ export function TeamSwitcher({ teams }: { teams: TeamOption[] }) {
     return null;
   }
 
-  const ActiveIcon = activeTeam.icon ?? Building2;
+  const activeIconComponent = resolveIcon(activeTeam.icon);
 
   return (
     <SidebarMenu>
@@ -68,7 +90,7 @@ export function TeamSwitcher({ teams }: { teams: TeamOption[] }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <ActiveIcon className="size-4" />
+                {React.createElement(activeIconComponent, { className: "size-4" })}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeTeam.name}</span>
@@ -92,7 +114,7 @@ export function TeamSwitcher({ teams }: { teams: TeamOption[] }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {teams.map((team) => {
-              const TeamIcon = team.icon ?? Building2;
+              const iconComponent = resolveIcon(team.icon);
               return (
                 <DropdownMenuItem
                   key={team.id}
@@ -101,7 +123,7 @@ export function TeamSwitcher({ teams }: { teams: TeamOption[] }) {
                     setActiveTeamId(team.id);
                   }}
                 >
-                  <TeamIcon className="mr-2 size-4" />
+                  {React.createElement(iconComponent, { className: "mr-2 size-4" })}
                   <div className="flex flex-col">
                     <span className="text-sm font-medium leading-none">
                       {team.name}
