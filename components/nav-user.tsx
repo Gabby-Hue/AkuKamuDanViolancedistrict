@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -25,17 +27,49 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export type SidebarUser = {
+  name: string;
+  email: string;
+  avatarUrl?: string | null;
+};
+
+export function NavUser({ user }: { user: SidebarUser }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+      router.replace("/auth/login");
+      router.refresh();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Terjadi kesalahan saat keluar";
+      toast.error("Gagal keluar", {
+        description: message,
+      });
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
+  const fallback = user.name?.charAt(0) || user.email?.charAt(0) || "U";
 
   return (
     <SidebarMenu>
@@ -47,8 +81,10 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
+                <AvatarFallback className="rounded-lg uppercase">
+                  {fallback}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -66,8 +102,10 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
+                  <AvatarFallback className="rounded-lg uppercase">
+                    {fallback}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -85,11 +123,25 @@ export function NavUser({
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCard />
+                Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Sparkles />
+                Upgrade
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.preventDefault();
+                void handleSignOut();
+              }}
+              disabled={isSigningOut}
+            >
               <LogOut />
-              Log out
+              {isSigningOut ? "Sedang keluar..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
