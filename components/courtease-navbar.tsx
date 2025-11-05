@@ -67,7 +67,7 @@ const highlightMatches = (text: string, query: string): ReactNode => {
       <span key={index} className="contents">
         {part}
       </span>
-    )
+    ),
   );
 };
 
@@ -213,7 +213,7 @@ export function CourteaseNavbar() {
           `/api/search?q=${encodeURIComponent(trimmed)}`,
           {
             signal: controller.signal,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -262,7 +262,7 @@ export function CourteaseNavbar() {
   const trimmedQuery = query.trim();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E5E7EB]/80 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-slate-800/70 dark:bg-slate-950/70">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E5E7EB]/80 bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/70 dark:border-slate-800/70 dark:bg-slate-950/70">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="group flex items-center gap-2">
@@ -311,7 +311,7 @@ export function CourteaseNavbar() {
           <div ref={searchContainerRef} className="relative flex items-center">
             <Button
               variant="outline"
-              className="hidden min-w-[15rem] items-center gap-3 rounded-full border-[#E5E7EB] bg-white/90 px-5 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:border-brand hover:text-brand-strong dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-300 md:flex"
+              className="hidden min-w-60 items-center gap-3 rounded-full border-[#E5E7EB] bg-white/90 px-5 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:border-brand hover:text-brand-strong dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-300 md:flex"
               onClick={() => setOpenSearch(true)}
             >
               <Search className="h-4 w-4" />
@@ -324,7 +324,7 @@ export function CourteaseNavbar() {
             </Button>
 
             {openSearch && (
-              <div className="absolute right-0 top-[calc(100%+12px)] z-[70] w-[min(100vw-2rem,640px)] rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xl ring-1 ring-slate-100 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/95 dark:ring-slate-800/40">
+              <div className="absolute right-0 top-[calc(100%+12px)] z-70 w-[min(100vw-2rem,640px)] rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xl ring-1 ring-slate-100 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/95 dark:ring-slate-800/40">
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                   <Search className="h-4 w-4 text-slate-400" />
                   <input
@@ -414,7 +414,7 @@ export function CourteaseNavbar() {
                                     <p>
                                       Rp{" "}
                                       {court.pricePerHour.toLocaleString(
-                                        "id-ID"
+                                        "id-ID",
                                       )}
                                       /jam
                                     </p>
@@ -471,8 +471,8 @@ export function CourteaseNavbar() {
                               {result.type === "court"
                                 ? "Lapangan"
                                 : result.type === "venue"
-                                ? "Venue"
-                                : "Forum"}
+                                  ? "Venue"
+                                  : "Forum"}
                             </p>
                             <p className="font-medium text-slate-900 dark:text-white">
                               {highlightMatches(result.title, query)}
@@ -521,7 +521,7 @@ export function CourteaseNavbar() {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-[60]">
+        <div className="fixed inset-0 z-60">
           <div
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity dark:bg-slate-950/70"
             onClick={() => setMobileOpen(false)}
@@ -599,7 +599,7 @@ export function CourteaseNavbar() {
       )}
 
       {openSearch && (
-        <div className="fixed inset-0 z-[60] md:hidden" aria-hidden />
+        <div className="fixed inset-0 z-60 md:hidden" aria-hidden />
       )}
     </header>
   );

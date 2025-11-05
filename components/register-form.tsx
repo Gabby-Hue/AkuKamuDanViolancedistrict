@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -61,13 +61,11 @@ export function RegisterForm({
       const user = data.user;
 
       if (user) {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert({
-            id: user.id,
-            full_name: fullName,
-            role: "user",
-          });
+        const { error: profileError } = await supabase.from("profiles").upsert({
+          id: user.id,
+          full_name: fullName,
+          role: "user",
+        });
 
         if (profileError) {
           console.error("Failed to upsert profile", profileError.message);
@@ -86,7 +84,9 @@ export function RegisterForm({
       router.replace("/auth/login");
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "Terjadi kesalahan tak terduga";
+        error instanceof Error
+          ? error.message
+          : "Terjadi kesalahan tak terduga";
       toast.error("Tidak dapat membuat akun", {
         description: message,
       });
@@ -105,7 +105,8 @@ export function RegisterForm({
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Buat akun baru</h1>
           <p className="text-muted-foreground text-sm">
-            Daftar untuk memulai pemesanan lapangan atau bergabung dengan komunitas.
+            Daftar untuk memulai pemesanan lapangan atau bergabung dengan
+            komunitas.
           </p>
         </div>
         <Field>
@@ -149,9 +150,12 @@ export function RegisterForm({
         </Field>
         <FieldDescription className="text-center">
           Sudah punya akun?
-          <a href="/auth/login" className="ml-1 underline underline-offset-4">
+          <Link
+            href="/auth/login"
+            className="ml-1 underline underline-offset-4"
+          >
             Masuk
-          </a>
+          </Link>
         </FieldDescription>
       </FieldGroup>
     </form>
