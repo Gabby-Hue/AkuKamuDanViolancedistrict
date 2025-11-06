@@ -12,10 +12,9 @@ import {
   Volleyball,
   X,
 } from "lucide-react";
-
 import { NavbarAuthMenu } from "@/components/navbar-auth-menu";
-import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "./mode-toggle";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -82,14 +81,8 @@ export function CourteaseNavbar() {
   const [suggestions, setSuggestions] = useState<SuggestedCourt[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [suggestionError, setSuggestionError] = useState<string | null>(null);
-  const { theme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -254,15 +247,10 @@ export function CourteaseNavbar() {
     return null;
   }
 
-  const currentTheme = theme === "system" ? systemTheme : theme;
-  const isDark = mounted ? currentTheme === "dark" : false;
-  const mobileMenuClass = isDark
-    ? "border-slate-800/70 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-900/95"
-    : "border-slate-200/70 bg-gradient-to-b from-white via-white/95 to-[hsl(var(--brand-soft))]/15";
   const trimmedQuery = query.trim();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#E5E7EB]/80 bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/70 dark:border-slate-800/70 dark:bg-slate-950/70">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E5E7EB]/80 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-slate-800/70 dark:bg-slate-950/70">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <Link href="/" className="group flex items-center gap-2">
@@ -322,9 +310,10 @@ export function CourteaseNavbar() {
                 Ctrl + K
               </kbd>
             </Button>
+            <ModeToggle />
 
             {openSearch && (
-              <div className="absolute right-0 top-[calc(100%+12px)] z-70 w-[min(100vw-2rem,640px)] rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xl ring-1 ring-slate-100 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/95 dark:ring-slate-800/40">
+              <div className="absolute right-0 top-[calc(100%+12px)] z-[70] w-[min(100vw-2rem,640px)] rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xl ring-1 ring-slate-100 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/95 dark:ring-slate-800/40">
                 <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                   <Search className="h-4 w-4 text-slate-400" />
                   <input
@@ -491,17 +480,6 @@ export function CourteaseNavbar() {
             )}
           </div>
 
-          <div className="hidden md:flex">
-            <ThemeSwitcher label="Toggle theme" />
-          </div>
-
-          <div className="md:hidden">
-            <ThemeSwitcher
-              className="h-11 w-11 border-brand/30"
-              label="Toggle theme"
-            />
-          </div>
-
           <div className="hidden md:block">
             <NavbarAuthMenu />
           </div>
@@ -521,15 +499,13 @@ export function CourteaseNavbar() {
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-60">
+        <div className="fixed inset-0 z-[60]">
           <div
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity dark:bg-slate-950/70"
             onClick={() => setMobileOpen(false)}
           />
           <div className="absolute inset-x-0 top-0 flex justify-center px-3 pt-2">
-            <div
-              className={`w-full max-w-lg origin-top animate-in fade-in slide-in-from-top-6 rounded-b-3xl border p-6 shadow-2xl transition dark:shadow-slate-950/40 ${mobileMenuClass}`}
-            >
+            <div className="w-full max-w-lg origin-top animate-in fade-in slide-in-from-top-6 rounded-b-3xl border p-6 shadow-2xl transition dark:shadow-slate-950/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-800 dark:text-slate-100">
                   <span className="inline-grid h-9 w-9 place-items-center rounded-2xl bg-brand text-white">
@@ -580,10 +556,6 @@ export function CourteaseNavbar() {
                         Pilih tampilan terang atau gelap sesuai kenyamananmu.
                       </p>
                     </div>
-                    <ThemeSwitcher
-                      className="h-12 w-12 border-brand/20"
-                      label="Toggle theme"
-                    />
                   </div>
                 </div>
                 <NavbarAuthMenu

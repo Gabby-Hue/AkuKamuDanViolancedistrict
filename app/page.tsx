@@ -1,8 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarCheck, Clock4, Sparkles } from "lucide-react";
-
-import { CourteaseNavbar } from "@/components/courtease-navbar";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarCheck,
+  Clock4,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const featureHighlights = [
@@ -41,7 +45,6 @@ const stats = [
 export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-white via-slate-50 to-slate-100 text-slate-900 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 dark:text-slate-100">
-      <CourteaseNavbar />
       <main className="flex-1">
         <section className="relative overflow-hidden pb-24 pt-32 sm:pt-36">
           <div className="pointer-events-none absolute inset-0 -z-10">
@@ -57,10 +60,16 @@ export default function Home() {
                 Sewa lapangan olahraga favoritmu dalam hitungan menit.
               </h1>
               <p className="max-w-2xl text-pretty text-lg text-slate-600 dark:text-slate-300">
-                Courtease membantu komunitas olahraga menemukan venue terbaik dengan ketersediaan jadwal real-time, review jujur, dan proses pembayaran yang aman.
+                Courtease membantu komunitas olahraga menemukan venue terbaik
+                dengan ketersediaan jadwal real-time, review jujur, dan proses
+                pembayaran yang aman.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="group rounded-full px-8 text-base font-semibold">
+                <Button
+                  asChild
+                  size="lg"
+                  className="group rounded-full px-8 text-base font-semibold"
+                >
                   <Link href="/auth/register">
                     Mulai Gratis
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -81,8 +90,12 @@ export default function Home() {
                     key={item.label}
                     className="rounded-3xl border border-slate-200/70 bg-white/70 px-6 py-5 shadow-sm backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/60"
                   >
-                    <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">{item.label}</dt>
-                    <dd className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">{item.value}</dd>
+                    <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      {item.label}
+                    </dt>
+                    <dd className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+                      {item.value}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -92,7 +105,9 @@ export default function Home() {
                 <div className="absolute inset-x-8 top-6 h-12 rounded-full bg-gradient-to-r from-brand/20 via-brand-soft/60 to-brand/40 blur-xl dark:from-brand/30 dark:via-brand/20 dark:to-brand/30" />
                 <div className="relative space-y-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-500 dark:text-slate-300">Rekomendasi hari ini</span>
+                    <span className="text-sm font-medium text-slate-500 dark:text-slate-300">
+                      Rekomendasi hari ini
+                    </span>
                     <span className="inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand-strong dark:bg-brand/20">
                       Untukmu
                     </span>
@@ -107,8 +122,12 @@ export default function Home() {
                         className="h-16 w-16 rounded-2xl bg-brand/10 p-3"
                       />
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">Arena Futsal Senayan</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Jakarta Pusat • Mulai Rp180K/jam</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Arena Futsal Senayan
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Jakarta Pusat • Mulai Rp180K/jam
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm transition hover:border-brand/40 hover:shadow-[0px_22px_45px_rgba(16,185,129,0.12)] dark:border-slate-800/60 dark:bg-slate-900/80">
@@ -120,8 +139,12 @@ export default function Home() {
                         className="h-16 w-16 rounded-2xl bg-brand/10 p-3"
                       />
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">Gelanggang Basket Surabaya</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Surabaya • Mulai Rp150K/jam</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Gelanggang Basket Surabaya
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Surabaya • Mulai Rp150K/jam
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm transition hover:border-brand/40 hover:shadow-[0px_22px_45px_rgba(16,185,129,0.12)] dark:border-slate-800/60 dark:bg-slate-900/80">
@@ -133,8 +156,12 @@ export default function Home() {
                         className="h-16 w-16 rounded-2xl bg-brand/10 p-3"
                       />
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-white">Invoice otomatis siap kirim</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Bagikan ke tim atau simpan ke email</p>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Invoice otomatis siap kirim
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Bagikan ke tim atau simpan ke email
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -151,7 +178,8 @@ export default function Home() {
                 Semua yang dibutuhkan untuk mengelola venue dalam satu aplikasi.
               </h2>
               <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
-                Dari pemilik venue hingga komunitas olahraga, Courtease memastikan pengalaman booking yang modern dan transparan.
+                Dari pemilik venue hingga komunitas olahraga, Courtease
+                memastikan pengalaman booking yang modern dan transparan.
               </p>
             </div>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -177,36 +205,49 @@ export default function Home() {
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-4 sm:px-6 lg:flex-row lg:items-center lg:gap-20 lg:px-8">
             <div className="flex-1 space-y-6">
               <h2 className="text-balance text-3xl font-semibold text-slate-900 dark:text-white sm:text-4xl">
-                Jadwalkan pertandingan, undang lawan tanding, dan konfirmasi pembayaran tanpa ribet.
+                Jadwalkan pertandingan, undang lawan tanding, dan konfirmasi
+                pembayaran tanpa ribet.
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-300">
-                Sistem kami terintegrasi penuh dengan notifikasi WhatsApp dan email sehingga semua anggota tim tetap sinkron. Kelola beberapa venue sekaligus dengan dashboard yang rapi dan mudah diaudit.
+                Sistem kami terintegrasi penuh dengan notifikasi WhatsApp dan
+                email sehingga semua anggota tim tetap sinkron. Kelola beberapa
+                venue sekaligus dengan dashboard yang rapi dan mudah diaudit.
               </p>
               <ul className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-3">
                   <span className="mt-1 inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand/15 text-xs font-semibold text-brand-strong dark:bg-brand/20">
                     1
                   </span>
-                  Buat atau pilih venue favoritmu, lalu tentukan jadwal yang tersedia.
+                  Buat atau pilih venue favoritmu, lalu tentukan jadwal yang
+                  tersedia.
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="mt-1 inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand/15 text-xs font-semibold text-brand-strong dark:bg-brand/20">
                     2
                   </span>
-                  Bagikan tautan reservasi ke tim atau komunitas untuk mengkonfirmasi kehadiran.
+                  Bagikan tautan reservasi ke tim atau komunitas untuk
+                  mengkonfirmasi kehadiran.
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="mt-1 inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand/15 text-xs font-semibold text-brand-strong dark:bg-brand/20">
                     3
                   </span>
-                  Selesaikan pembayaran tanpa antri dan dapatkan bukti transaksi otomatis.
+                  Selesaikan pembayaran tanpa antri dan dapatkan bukti transaksi
+                  otomatis.
                 </li>
               </ul>
               <div className="flex flex-wrap gap-3">
-                <Button asChild variant="outline" className="rounded-full border-brand/40 px-6 text-sm font-semibold text-brand hover:border-brand hover:bg-brand/10 hover:text-brand-strong dark:border-brand/30 dark:bg-slate-950/50 dark:text-brand dark:hover:bg-brand/20">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-full border-brand/40 px-6 text-sm font-semibold text-brand hover:border-brand hover:bg-brand/10 hover:text-brand-strong dark:border-brand/30 dark:bg-slate-950/50 dark:text-brand dark:hover:bg-brand/20"
+                >
                   <Link href="/dashboard/admin">Lihat Dashboard Admin</Link>
                 </Button>
-                <Button asChild className="rounded-full px-6 text-sm font-semibold">
+                <Button
+                  asChild
+                  className="rounded-full px-6 text-sm font-semibold"
+                >
                   <Link href="/auth/login">Masuk untuk Venue Partner</Link>
                 </Button>
               </div>
@@ -216,15 +257,20 @@ export default function Home() {
                 <div className="absolute -top-24 right-12 h-48 w-48 rounded-full bg-brand/20 blur-3xl dark:bg-brand/30" />
                 <div className="relative space-y-6">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-300">Timeline Booking</p>
-                    <span className="text-xs text-slate-400 dark:text-slate-500">Hari ini</span>
+                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-300">
+                      Timeline Booking
+                    </p>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                      Hari ini
+                    </span>
                   </div>
                   <ol className="space-y-4 text-sm">
                     <li className="rounded-2xl border border-brand/40 bg-brand/5 px-4 py-3 text-brand-strong dark:border-brand/30 dark:bg-brand/10">
                       07:30 • Tim Futsal Kantor mengkonfirmasi pembayaran
                     </li>
                     <li className="rounded-2xl border border-slate-200/70 bg-white/80 px-4 py-3 text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/70 dark:text-slate-300">
-                      09:00 • Booking basket komunitas &ldquo;Hoops ID&rdquo; menunggu pelunasan
+                      09:00 • Booking basket komunitas &ldquo;Hoops ID&rdquo;
+                      menunggu pelunasan
                     </li>
                     <li className="rounded-2xl border border-slate-200/70 bg-white/80 px-4 py-3 text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/70 dark:text-slate-300">
                       11:30 • Sistem mengirim pengingat ke Venue Partner
@@ -234,7 +280,8 @@ export default function Home() {
                     </li>
                   </ol>
                   <p className="text-xs text-slate-400 dark:text-slate-500">
-                    Semua aktivitas tersinkronisasi otomatis di aplikasi Courtease dan bisa diakses kapan pun.
+                    Semua aktivitas tersinkronisasi otomatis di aplikasi
+                    Courtease dan bisa diakses kapan pun.
                   </p>
                 </div>
               </div>

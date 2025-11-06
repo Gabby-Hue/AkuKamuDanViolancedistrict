@@ -1,7 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-
 import { RegisterForm } from "@/components/register-form";
 
 export default function RegisterPage() {
