@@ -10,12 +10,12 @@ export default function Display404() {
       <div className="mt-40 mx-8 md:mx-20 mb-20 grid gap-10 md:grid-cols-2">
         <div>
           <Image
-            src="/404.png"
-            alt="404"
-            width={500}
-            height={500}
-            className="w-full h-auto select-none dark:invert"
-          />
+              src="/light-404.png"
+              alt="404"
+              width={500}
+              height={500}
+              className="w-full h-auto select-none dark:[content:url('/dark-404.png')]"
+            />
         </div>
         <div className="ml-0 md:ml-20">
           <h2 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight dark:text-neutral-300 light:text-shadow-neutral-800">
@@ -28,13 +28,8 @@ export default function Display404() {
 
           <Link
             href="/"
-            className={[
-              "inline-flex items-center justify-center mt-6",
-              "rounded-2xl px-5 py-3 bg-teal-600 text-white font-medium shadow-sm",
-              "hover:bg-teal-700 active:bg-teal-800",
-              "focus:outline-none focus:ring-2 focus:ring-teal-600/40",
-              "transition-colors",
-            ].join(" ")}
+            className=
+              "inline-flex items-center justify-center mt-6 rounded-2xl px-5 py-3 bg-teal-600 text-white font-medium shadow-sm hover:bg-teal-700 active:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600/40 transition-colors"
           >
             Back to homepage
           </Link>
