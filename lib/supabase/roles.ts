@@ -18,7 +18,7 @@ export async function getProfileWithRole(): Promise<ProfileWithRole | null> {
 
   if (!user) {
     return null;
-  }kd
+  }
 
   const { data: profile, error } = await supabase
     .from("profiles")
@@ -44,7 +44,7 @@ export async function getProfileWithRole(): Promise<ProfileWithRole | null> {
 
 export async function requireRole(
   allowed: AppRole | AppRole[],
-  options: { redirectTo?: string } = {}
+  options: { redirectTo?: string } = {},
 ): Promise<ProfileWithRole> {
   const allowedRoles = Array.isArray(allowed) ? allowed : [allowed];
   const profile = await getProfileWithRole();
