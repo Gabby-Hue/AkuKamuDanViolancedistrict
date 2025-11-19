@@ -1,71 +1,95 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import type { LatLngExpression } from "leaflet";
-import L from "leaflet";
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from "react-leaflet";
-
-import "leaflet/dist/leaflet.css";
 
 import { cn } from "@/lib/utils";
 import type { Coordinates } from "@/lib/geo";
+
+// Dynamically import react-leaflet components to avoid SSR issues
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
+// Dynamically import Leaflet to avoid SSR issues
+const loadLeaflet = async () => {
+  const L = await import("leaflet");
+
+  // Fix default icon issue
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+    iconUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+  });
+
+  return L;
+};
 
 const DEFAULT_CENTER: LatLngExpression = [-2.548926, 118.0148634];
 const DEFAULT_ZOOM = 5;
 const FOCUSED_ZOOM = 15;
 
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
+// Create dynamic components for react-leaflet hooks
+const MapClickHandler = dynamic(
+  () =>
+    import("react-leaflet").then((reactLeaflet) => {
+      const { useMapEvents } = reactLeaflet;
 
-type MapClickHandlerProps = {
-  onSelect: (coords: Coordinates) => void;
-};
+      return function MapClickHandler({ onSelect }: { onSelect: (coords: Coordinates) => void }) {
+        useMapEvents({
+          click(event) {
+            onSelect({
+              latitude: event.latlng.lat,
+              longitude: event.latlng.lng,
+            });
+          },
+        });
+        return null;
+      };
+    }),
+  { ssr: false }
+);
 
-function MapClickHandler({ onSelect }: MapClickHandlerProps) {
-  useMapEvents({
-    click(event) {
-      onSelect({
-        latitude: event.latlng.lat,
-        longitude: event.latlng.lng,
-      });
-    },
-  });
-  return null;
-}
+const RecenterOnValue = dynamic(
+  () =>
+    import("react-leaflet").then((reactLeaflet) => {
+      const { useMap } = reactLeaflet;
 
-type RecenterOnValueProps = {
-  coords: Coordinates | null;
-};
+      return function RecenterOnValue({ coords }: { coords: Coordinates | null }) {
+        const map = useMap();
 
-function RecenterOnValue({ coords }: RecenterOnValueProps) {
-  const map = useMap();
+        useEffect(() => {
+          if (coords) {
+            map.flyTo(
+              [coords.latitude, coords.longitude],
+              Math.max(map.getZoom(), FOCUSED_ZOOM),
+              { duration: 0.5 },
+            );
+            return;
+          }
+          map.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.5 });
+        }, [coords, map]);
 
-  useEffect(() => {
-    if (coords) {
-      map.flyTo(
-        [coords.latitude, coords.longitude],
-        Math.max(map.getZoom(), FOCUSED_ZOOM),
-        { duration: 0.5 },
-      );
-      return;
-    }
-    map.flyTo(DEFAULT_CENTER, DEFAULT_ZOOM, { duration: 0.5 });
-  }, [coords, map]);
-
-  return null;
-}
+        return null;
+      };
+    }),
+  { ssr: false }
+);
 
 type LeafletMapProps = {
   value: Coordinates | null;
@@ -82,6 +106,42 @@ export function LeafletMap({
   className,
   fallbackZoom = DEFAULT_ZOOM,
 }: LeafletMapProps) {
+  const [isClient, setIsClient] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+
+    // Load Leaflet CSS only on client side
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+
+    // Initialize Leaflet icons
+    loadLeaflet().then(() => {
+      setIsLoaded(true);
+    });
+
+    return () => {
+      // Clean up CSS when component unmounts
+      const existingLink = document.querySelector('link[href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"]');
+      if (existingLink) {
+        document.head.removeChild(existingLink);
+      }
+    };
+  }, []);
+
+  if (!isClient || !isLoaded) {
+    return (
+      <div className={cn("h-64 w-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center", className)}>
+        <div className="text-slate-500 dark:text-slate-200">
+          Loading map...
+        </div>
+      </div>
+    );
+  }
+
   const center: LatLngExpression = value
     ? [value.latitude, value.longitude]
     : DEFAULT_CENTER;
@@ -106,10 +166,8 @@ export function LeafletMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <RecenterOnValue coords={value} />
-      {value ? <Marker position={[value.latitude, value.longitude]} /> : null}
-      {enableSelection && onSelect ? (
-        <MapClickHandler onSelect={onSelect} />
-      ) : null}
+      {value && <Marker position={[value.latitude, value.longitude]} />}
+      {enableSelection && onSelect && <MapClickHandler onSelect={onSelect} />}
     </MapContainer>
   );
 }

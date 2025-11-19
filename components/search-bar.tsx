@@ -124,18 +124,23 @@ export default function SearchBar() {
     return () => clearTimeout(timeoutId);
   }, [query, performSearch]);
 
-  // Close the overlay when the escape key is pressed
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
+      // Open search with Cmd/Ctrl + K
+      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+        event.preventDefault();
+        setOpen(true);
+      }
+      // Close with Escape
       if (event.key === "Escape") {
         setOpen(false);
       }
     };
-    if (open) {
-      window.addEventListener("keydown", handleKey);
-    }
+
+    window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [open]);
+  }, []);
 
   // Handle changes in the search input
   // Handle input changes with proper search logic
@@ -148,98 +153,86 @@ export default function SearchBar() {
 
   return (
     <div className="relative">
-      {/* Desktop search input (hidden on small screens) */}
+      {/* Desktop search input */}
       <div className="relative hidden md:block">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={query}
           onChange={handleInputChange}
           onFocus={() => setOpen(query.trim().length > 0)}
-          placeholder="Search venue, court, or forum"
-          className="w-56 md:w-72 lg:w-80 rounded-full border border-gray-300 bg-white py-2 pl-9 pr-9 text-sm text-gray-900 placeholder-gray-500 transition focus:border-orange-500 focus:ring-2 focus:ring-orange-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-teal-400 dark:focus:ring-teal-300"
+          placeholder="Search courts, venues, or forum…"
+          className="h-10 w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-10 text-sm text-gray-900 placeholder-gray-500 transition-colors focus:border-gray-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-gray-600 dark:focus:bg-gray-900"
         />
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setOpen(false);
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center space-x-1">
+          <kbd className="hidden xs:inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+            ⌘
+          </kbd>
+          <kbd className="hidden xs:inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+            K
+          </kbd>
+        </div>
       </div>
 
-      {/* Mobile search trigger (shows full-screen overlay) */}
+      {/* Mobile search trigger */}
       <button
         type="button"
-        aria-label="Cari konten"
+        aria-label="Search"
         onClick={() => setOpen(true)}
-        className="md:hidden rounded-full border border-white p-2 bg-white text-orange-500 transition-colors duration-200 hover:bg-gray-100 dark:border-teal-200 dark:bg-teal-200 dark:text-teal-700 dark:hover:bg-teal-300"
+        className="md:hidden rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
       >
         <Search className="h-5 w-5" />
       </button>
 
-      {/* Desktop dropdown anchored below the input */}
+      {/* Desktop dropdown */}
       {open && (
         <div className="hidden md:block absolute left-0 right-0 mt-2 z-40">
-          <div className="rounded-xl bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
-            {/* Tabs for categories */}
-            <div className="flex border-b border-gray-200 dark:border-gray-700 text-sm font-medium">
-              {(["courts", "venues", "forums"] as const).map(
-                (tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`flex-1 px-4 py-3 transition-colors ${
-                      activeTab === tab
-                        ? "border-b-2 border-orange-500 text-gray-900 dark:text-white"
-                        : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                    }`}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ),
-              )}
+          <div className="rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 dark:border-gray-800">
+              {(["courts", "venues", "forums"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    activeTab === tab
+                      ? "border-b-2 border-gray-900 text-gray-900 dark:border-white dark:text-white"
+                      : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
             </div>
-            {/* Results list */}
-            <div className="max-h-72 overflow-y-auto py-2">
+
+            {/* Results */}
+            <div className="max-h-80 overflow-y-auto">
               {loading ? (
-                <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                   Searching...
-                </p>
+                </div>
               ) : results[activeTab].length === 0 ? (
-                <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                   No results found.
-                </p>
+                </div>
               ) : (
-                results[activeTab].map((item, index) => (
-                  <Link
-                    href={item.href}
-                    key={`${item.type}-${index}`}
-                    className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <div className="flex-1">
-                      <p className="line-clamp-1 text-sm font-semibold text-gray-900 dark:text-white">
+                <div className="py-2">
+                  {results[activeTab].map((item, index) => (
+                    <Link
+                      href={item.href}
+                      key={`${item.type}-${index}`}
+                      className="block px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {item.title}
                       </p>
-                      <p className="line-clamp-1 text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {item.description}
                       </p>
-                    </div>
-                  </Link>
-                ))
+                    </Link>
+                  ))}
+                </div>
               )}
-            </div>
-            {/* Footer button */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-              <button className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-                <Search className="h-4 w-4" />
-                See All Results
-              </button>
             </div>
           </div>
         </div>
@@ -248,90 +241,71 @@ export default function SearchBar() {
       {/* Mobile full-screen overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900">
-          {/* Top bar with search input and cancel */}
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-              <input
-                type="text"
-                autoFocus
-                value={query}
-                onChange={handleInputChange}
-                placeholder="Search"
-                className="w-full rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 py-2 pl-10 pr-9 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-orange-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-orange-300 dark:focus:ring-teal-300"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setQuery("");
-                    setOpen(false);
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+          {/* Search header */}
+          <div className="flex items-center gap-3 p-4 border-b border-gray-200 dark:border-gray-800">
+            <Search className="h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              autoFocus
+              value={query}
+              onChange={handleInputChange}
+              placeholder="Search courts, venues, or forum…"
+              className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 outline-none dark:text-white dark:placeholder-gray-400"
+            />
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="ml-2 text-sm font-semibold text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
               Cancel
             </button>
           </div>
+
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-gray-700 text-sm font-medium">
+          <div className="flex border-b border-gray-200 dark:border-gray-800">
             {(["courts", "venues", "forums"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 px-4 py-3 transition-colors ${
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab
-                    ? "border-b-2 border-orange-500 text-gray-900 dark:text-white"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    ? "border-b-2 border-gray-900 text-gray-900 dark:border-white dark:text-white"
+                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                 }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
-          {/* Results list */}
-          <div className="flex-1 overflow-y-auto py-2">
+
+          {/* Results */}
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                 Searching...
-              </p>
+              </div>
             ) : results[activeTab].length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                 No results found.
-              </p>
+              </div>
             ) : (
-              results[activeTab].map((item, index) => (
-                <Link
-                  href={item.href}
-                  key={`${item.type}-${index}`}
-                  className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <div className="flex-1">
-                    <p className="line-clamp-1 text-sm font-semibold text-gray-900 dark:text-white">
+              <div className="py-2">
+                {results[activeTab].map((item, index) => (
+                  <Link
+                    href={item.href}
+                    key={`${item.type}-${index}`}
+                    className="block px-4 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {item.title}
                     </p>
-                    <p className="line-clamp-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {item.description}
                     </p>
-                  </div>
-                </Link>
-              ))
+                  </Link>
+                ))}
+              </div>
             )}
-          </div>
-          {/* Footer button */}
-          <div className="p-4">
-            <button className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
-              <Search className="h-4 w-4" />
-              See All Results
-            </button>
           </div>
         </div>
       )}
