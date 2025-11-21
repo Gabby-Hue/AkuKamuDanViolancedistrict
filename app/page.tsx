@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { Gauge, MapPin, ShieldCheck, Sparkles, Waves } from "lucide-react";
+
 import { fetchCourtSummaries, fetchForumThreads } from "@/lib/supabase/queries";
 import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-highlights";
 import {
@@ -6,39 +9,53 @@ import {
   NearestCourtTiles,
 } from "@/components/venues/nearest-courts";
 
-const automationHighlights = [
+const automationHighlights: {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}[] = [
   {
     title: "Pembayaran Midtrans otomatis",
     description:
-      "Booking langsung menghasilkan link pembayaran. Statusnya akan sinkron otomatis di dashboard tanpa input manual.",
+      "Link pembayaran terbit instan, statusnya sinkron ke dashboard operator dan pemain tanpa perlu rekonsiliasi manual.",
+    icon: ShieldCheck,
   },
   {
     title: "Laporan realtime",
     description:
-      "Setiap transaksi tercatat sebagai metrik revenue dan okupansi sehingga tim operasional bisa mengambil keputusan cepat.",
+      "Metrik pendapatan, okupansi, dan jam sibuk disusun otomatis sehingga tim bisa melihat progres layaknya live dashboard.",
+    icon: Gauge,
   },
   {
     title: "Koordinasi tim praktis",
     description:
-      "Bagikan jadwal dan catatan latihan ke pemain hanya dengan sekali klik. Semua orang tahu fokus sesi berikutnya.",
+      "Bagikan jadwal, catatan latihan, dan broadcast komunitas dalam sekali klik. Semua pemain langsung mendapat konteks.",
+    icon: Waves,
   },
 ];
 
-const partnerBenefits = [
+const partnerBenefits: {
+  label: string;
+  detail: string;
+  icon: LucideIcon;
+}[] = [
   {
     label: "Integrasi pembayaran",
     detail:
-      "Aktifkan Midtrans tanpa coding. Kami siapkan monitoring dan notifikasi otomatis untuk operator lapangan.",
+      "Aktifkan Midtrans tanpa coding. Monitoring dan notifikasi otomatis sudah terpasang seperti template Supa Snowy.",
+    icon: Sparkles,
   },
   {
     label: "Dashboard multi-venue",
     detail:
-      "Kelola banyak cabang dalam satu akun. Manajemen harga, jadwal, dan laporan keuangan jadi terpusat.",
+      "Kelola banyak cabang dalam satu akun. Harga, jadwal, dan laporan keuangan tersusun rapi di satu workspace.",
+    icon: MapPin,
   },
   {
     label: "Eksposur komunitas",
     detail:
-      "Tampil di halaman Explore dan Forum sehingga komunitas olahraga mudah menemukan venue kamu.",
+      "Tampil di halaman Explore dan Forum sehingga komunitas olahraga mudah menemukan venue kamu dan segera booking.",
+    icon: ShieldCheck,
   },
 ];
 
@@ -49,21 +66,44 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="space-y-24 pb-24">
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand/10 via-white to-[hsl(var(--brand-strong))]/10 py-24 dark:from-brand/10 dark:via-slate-950 dark:to-[hsl(var(--brand-strong))]/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
-          <div className="flex-1 space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand shadow-sm dark:border-brand/20 dark:bg-slate-900/80 dark:text-brand-muted">
-              Booking & komunitas olahraga terpadu
-            </span>
+    <main className="relative overflow-hidden space-y-24 pb-24">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(214,119,41,0.22),transparent_42%),radial-gradient(circle_at_88%_8%,rgba(255,186,122,0.2),transparent_38%),radial-gradient(circle_at_20%_78%,rgba(214,119,41,0.16),transparent_36%)] dark:bg-[radial-gradient(circle_at_14%_18%,rgba(26,123,125,0.28),transparent_40%),radial-gradient(circle_at_84%_12%,rgba(83,193,189,0.2),transparent_36%),radial-gradient(circle_at_72%_78%,rgba(26,123,125,0.2),transparent_38%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fff7ef] via-white to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-950" />
+      </div>
+
+      <section className="relative pt-24">
+        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
+          <div className="flex-1 space-y-7">
+            <div className="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-strong">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/70 bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur dark:border-brand/30 dark:bg-slate-900/70 dark:text-brand-soft">
+                <Sparkles className="h-4 w-4" />
+                Pengalaman halus ala Supa Snowy
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/60 px-4 py-1.5 text-brand backdrop-blur dark:border-brand/30 dark:bg-slate-900/60 dark:text-brand-soft">
+                <ShieldCheck className="h-4 w-4" />
+                Booking & komunitas olahraga terpadu
+              </span>
+            </div>
             <h1 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl dark:text-white">
-              Temukan venue terbaik dan kelola pembayaran tim dalam satu
-              platform.
+              Temukan venue terbaik dengan nuansa super app dan pembayaran
+              langsung nyambung.
             </h1>
             <p className="max-w-xl text-base text-slate-600 dark:text-slate-300">
-              CourtEase menghubungkan pemain, operator venue, dan komunitas.
-              Dari pemesanan sampai laporan keuangan, semuanya otomatis.
+              CourtEase menghadirkan gradien lembut, copy yang ringkas, dan alur
+              pemesanan seperti Supa Snowy. Cari lapangan, cek komunitas, lalu
+              bayar tanpa hambatan.
             </p>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow-sm backdrop-blur dark:bg-slate-900/70">
+                <Waves className="h-4 w-4 text-brand" />
+                Animasi lembut di setiap halaman
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 shadow-sm backdrop-blur dark:bg-slate-900/70">
+                <Gauge className="h-4 w-4 text-brand" />
+                Status transaksi realtime
+              </span>
+            </div>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/explore"
@@ -73,22 +113,32 @@ export default async function Home() {
               </Link>
               <Link
                 href="/venue-partner"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand hover:text-brand dark:border-slate-700 dark:text-slate-200"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white/70 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-brand hover:text-brand dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
               >
                 Daftar sebagai venue partner
               </Link>
             </div>
           </div>
           <div className="flex-1">
-            <div className="grid gap-4 rounded-3xl border border-white/60 bg-white/70 p-6 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
+            <div className="grid gap-4 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-white">
+                <span className="inline-flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-brand" />
+                  Lapangan terdekat
+                </span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  Live tiles
+                </span>
+              </div>
               <NearestCourtTiles courts={courts} limit={3} />
-              <div className="rounded-2xl border border-brand-soft/60 bg-brand/10 p-5 text-sm text-brand-strong dark:border-brand/30 dark:bg-brand/10 dark:text-brand-soft">
-                <p className="font-semibold">
+              <div className="rounded-2xl border border-brand-soft/60 bg-brand/10 p-5 text-sm text-brand-strong shadow-sm dark:border-brand/30 dark:bg-brand/15 dark:text-brand-soft">
+                <p className="flex items-center gap-2 font-semibold">
+                  <ShieldCheck className="h-4 w-4" />
                   Integrasi pembayaran dan komunitas
                 </p>
                 <p className="text-brand-strong/70 dark:text-brand-soft/80">
-                  Booking baru otomatis membuat sesi Midtrans dan muncul di
-                  dashboard pemain maupun venue.
+                  Booking baru otomatis membuat sesi Midtrans, muncul di forum,
+                  dan terhubung ke dashboard pemain maupun venue.
                 </p>
               </div>
             </div>
@@ -132,19 +182,26 @@ export default async function Home() {
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
-            {automationHighlights.map((item) => (
-              <div
-                key={item.title}
-                className="flex h-full flex-col justify-between rounded-3xl border border-slate-700/60 bg-white/5 p-6 backdrop-blur"
-              >
-                <div className="space-y-3">
-                  <p className="text-lg font-semibold text-white">
-                    {item.title}
-                  </p>
+            {automationHighlights.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={item.title}
+                  className="flex h-full flex-col justify-between gap-4 rounded-3xl border border-slate-700/60 bg-white/5 p-6 backdrop-blur"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-brand-soft">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <p className="text-lg font-semibold text-white">
+                      {item.title}
+                    </p>
+                  </div>
                   <p className="text-sm text-slate-300">{item.description}</p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -161,19 +218,30 @@ export default async function Home() {
               operasional.
             </p>
             <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-              {partnerBenefits.map((benefit) => (
-                <li
-                  key={benefit.label}
-                  className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 dark:border-slate-700/60 dark:bg-slate-900/60"
-                >
-                  <p className="font-semibold text-slate-900 dark:text-white">
-                    {benefit.label}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {benefit.detail}
-                  </p>
-                </li>
-              ))}
+              {partnerBenefits.map((benefit) => {
+                const Icon = benefit.icon;
+
+                return (
+                  <li
+                    key={benefit.label}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/60"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand-strong dark:bg-brand-soft/20 dark:text-brand-soft">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-slate-900 dark:text-white">
+                          {benefit.label}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {benefit.detail}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
             <Link
               href="/venue-partner"
