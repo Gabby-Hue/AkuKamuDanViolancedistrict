@@ -50,7 +50,7 @@ export default async function Home() {
 
   return (
     <main className="space-y-24 pb-24">
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand/10 via-white to-[hsl(var(--brand-strong))]/10 py-24 dark:from-brand/10 dark:via-slate-950 dark:to-[hsl(var(--brand-strong))]/10">
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-100 py-24 dark:from-emerald-950 dark:via-slate-950 dark:to-emerald-900/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
           <div className="flex-1 space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand shadow-sm dark:border-brand/20 dark:bg-slate-900/80 dark:text-brand-muted">
