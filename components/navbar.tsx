@@ -8,6 +8,7 @@ import type { CSSProperties } from "react";
 import { ModeToggle } from "./mode-toggle";
 import SearchBar from "./search-bar";
 import { NavbarAuthMenu } from "./navbar-auth-menu";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -30,6 +31,7 @@ const maskStyle: CSSProperties = {
 // dark:border-teal-200 dark:bg-teal-200
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -53,6 +55,13 @@ export default function Navbar() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
+
+  const hideNavbarRoutes = ['/dashboard', '/auth'];
+  const shouldHideNavbar = hideNavbarRoutes.some(route => pathname.startsWith(route));
+
+  if (shouldHideNavbar) {
+    return null;
+  }
 
   return (
     <header

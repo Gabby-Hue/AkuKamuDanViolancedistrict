@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:supabase.com)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
