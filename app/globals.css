@@ -48,9 +48,9 @@
 
 :root {
     --radius: 0.625rem;
-    --brand: 32 90% 55%;
-    --brand-strong: 28 94% 46%;
-    --brand-soft: 32 82% 92%;
+    --brand: 27 68% 50%;
+    --brand-strong: 27 78% 44%;
+    --brand-soft: 27 78% 92%;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -85,9 +85,9 @@
 }
 
 .dark {
-    --brand: 142 64% 48%;
-    --brand-strong: 142 76% 42%;
-    --brand-soft: 142 42% 26%;
+    --brand: 181 66% 30%;
+    --brand-strong: 181 72% 26%;
+    --brand-soft: 181 40% 18%;
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
