@@ -66,25 +66,13 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="relative overflow-hidden space-y-24 pb-24">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(214,119,41,0.22),transparent_42%),radial-gradient(circle_at_88%_8%,rgba(255,186,122,0.2),transparent_38%),radial-gradient(circle_at_20%_78%,rgba(214,119,41,0.16),transparent_36%)] dark:bg-[radial-gradient(circle_at_14%_18%,rgba(26,123,125,0.28),transparent_40%),radial-gradient(circle_at_84%_12%,rgba(83,193,189,0.2),transparent_36%),radial-gradient(circle_at_72%_78%,rgba(26,123,125,0.2),transparent_38%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#fff7ef] via-white to-white dark:from-slate-950 dark:via-slate-950 dark:to-slate-950" />
-      </div>
-
-      <section className="relative pt-24">
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
-          <div className="flex-1 space-y-7">
-            <div className="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-brand-strong">
-              <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/70 bg-white/80 px-4 py-1.5 shadow-sm backdrop-blur dark:border-brand/30 dark:bg-slate-900/70 dark:text-brand-soft">
-                <Sparkles className="h-4 w-4" />
-                Pengalaman halus ala Supa Snowy
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/60 px-4 py-1.5 text-brand backdrop-blur dark:border-brand/30 dark:bg-slate-900/60 dark:text-brand-soft">
-                <ShieldCheck className="h-4 w-4" />
-                Booking & komunitas olahraga terpadu
-              </span>
-            </div>
+    <main className="space-y-24 pb-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-orange-100 py-24 dark:from-emerald-950 dark:via-slate-950 dark:to-emerald-900/70">
+        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
+          <div className="flex-1 space-y-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand shadow-sm dark:border-brand/20 dark:bg-slate-900/80 dark:text-brand-muted">
+              Booking & komunitas olahraga terpadu
+            </span>
             <h1 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl dark:text-white">
               Temukan venue terbaik dengan nuansa super app dan pembayaran
               langsung nyambung.
