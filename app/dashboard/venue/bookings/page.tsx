@@ -100,16 +100,11 @@ export default async function BookingsPage() {
       isActive: true,
     },
     {
-      title: "Tim & Staff",
-      url: "/dashboard/venue/staff",
-      icon: "Users",
+      title: "Blackout Schedule",
+      url: "/dashboard/venue/blackout",
+      icon: "CalendarX",
     },
-    {
-      title: "Laporan",
-      url: "/dashboard/venue/reports",
-      icon: "NotepadText",
-    },
-    {
+        {
       title: "Pengaturan",
       url: "/dashboard/venue/settings",
       icon: "Settings2",

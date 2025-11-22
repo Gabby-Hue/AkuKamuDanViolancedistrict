@@ -27,7 +27,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RevenueBarChart } from "@/components/revenue-bar-chart";
+import { BookingLineChart } from "@/components/booking-line-chart";
 
 export default async function Page() {
   const profile = await requireRole("venue_partner");
@@ -56,14 +57,9 @@ export default async function Page() {
       icon: "CalendarClock",
     },
     {
-      title: "Tim & Staff",
-      url: "/dashboard/venue/staff",
-      icon: "Users",
-    },
-    {
-      title: "Laporan",
-      url: "/dashboard/venue/reports",
-      icon: "NotepadText",
+      title: "Blackout Schedule",
+      url: "/dashboard/venue/blackout",
+      icon: "CalendarX",
     },
     {
       title: "Pengaturan",
@@ -137,214 +133,156 @@ export default async function Page() {
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           </div>
 
-          <Tabs defaultValue="overview" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="overview">Ringkasan</TabsTrigger>
-              <TabsTrigger value="analytics">Analitik</TabsTrigger>
-              <TabsTrigger value="recent">Aktivitas Terbaru</TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Pendapatan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Rp 45.231.890</div>
+                  <p className="text-xs text-muted-foreground">
+                    +20.1% dari bulan lalu
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Booking
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">124</div>
+                  <p className="text-xs text-muted-foreground">
+                    +19% dari bulan lalu
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Lapangan Aktif
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardData.venues.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    +1 dari bulan lalu
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Tingkat Occupancy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">73%</div>
+                  <p className="text-xs text-muted-foreground">
+                    +5% dari bulan lalu
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Pendapatan
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">Rp 45.231.890</div>
-                    <p className="text-xs text-muted-foreground">
-                      +20.1% dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Booking
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">124</div>
-                    <p className="text-xs text-muted-foreground">
-                      +19% dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Lapangan Aktif
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{dashboardData.venues.length}</div>
-                    <p className="text-xs text-muted-foreground">
-                      +1 dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Tingkat Occupancy
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">73%</div>
-                    <p className="text-xs text-muted-foreground">
-                      +5% dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
-                  <CardHeader>
-                    <CardTitle>Pendapatan Bulanan</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pl-2">
-                    {/* Chart will be implemented here */}
-                    <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                      Chart Component - Coming Soon
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="col-span-3">
-                  <CardHeader>
-                    <CardTitle>Lapangan Terpopuler</CardTitle>
-                    <CardDescription>
-                      5 lapangan dengan booking terbanyak
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Top courts list will be implemented here */}
-                    <div className="space-y-4">
-                      {[1, 2, 3, 4, 5].map((item) => (
-                        <div key={item} className="flex items-center">
-                          <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
-                            {item}
-                          </div>
-                          <div className="ml-4 space-y-1">
-                            <p className="text-sm font-medium leading-none">
-                              Lapangan {item}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {25 - item * 3} booking
-                            </p>
-                          </div>
-                          <div className="ml-auto font-medium">
-                            Rp {(2500000 - item * 100000).toLocaleString('id-ID')}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
+            {/* Charts Section */}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Bar Chart - Pendapatan Bulanan */}
+              <RevenueBarChart
+                data={[
+                  { month: "Januari", revenue: 45000000 },
+                  { month: "Februari", revenue: 52000000 },
+                  { month: "Maret", revenue: 48000000 },
+                  { month: "April", revenue: 61000000 },
+                  { month: "Mei", revenue: 58000000 },
+                  { month: "Juni", revenue: 67000000 },
+                ]}
+              />
 
-            <TabsContent value="analytics" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Jam Sibuk</CardTitle>
-                    <CardDescription>
-                      Jam dengan booking terbanyak
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">18:00 - 21:00</div>
-                    <p className="text-xs text-muted-foreground">
-                      Rata-rata 12 booking/jam
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Hari Terfavorit</CardTitle>
-                    <CardDescription>
-                      Hari dengan booking terbanyak
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">Sabtu</div>
-                    <p className="text-xs text-muted-foreground">
-                      Rata-rata 28 booking/hari
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Durasi Rata-rata</CardTitle>
-                    <CardDescription>
-                      Durasi booking rata-rata
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">2.5 jam</div>
-                    <p className="text-xs text-muted-foreground">
-                      -0.3 jam dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Customer Baru</CardTitle>
-                    <CardDescription>
-                      Pelanggan baru bulan ini
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">47</div>
-                    <p className="text-xs text-muted-foreground">
-                      +12% dari bulan lalu
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="recent" className="space-y-4">
+              {/* Top Courts */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Booking Terbaru</CardTitle>
+                  <CardTitle>Lapangan Terpopuler</CardTitle>
                   <CardDescription>
-                    10 booking terakhir yang masuk
+                    5 lapangan dengan booking terbanyak
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {[1, 2, 3, 4, 5].map((item) => (
-                      <div key={item} className="flex items-center space-x-4 rounded-md border p-4">
-                        <div className="flex-1 space-y-1">
+                      <div key={item} className="flex items-center">
+                        <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
+                          {item}
+                        </div>
+                        <div className="ml-4 space-y-1">
                           <p className="text-sm font-medium leading-none">
-                            Booking #{1000 + item}
+                            Lapangan {item}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Lapangan {item} - {['Badminton', 'Futsal', 'Basket', 'Tenis', 'Voli'][item - 1]}
+                            {25 - item * 3} booking
                           </p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            item <= 2 ? 'bg-green-100 text-green-800' :
-                            item <= 4 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {item <= 2 ? 'Selesai' : item <= 4 ? 'Berlangsung' : 'Menunggu'}
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {item} jam lalu
-                          </span>
+                        <div className="ml-auto font-medium">
+                          Rp {(2500000 - item * 100000).toLocaleString("id-ID")}
                         </div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+
+            {/* Line Chart - Full Width */}
+            <BookingLineChart
+              data={[
+                { date: "Senin", bookings: 24 },
+                { date: "Selasa", bookings: 18 },
+                { date: "Rabu", bookings: 22 },
+                { date: "Kamis", bookings: 16 },
+                { date: "Jumat", bookings: 28 },
+                { date: "Sabtu", bookings: 32 },
+                { date: "Minggu", bookings: 15 },
+              ]}
+            />
+
+            {/* Metrics Cards */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Jam Sibuk</CardTitle>
+                  <CardDescription>
+                    Jam dengan booking terbanyak
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">18:00 - 21:00</div>
+                  <p className="text-xs text-muted-foreground">
+                    Rata-rata 12 booking/jam
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Hari Terfavorit</CardTitle>
+                  <CardDescription>
+                    Hari dengan booking terbanyak
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Sabtu</div>
+                  <p className="text-xs text-muted-foreground">
+                    Rata-rata 28 booking/hari
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

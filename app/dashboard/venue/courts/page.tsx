@@ -32,13 +32,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -49,19 +48,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, MapPin, Clock, DollarSign } from "lucide-react";
+  Plus,
+  Edit,
+  Trash2,
+  Clock,
+  DollarSign,
+  Upload,
+  CalendarX,
+  Image as ImageIcon,
+} from "lucide-react";
+import CourtImage from "@/components/court-image";
 
 export default async function CourtsPage() {
   const profile = await requireRole("venue_partner");
@@ -90,14 +86,9 @@ export default async function CourtsPage() {
       icon: "CalendarClock",
     },
     {
-      title: "Tim & Staff",
-      url: "/dashboard/venue/staff",
-      icon: "Users",
-    },
-    {
-      title: "Laporan",
-      url: "/dashboard/venue/reports",
-      icon: "NotepadText",
+      title: "Blackout Schedule",
+      url: "/dashboard/venue/blackout",
+      icon: "CalendarX",
     },
     {
       title: "Pengaturan",
@@ -141,9 +132,9 @@ export default async function CourtsPage() {
       pricePerHour: 150000,
       capacity: 10,
       surface: "Synthetic Grass",
-      features: ["Lighting", "Shaded Area", "Changing Room"],
+      photo: "/courts/futsal1.jpg",
       bookingsToday: 8,
-      utilizationRate: 75,
+      blackoutDates: ["2024-06-25", "2024-06-26"],
     },
     {
       id: 2,
@@ -153,9 +144,9 @@ export default async function CourtsPage() {
       pricePerHour: 80000,
       capacity: 4,
       surface: "Wooden",
-      features: ["Air Conditioning", "Lighting"],
+      photo: "/courts/badminton-a.jpg",
       bookingsToday: 12,
-      utilizationRate: 85,
+      blackoutDates: [],
     },
     {
       id: 3,
@@ -165,9 +156,9 @@ export default async function CourtsPage() {
       pricePerHour: 200000,
       capacity: 20,
       surface: "Concrete",
-      features: ["Lighting", "Scoreboard", "Bleachers"],
+      photo: "/courts/basket1.jpg",
       bookingsToday: 0,
-      utilizationRate: 0,
+      blackoutDates: ["2024-06-24", "2024-06-25", "2024-06-26"],
     },
     {
       id: 4,
@@ -177,9 +168,9 @@ export default async function CourtsPage() {
       pricePerHour: 180000,
       capacity: 4,
       surface: "Hard Court",
-      features: ["Lighting", "Ball Machine"],
+      photo: "/courts/tennis1.jpg",
       bookingsToday: 6,
-      utilizationRate: 60,
+      blackoutDates: [],
     },
     {
       id: 5,
@@ -189,9 +180,9 @@ export default async function CourtsPage() {
       pricePerHour: 120000,
       capacity: 12,
       surface: "Sand",
-      features: ["Night Lighting", "Shaded Seating"],
+      photo: "/courts/voli-pantai.jpg",
       bookingsToday: 4,
-      utilizationRate: 45,
+      blackoutDates: ["2024-06-27"],
     },
   ];
 
@@ -240,51 +231,78 @@ export default async function CourtsPage() {
                   Tambah Lapangan
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle>Tambah Lapangan Baru</DialogTitle>
                   <DialogDescription>
                     Tambahkan lapangan baru ke venue Anda.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Nama
-                    </Label>
-                    <Input
-                      id="name"
-                      defaultValue="Lapangan Baru"
-                      className="col-span-3"
-                    />
+                <div className="grid gap-6 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="photo">Foto Lapangan</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-24 h-24 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground/50" />
+                      </div>
+                      <div className="flex-1">
+                        <Button variant="outline" className="w-full">
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload Foto
+                        </Button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Format: JPG, PNG. Max 5MB
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="type" className="text-right">
-                      Tipe
-                    </Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nama Lapangan</Label>
+                      <Input id="name" placeholder="Lapangan Futsal 1" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Tipe Lapangan</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih tipe" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="futsal">Futsal</SelectItem>
+                          <SelectItem value="badminton">Badminton</SelectItem>
+                          <SelectItem value="basket">Basket</SelectItem>
+                          <SelectItem value="tennis">Tennis</SelectItem>
+                          <SelectItem value="volleyball">Voli</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="price">Harga per Jam</Label>
+                      <Input id="price" type="number" placeholder="150000" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="capacity">Kapasitas</Label>
+                      <Input id="capacity" type="number" placeholder="10" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="surface">Permukaan</Label>
                     <Select>
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Pilih tipe lapangan" />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih permukaan" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="futsal">Futsal</SelectItem>
-                        <SelectItem value="badminton">Badminton</SelectItem>
-                        <SelectItem value="basket">Basket</SelectItem>
-                        <SelectItem value="tennis">Tennis</SelectItem>
-                        <SelectItem value="volleyball">Voli</SelectItem>
+                        <SelectItem value="synthetic-grass">
+                          Synthetic Grass
+                        </SelectItem>
+                        <SelectItem value="wooden">Wooden</SelectItem>
+                        <SelectItem value="concrete">Concrete</SelectItem>
+                        <SelectItem value="hard-court">Hard Court</SelectItem>
+                        <SelectItem value="sand">Sand</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="price" className="text-right">
-                      Harga/Jam
-                    </Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      defaultValue="100000"
-                      className="col-span-3"
-                    />
                   </div>
                 </div>
                 <DialogFooter>
@@ -294,266 +312,147 @@ export default async function CourtsPage() {
             </Dialog>
           </div>
 
-          <Tabs defaultValue="list" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="list">Daftar Lapangan</TabsTrigger>
-              <TabsTrigger value="overview">Ringkasan</TabsTrigger>
-              <TabsTrigger value="maintenance">Perawatan</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="list" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {courts.map((court) => (
-                  <Card key={court.id} className="relative">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">{court.name}</CardTitle>
-                        <Badge
-                          variant={
-                            court.status === "active"
-                              ? "default"
-                              : "secondary"
-                          }
-                        >
-                          {court.status === "active" ? "Aktif" : "Maintenance"}
-                        </Badge>
-                      </div>
-                      <CardDescription>{court.type}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center">
-                            <DollarSign className="mr-2 h-4 w-4" />
-                            Rp {court.pricePerHour.toLocaleString("id-ID")}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4" />
-                            {court.bookingsToday} booking
-                          </div>
-                        </div>
-                        <div className="text-sm">
-                          <div className="flex items-center justify-between">
-                            <span>Kapasitas:</span>
-                            <span>{court.capacity} orang</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span>Permukaan:</span>
-                            <span>{court.surface}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span>Utilisasi:</span>
-                            <span>{court.utilizationRate}%</span>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {court.features.slice(0, 2).map((feature, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {feature}
-                            </Badge>
-                          ))}
-                          {court.features.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{court.features.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" variant="outline" className="flex-1">
-                            <Edit className="mr-2 h-3 w-3" />
-                            Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Total Lapangan
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{courts.length}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {courts.filter(c => c.status === "active").length} aktif
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Booking Hari Ini
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {courts.reduce((sum, court) => sum + court.bookingsToday, 0)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Rata-rata {Math.round(courts.reduce((sum, court) => sum + court.bookingsToday, 0) / courts.length)} per lapangan
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Utilisasi Rata-rata
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {Math.round(courts.reduce((sum, court) => sum + court.utilizationRate, 0) / courts.length)}%
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      +5% dari minggu lalu
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Pendapatan Hari Ini
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      Rp {courts.reduce((sum, court) => sum + (court.pricePerHour * court.bookingsToday), 0).toLocaleString("id-ID")}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Proyeksi berdasarkan booking
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
+          <div className="space-y-6">
+            {/* Overview Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>Performa Lapangan</CardTitle>
-                  <CardDescription>
-                    Statistik detail per lapangan
-                  </CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Lapangan
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nama</TableHead>
-                        <TableHead>Tipe</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Booking Hari Ini</TableHead>
-                        <TableHead>Utilisasi</TableHead>
-                        <TableHead>Pendapatan</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {courts.map((court) => (
-                        <TableRow key={court.id}>
-                          <TableCell className="font-medium">
-                            {court.name}
-                          </TableCell>
-                          <TableCell>{court.type}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                court.status === "active"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {court.status === "active" ? "Aktif" : "Maintenance"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{court.bookingsToday}</TableCell>
-                          <TableCell>{court.utilizationRate}%</TableCell>
-                          <TableCell>
-                            Rp {(court.pricePerHour * court.bookingsToday).toLocaleString("id-ID")}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <div className="text-2xl font-bold">{courts.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {courts.filter((c) => c.status === "active").length} aktif
+                  </p>
                 </CardContent>
               </Card>
-            </TabsContent>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Booking Hari Ini
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {courts.reduce(
+                      (sum, court) => sum + court.bookingsToday,
+                      0,
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Rata-rata{" "}
+                    {Math.round(
+                      courts.reduce(
+                        (sum, court) => sum + court.bookingsToday,
+                        0,
+                      ) / courts.length,
+                    )}{" "}
+                    per lapangan
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Pendapatan Hari Ini
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    Rp{" "}
+                    {courts
+                      .reduce(
+                        (sum, court) =>
+                          sum + court.pricePerHour * court.bookingsToday,
+                        0,
+                      )
+                      .toLocaleString("id-ID")}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Proyeksi berdasarkan booking
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Kapasitas Total
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {courts.reduce((sum, court) => sum + court.capacity, 0)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total semua lapangan
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
 
-            <TabsContent value="maintenance" className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Jadwal Maintenance</CardTitle>
+            {/* Court Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {courts.map((court) => (
+                <Card key={court.id} className="relative overflow-hidden">
+                  <CourtImage
+                    src={court.photo}
+                    alt={court.name}
+                    fallbackId={`fallback-${court.id}`}
+                  />
+                  <div className="absolute top-2 right-2">
+                    <Badge
+                      variant={
+                        court.status === "active" ? "default" : "secondary"
+                      }
+                    >
+                      {court.status === "active" ? "Aktif" : "Maintenance"}
+                    </Badge>
+                  </div>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">{court.name}</CardTitle>
                     <CardDescription>
-                      Lapangan yang sedang dalam maintenance
+                      {court.type} • {court.surface}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {courts.filter(court => court.status === "maintenance").map((court) => (
-                        <div key={court.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{court.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {court.type} • {court.surface}
-                            </p>
-                          </div>
-                          <Badge variant="secondary">Maintenance</Badge>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                          <DollarSign className="mr-2 h-4 w-4" />
+                          Rp {court.pricePerHour.toLocaleString("id-ID")}
                         </div>
-                      ))}
-                      {courts.filter(court => court.status === "maintenance").length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">
-                          Tidak ada lapangan dalam maintenance
-                        </p>
-                      )}
+                        <div className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4" />
+                          {court.bookingsToday} booking
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <div className="flex items-center justify-between">
+                          <span>Kapasitas:</span>
+                          <span>{court.capacity} orang</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Edit className="mr-2 h-3 w-3" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Lapangan Membutuhkan Perhatian</CardTitle>
-                    <CardDescription>
-                      Lapangan dengan utilisasi rendah
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {courts.filter(court => court.utilizationRate < 60 && court.status === "active").map((court) => (
-                        <div key={court.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{court.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Utilisasi: {court.utilizationRate}%
-                            </p>
-                          </div>
-                          <Button size="sm" variant="outline">
-                            Lihat Detail
-                          </Button>
-                        </div>
-                      ))}
-                      {courts.filter(court => court.utilizationRate < 60 && court.status === "active").length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">
-                          Semua lapangan memiliki performa baik
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+              ))}
+            </div>
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
