@@ -27,7 +27,8 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
     if (!container) return;
 
     const delta =
-      (container.clientWidth / VISIBLE_COUNT + GAP_PX) * (direction === "next" ? 1 : -1);
+      (container.clientWidth / VISIBLE_COUNT + GAP_PX) *
+      (direction === "next" ? 1 : -1);
 
     container.scrollBy({ left: delta, behavior: "smooth" });
   };
@@ -36,10 +37,15 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-muted">Pilihan cepat</p>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Popular sports</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-muted">
+            Pilihan cepat
+          </p>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            Popular sports
+          </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Temukan lapangan favorit komunitas, lengkap dengan akses menuju kategori court yang relevan.
+            Temukan lapangan favorit komunitas, lengkap dengan akses menuju
+            kategori court yang relevan.
           </p>
         </div>
         <div className="hidden items-center gap-2 sm:flex">
@@ -92,12 +98,14 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 <span
                   className={cn(
                     "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur",
-                    "bg-white/20"
+                    "bg-white/20",
                   )}
                 >
                   {sport.name}
                 </span>
-                <span className="text-xs font-medium text-white/80">Klik untuk menuju court {sport.name}</span>
+                <span className="text-xs font-medium text-white/80">
+                  Klik untuk menuju court {sport.name}
+                </span>
               </div>
             </Link>
           ))}

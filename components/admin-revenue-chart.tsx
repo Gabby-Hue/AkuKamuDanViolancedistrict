@@ -19,67 +19,56 @@ import {
 
 const chartConfig = {
   revenue: {
-    label: "Pendapatan",
+    label: "Revenue (Juta)",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig
 
-interface RevenueBarChartProps {
+interface AdminRevenueChartProps {
   data: {
     month: string;
     revenue: number;
   }[];
 }
 
-export function RevenueBarChart({ data }: RevenueBarChartProps) {
+export function AdminRevenueChart({ data }: AdminRevenueChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pendapatan Bulanan</CardTitle>
-        <CardDescription>Januari - Juni 2024</CardDescription>
+        <CardTitle>Revenue Sistem</CardTitle>
+        <CardDescription>Pendapatan platform 6 bulan terakhir</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={data} margin={{ top: 8 }}>
-            <CartesianGrid
-              vertical={false}
-              strokeDasharray="3 3"
-              className="stroke-muted/30"
-            />
+          <BarChart accessibilityLayer data={data}>
+            <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-              tick={{ fontSize: 12 }}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              tickFormatter={(value) => `Rp ${(value / 1000000).toFixed(0)}jt`}
-              tick={{ fontSize: 12 }}
+              tickFormatter={(value) => `Rp ${value}jt`}
             />
             <ChartTooltip
-              cursor={true}
+              cursor={false}
               content={<ChartTooltipContent />}
-              formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
+              formatter={(value: number) => [`Rp ${value} juta`, "Revenue"]}
             />
-            <Bar
-              dataKey="revenue"
-              fill="var(--color-revenue)"
-              radius={[8, 8, 0, 0]}
-            />
+            <Bar dataKey="revenue" fill="var(--color-revenue)" radius={8} />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 leading-none font-medium">
-          Trending up by 20.1% this month <TrendingUp className="h-4 w-4" />
+          Revenue meningkat 15.2% bulan ini <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
-          Menampilkan total pendapatan 6 bulan terakhir
+          Menampilkan total revenue platform untuk 6 bulan terakhir
         </div>
       </CardFooter>
     </Card>
