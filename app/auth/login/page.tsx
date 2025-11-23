@@ -17,7 +17,7 @@ export default function LoginPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+            <div className="bg-orange-500 dark:bg-teal-500 text-white flex size-6 items-center justify-center rounded-md">
               <ChevronLeft className="size-4" />
             </div>
             Back to home

@@ -47,7 +47,7 @@ function getDashboardUrl(userRole: string | null): string {
       return "/dashboard/venue";
     case "user":
     default:
-      return "/dashboard";
+      return "/dashboard/user";
   }
 }
 
@@ -116,7 +116,7 @@ export function NavbarAuthMenu({
               (typeof authUser.user_metadata?.avatar_url === "string"
                 ? (authUser.user_metadata.avatar_url as string)
                 : null),
-            role: profile?.role as string | null ?? null,
+            role: (profile?.role as string | null) ?? null,
           });
           setLoading(false);
         }
@@ -131,21 +131,21 @@ export function NavbarAuthMenu({
 
     void hydrateUser();
 
-    const {
-      data: listener,
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (ignore) {
-        return;
-      }
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (ignore) {
+          return;
+        }
 
-      if (!session) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
+        if (!session) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
 
-      void hydrateUser();
-    });
+        void hydrateUser();
+      },
+    );
 
     const subscription = listener?.subscription;
 
@@ -190,7 +190,7 @@ export function NavbarAuthMenu({
     if (variant === "stacked") {
       return <Skeleton className="h-32 w-full rounded-3xl" />;
     }
-    return <Skeleton className="h-11 w-36 rounded-full" />;
+    return <Skeleton className="h-9 w-9 rounded-full" />;
   };
 
   const renderGuestActions = () => {
@@ -202,7 +202,8 @@ export function NavbarAuthMenu({
               Bergabung dengan Courtease
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Masuk untuk mengatur booking atau daftar gratis sebagai venue partner.
+              Masuk untuk mengatur booking atau daftar gratis sebagai venue
+              partner.
             </p>
           </div>
           <div className="grid gap-2">
@@ -237,18 +238,11 @@ export function NavbarAuthMenu({
     }
 
     return (
-      <div className="flex items-center gap-2">
-        <Button
-          asChild
-          variant="ghost"
-          className="rounded-full px-5 text-sm font-semibold text-slate-600 hover:text-brand-strong dark:text-slate-300"
-        >
+      <div className="hidden sm:flex items-center gap-2">
+        <Button asChild variant="link">
           <Link href="/auth/login">Masuk</Link>
         </Button>
-        <Button
-          asChild
-          className="rounded-full px-6 text-sm font-semibold"
-        >
+        <Button asChild className="rounded-full px-6 text-sm font-semibold">
           <Link href="/auth/register">Daftar</Link>
         </Button>
       </div>
@@ -263,21 +257,27 @@ export function NavbarAuthMenu({
     return renderGuestActions();
   }
 
-  const initials = (user.fullName ?? user.email)?.charAt(0)?.toUpperCase() ?? "U";
+  const initials =
+    (user.fullName ?? user.email)?.charAt(0)?.toUpperCase() ?? "U";
 
   if (variant === "stacked") {
     return (
       <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white/80 p-5 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 rounded-2xl">
-            <AvatarImage src={user.avatarUrl ?? undefined} alt={user.fullName ?? user.email} />
+            <AvatarImage
+              src={user.avatarUrl ?? undefined}
+              alt={user.fullName ?? user.email}
+            />
             <AvatarFallback className="rounded-2xl">{initials}</AvatarFallback>
           </Avatar>
           <div>
             <p className="text-sm font-semibold text-slate-900 dark:text-white">
               {user.fullName ?? "Pengguna Courtease"}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {user.email}
+            </p>
           </div>
         </div>
         <div className="grid gap-2">
@@ -292,15 +292,6 @@ export function NavbarAuthMenu({
               <LayoutDashboard className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-          {user?.role && (
-            <div className="text-center">
-              <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-                {user.role === "admin" ? "Admin" :
-                 user.role === "venue_partner" ? "Venue Partner" :
-                 user.role === "user" ? "User" : user.role}
-              </span>
-            </div>
-          )}
           <Button
             variant="outline"
             className="w-full rounded-full border-red-200 text-red-600 hover:border-red-300 hover:bg-red-100 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
@@ -309,7 +300,8 @@ export function NavbarAuthMenu({
           >
             {signingOut ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sedang keluar...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sedang
+                keluar...
               </>
             ) : (
               <>
@@ -330,14 +322,19 @@ export function NavbarAuthMenu({
           className="group flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-strong dark:text-slate-300"
         >
           <Avatar className="h-9 w-9">
-            <AvatarImage src={user.avatarUrl ?? undefined} alt={user.fullName ?? user.email} />
+            <AvatarImage
+              src={user.avatarUrl ?? undefined}
+              alt={user.fullName ?? user.email}
+            />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <span className="hidden text-left sm:block">
             <span className="block text-sm font-semibold text-slate-900 dark:text-white">
               {user.fullName ?? "Pengguna Courtease"}
             </span>
-            <span className="block text-xs text-slate-500 dark:text-slate-400">{user.email}</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400">
+              {user.email}
+            </span>
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -345,23 +342,17 @@ export function NavbarAuthMenu({
         <DropdownMenuLabel className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
           Akun kamu
         </DropdownMenuLabel>
-        {user?.role && (
-          <div className="px-2 py-1">
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-200">
-              {user.role === "admin" ? "Admin" :
-               user.role === "venue_partner" ? "Venue Partner" :
-               user.role === "user" ? "User" : user.role}
-            </span>
-          </div>
-        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={getDashboardUrl(user?.role ?? null)} className="flex items-center gap-2">
+          <Link
+            href={getDashboardUrl(user?.role ?? null)}
+            className="flex items-center gap-2"
+          >
             <LayoutDashboard className="h-4 w-4" /> Dashboard
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profile" className="flex items-center gap-2">
+          <Link href="/dashboard/profile" className="flex items-center gap-2">
             <UserRound className="h-4 w-4" /> Profil
           </Link>
         </DropdownMenuItem>

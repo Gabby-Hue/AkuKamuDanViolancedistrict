@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Temukan, bandingkan, dan pesan lapangan olahraga favoritmu hanya dalam hitungan menit dengan Courtease.",
   metadataBase: new URL("https://courtease.id"),
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.png",
   },
 };
 

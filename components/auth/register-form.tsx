@@ -14,6 +14,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { MailIcon } from "lucide-react";
 
 export function RegisterForm({
   className,
@@ -121,6 +128,24 @@ export function RegisterForm({
           />
         </Field>
         <Field>
+          <FieldLabel htmlFor="phone">Nomor telepon</FieldLabel>
+          <InputGroup>
+            <InputGroupAddon>
+              <InputGroupText>+62</InputGroupText>
+            </InputGroupAddon>
+            <InputGroupInput
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="81234567890"
+              autoComplete="tel"
+              required
+              disabled={isLoading}
+              className="gap-2"
+            />
+          </InputGroup>
+        </Field>
+        <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
             id="email"
@@ -144,7 +169,11 @@ export function RegisterForm({
           />
         </Field>
         <Field>
-          <Button type="submit" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 dark:text-white"
+            disabled={isLoading}
+          >
             {isLoading ? "Memproses..." : "Daftar"}
           </Button>
         </Field>

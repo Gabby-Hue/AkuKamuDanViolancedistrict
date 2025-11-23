@@ -1,14 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-import { Menu, X, LogIn } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { CSSProperties } from "react";
 import { ModeToggle } from "./mode-toggle";
 import SearchBar from "./search-bar";
 import { NavbarAuthMenu } from "./navbar-auth-menu";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -17,22 +17,19 @@ const navLinks = [
   { label: "Forum", href: "/forum" },
 ];
 
-const maskStyle: CSSProperties = {
-  WebkitMaskImage: "url('/navbar.svg')",
-  WebkitMaskRepeat: "repeat-x",
-  WebkitMaskSize: "100px 109px",
-  WebkitMaskPosition: "center bottom",
-  maskImage: "url('/navbar.svg')",
-  maskRepeat: "repeat-x",
-  maskSize: "100px 109px",
-  maskPosition: "center bottom",
-};
-// button template dark mode
-// dark:border-teal-200 dark:bg-teal-200
-
-export default function Navbar() {
+export default function NavbarNew() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) {
@@ -66,87 +63,103 @@ export default function Navbar() {
   }
 
   return (
-    <header
-      className={clsx(
-        "isolate sticky top-0 z-500 w-full transition-shadow duration-300",
-      )}
-    >
-      {/* wave navbar - TIDAK DIUBAH */}
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0" style={maskStyle}>
-          <div className="h-full w-full bg-[linear-gradient(90deg,#FB923C_0%,#F97316_50%,#FB923C_100%)] dark:bg-[linear-gradient(90deg,#0D9488_0%,#14B8A6_50%,#0D9488_100%)]" />
-        </div>
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0)_60%)] dark:bg-[linear-gradient(180deg,rgba(13,148,136,0.45)_0%,rgba(20,184,166,0)_70%)]" />
-      </div>
-
-      <div
+    <>
+      <header
         className={clsx(
-          "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 flex items-center justify-between h-[88px] pb-5",
+          "fixed w-full transition-all duration-300 top-0 z-50",
+          scrolled
+            ? "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
+            : "bg-transparent",
         )}
       >
-        {/* Mobile view */}
-        <div className="flex w-full items-center justify-between text-white sm:hidden">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-base font-semibold uppercase tracking-wide"
-          >
-            <span className="text-lg font-bold">courtease</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <SearchBar />
-            <div className="text-orange-500 dark:text-teal-600">
-              <ModeToggle />
-            </div>
-            <div className="scale-75 origin-right">
-              <NavbarAuthMenu
-                variant="inline"
-                onAction={() => setMenuOpen(false)}
-              />
-            </div>
-            <button
-              type="button"
-              aria-label="Buka menu navigasi"
-              className="rounded-full border-white bg-white p-2 text-orange-500 transition-colors duration-200 hover:bg-gray-100 dark:text-teal-600 dark:hover:bg-teal-300"
-              onClick={() => setMenuOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+        {/* Gradient line - hanya muncul saat scroll */}
+        {scrolled && (
+          <div className="h-px bg-linear-to-r from-orange-500 via-teal-500 to-orange-500 dark:from-teal-400 dark:via-orange-400 dark:to-teal-400" />
+        )}
 
-        {/* Desktop view */}
-        <div className="hidden w-full items-center justify-between text-white sm:flex">
-          <div className="flex items-center gap-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
+          {/* Mobile view */}
+          <div className="flex w-full items-center justify-between text-white sm:hidden">
             <Link
-              href="#top"
-              className="flex items-center text-base font-semibold uppercase tracking-[0.32em]"
+              href="/"
+              className="flex items-center gap-2 text-lg font-bold"
             >
-              <span className="text-xl font-bold normal-case">courtease</span>
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={28}
+                height={28}
+                className="rounded-lg"
+              />
+              <span className="text-lg font-bold text-black dark:text-white">
+                courtease
+              </span>
             </Link>
-            <nav
-              aria-label="Navigasi utama"
-              className="flex items-center gap-1"
-            >
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 transition-colors duration-200 hover:bg-white/20 hover:text-white"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+            <div className="flex items-center">
+              <SearchBar />
+              <div className="scale-100 origin-right">
+                <NavbarAuthMenu
+                  variant="inline"
+                  onAction={() => setMenuOpen(false)}
+                />
+              </div>
+              <button
+                type="button"
+                aria-label="Buka menu navigasi"
+                className="p-2 text-white hover:bg-white/10 transition-colors duration-200 rounded-lg"
+                onClick={() => setMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5 text-black dark:text-white" />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <SearchBar />
-            <ModeToggle />
-            <NavbarAuthMenu variant="inline" onAction={() => {}} />
+
+          {/* Desktop view */}
+          <div className="hidden w-full items-center justify-between text-white sm:flex">
+            <div className="flex items-center gap-8">
+              <Link
+                href="/"
+                className="flex items-center gap-3 text-xl font-bold"
+              >
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={32}
+                  height={32}
+                  className="rounded-lg"
+                />
+                <span className="text-xl font-bold normal-case text-black dark:text-white">
+                  courtease
+                </span>
+              </Link>
+              <nav
+                aria-label="Navigasi utama"
+                className="flex items-center gap-1"
+              >
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="relative px-4 py-2 text-sm font-medium text-black dark:text-white hover:text-orange-500 dark:hover:text-teal-500 transition-colors duration-200 group"
+                  >
+                    {link.label}
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-linear-to-r from-orange-500 to-teal-500 dark:from-teal-400 dark:to-orange-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
+                  </Link>
+                ))}
+              </nav>
+            </div>
+            <div className="flex items-center gap-3">
+              <SearchBar />
+              <div className="text-white">
+                <ModeToggle />
+              </div>
+              <NavbarAuthMenu variant="inline" onAction={() => {}} />
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile menu overlay - DIUBAH MENJADI FLAT */}
+      {/* Mobile menu overlay - FULL PAGE */}
       <div
         className={clsx(
           "fixed inset-0 z-50 sm:hidden",
@@ -155,7 +168,7 @@ export default function Navbar() {
       >
         <div
           className={clsx(
-            "absolute inset-0 bg-black/70 transition-opacity", // Mengurangi efek blur
+            "absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300",
             menuOpen ? "opacity-100" : "opacity-0",
           )}
           aria-hidden="true"
@@ -163,61 +176,55 @@ export default function Navbar() {
         />
         <div
           className={clsx(
-            "absolute inset-0 h-full overflow-y-auto bg-white text-gray-900 transition-transform duration-300 ease-out dark:bg-gray-900 dark:text-white",
+            "absolute inset-0 h-full w-full bg-white text-gray-900 transition-transform duration-300 ease-out dark:bg-gray-900 dark:text-white flex flex-col",
             menuOpen ? "translate-y-0" : "-translate-y-full",
           )}
         >
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <Link
-              href="#top"
-              className="flex items-center text-base font-semibold uppercase"
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="text-lg font-bold normal-case text-gray-900 dark:text-white">
-                courtease
-              </span>
-            </Link>
-            <button
-              type="button"
-              aria-label="Tutup menu navigasi"
-              className="rounded-full border border-gray-300 bg-gray-100 p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-              onClick={() => setMenuOpen(false)}
-            >
-              <X className="h-5 w-5" />
+          {/* CTA Button at top - Like Twibbonize */}
+          <div className="px-6 pt-6">
+            <button className="w-full bg-linear-to-r from-orange-500 to-teal-500 text-white font-semibold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-teal-600 transition-colors duration-200">
+              Start to be a partner
             </button>
           </div>
-          {/* Search bar at top of overlay - DIUBAH MENJADI FLAT */}
-          <div className="px-6 py-4"></div>
-          {/* Navigation links inside overlay - DIUBAH MENJADI FLAT */}
-          <nav
-            className="flex flex-col gap-2 px-6 py-4"
-            aria-label="Navigasi utama"
-          >
+
+          {/* Navigation links in the middle */}
+          <nav className="flex-1 px-6 py-8" aria-label="Navigasi utama">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base font-semibold text-gray-900 transition-colors duration-200 hover:border-orange-500 hover:bg-orange-50 hover:text-orange-600 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:border-teal-500 dark:hover:bg-teal-950 dark:hover:text-teal-400"
+                className="block py-4 text-lg font-medium text-gray-900 dark:text-white hover:text-orange-500 dark:hover:text-teal-400 transition-colors duration-200"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-          {/* Footer actions inside overlay: login and dark mode toggle - DIUBAH MENJADI FLAT */}
-          <div className="flex flex-col gap-3 px-6 py-4 pb-6">
-            <div className="flex items-center justify-between">
-              {/* Dark mode toggle */}
-              <ModeToggle />
-            </div>
-            {/* Authentication menu */}
+
+          {/* Authentication menu at bottom center */}
+          <div className="px-6 pb-6">
             <NavbarAuthMenu
               variant="stacked"
               onAction={() => setMenuOpen(false)}
             />
           </div>
+
+          {/* Dark mode toggle in bottom left corner */}
+          <div className="absolute bottom-6 left-6">
+            <ModeToggle />
+          </div>
+
+          {/* Close button in top right */}
+          <button
+            type="button"
+            aria-label="Tutup menu navigasi"
+            className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+            onClick={() => setMenuOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </button>
         </div>
       </div>
-    </header>
+    </>
   );
 }

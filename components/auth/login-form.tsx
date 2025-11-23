@@ -142,7 +142,11 @@ export function LoginForm({
           />
         </Field>
         <Field>
-          <Button type="submit" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 dark:text-white"
+            disabled={isLoading}
+          >
             {isLoading ? "Memproses..." : "Login"}
           </Button>
         </Field>
