@@ -56,8 +56,10 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  const hideNavbarRoutes = ['/dashboard', '/auth'];
-  const shouldHideNavbar = hideNavbarRoutes.some(route => pathname.startsWith(route));
+  const hideNavbarRoutes = ["/dashboard/admin", "/auth", "/dashboard/venue"];
+  const shouldHideNavbar = hideNavbarRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
 
   if (shouldHideNavbar) {
     return null;
