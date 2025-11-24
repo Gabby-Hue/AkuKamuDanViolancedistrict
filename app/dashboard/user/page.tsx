@@ -96,7 +96,7 @@ export default async function UserDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">

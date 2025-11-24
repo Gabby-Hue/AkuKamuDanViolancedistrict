@@ -193,7 +193,6 @@ export default function TicketModal({
                   ).toUpperCase()}
                 </text>
 
-  
                 {/* Info Table 1 */}
                 <text x="25" y="285" fontSize="19" fill="#666">
                   LAPANGAN
@@ -201,7 +200,7 @@ export default function TicketModal({
                 <text x="120" y="285" fontSize="19" fill="#666">
                   TANGGAL
                 </text>
-                <text x="230" y="285" fontSize="19" fill="#666">
+                <text x="233" y="285" fontSize="19" fill="#666">
                   JAM
                 </text>
 
@@ -218,7 +217,7 @@ export default function TicketModal({
                   {formatDate(startTime)}
                 </text>
                 <text
-                  x="233"
+                  x="237"
                   y="310"
                   fontSize="20"
                   fontWeight="600"
@@ -233,23 +232,23 @@ export default function TicketModal({
                 </text>
 
                 {/* Info Table 2 */}
-                <text x="30" y="345" fontSize="16" fill="#666">
+                <text x="25" y="345" fontSize="19" fill="#666">
                   HARGA
                 </text>
-                <text x="100" y="345" fontSize="16" fill="#666">
+                <text x="120" y="345" fontSize="19" fill="#666">
                   DURASI
                 </text>
-                <text x="200" y="345" fontSize="16" fill="#666">
-                  PEMESAN
+                <text x="210" y="345" fontSize="19" fill="#666">
+                  DIPESAN
                 </text>
 
-                <text x="30" y="365" fontSize="14" fill="#333">
+                <text x="27" y="360" fontSize="14" fill="#333">
                   {formatPrice(booking.price_total)}
                 </text>
-                <text x="100" y="365" fontSize="14" fill="#333">
+                <text x="127" y="365" fontSize="14" fill="#333">
                   {duration} Jam
                 </text>
-                <text x="200" y="365" fontSize="14" fill="#333">
+                <text x="223" y="365" fontSize="14" fill="#333">
                   {booking.user?.full_name || "User"}
                 </text>
 
@@ -292,13 +291,13 @@ export default function TicketModal({
             {/* Poster Image Overlay */}
             <div
               style={{
-                position: 'absolute',
-                top: '110px',
-                left: '10px',
-                width: '260px',
-                height: '146px',
-                borderRadius: '4px',
-                overflow: 'hidden',
+                position: "absolute",
+                top: "110px",
+                left: "10px",
+                width: "260px",
+                height: "146px",
+                borderRadius: "4px",
+                overflow: "hidden",
                 zIndex: 5,
               }}
             >
@@ -306,7 +305,7 @@ export default function TicketModal({
                 src={imageUrl}
                 alt={booking.court_name || booking.court?.name}
                 fill
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: "cover" }}
                 sizes="(max-width: 280px) 100vw"
               />
             </div>

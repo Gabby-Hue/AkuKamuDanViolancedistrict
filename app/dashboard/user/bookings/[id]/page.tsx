@@ -1,9 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/supabase/roles";
-import { fetchUserBookingDetail, fetchCourtDetail } from "@/lib/supabase/queries";
+import {
+  fetchUserBookingDetail,
+  fetchCourtDetail,
+} from "@/lib/supabase/queries";
 import type { BookingStatus, PaymentStatus } from "@/lib/supabase/status";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -43,22 +52,33 @@ const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
 
 const getBookingStatusVariant = (status: BookingStatus) => {
   switch (status) {
-    case "confirmed": return "default";
-    case "pending": return "secondary";
-    case "completed": return "outline";
-    case "cancelled": return "destructive";
-    default: return "secondary";
+    case "confirmed":
+      return "default";
+    case "pending":
+      return "secondary";
+    case "completed":
+      return "outline";
+    case "cancelled":
+      return "destructive";
+    default:
+      return "secondary";
   }
 };
 
 const getPaymentStatusVariant = (status: PaymentStatus) => {
   switch (status) {
-    case "paid": return "default";
-    case "pending": return "destructive";
-    case "waiting_confirmation": return "secondary";
-    case "expired": return "outline";
-    case "cancelled": return "destructive";
-    default: return "secondary";
+    case "paid":
+      return "default";
+    case "pending":
+      return "destructive";
+    case "waiting_confirmation":
+      return "secondary";
+    case "expired":
+      return "outline";
+    case "cancelled":
+      return "destructive";
+    default:
+      return "secondary";
   }
 };
 
@@ -85,11 +105,13 @@ export default async function BookingDetailPage({
 
   const startTime = new Date(booking.start_time);
   const endTime = new Date(booking.end_time);
-  const paymentExpiresAt = booking.payment_expires_at ? new Date(booking.payment_expires_at) : null;
+  const paymentExpiresAt = booking.payment_expires_at
+    ? new Date(booking.payment_expires_at)
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="mb-4">
@@ -105,8 +127,11 @@ export default async function BookingDetailPage({
                 <Badge variant={getBookingStatusVariant(booking.status)}>
                   {BOOKING_STATUS_LABEL[booking.status] ?? booking.status}
                 </Badge>
-                <Badge variant={getPaymentStatusVariant(booking.payment_status)}>
-                  {PAYMENT_STATUS_LABEL[booking.payment_status] ?? booking.payment_status}
+                <Badge
+                  variant={getPaymentStatusVariant(booking.payment_status)}
+                >
+                  {PAYMENT_STATUS_LABEL[booking.payment_status] ??
+                    booking.payment_status}
                 </Badge>
                 <Badge variant="outline">{booking.sport}</Badge>
               </div>
@@ -115,7 +140,8 @@ export default async function BookingDetailPage({
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
                 {booking.venue_name || booking.venue?.name}
-                {(booking.venue_city || booking.venue?.city) && ` • ${booking.venue_city || booking.venue?.city}`}
+                {(booking.venue_city || booking.venue?.city) &&
+                  ` • ${booking.venue_city || booking.venue?.city}`}
               </p>
             </div>
 
@@ -124,7 +150,11 @@ export default async function BookingDetailPage({
                 <Share2 className="mr-2 h-4 w-4" />
                 Bagikan
               </Button>
-              <TicketModal booking={booking} startTime={startTime} endTime={endTime} />
+              <TicketModal
+                booking={booking}
+                startTime={startTime}
+                endTime={endTime}
+              />
               {booking.payment_status === "pending" && (
                 <Button className="bg-green-600 hover:bg-green-700">
                   <CreditCard className="mr-2 h-4 w-4" />
@@ -182,7 +212,8 @@ export default async function BookingDetailPage({
                       {startTime.toLocaleTimeString("id-ID", {
                         hour: "2-digit",
                         minute: "2-digit",
-                      })} -{" "}
+                      })}{" "}
+                      -{" "}
                       {endTime.toLocaleTimeString("id-ID", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -194,7 +225,11 @@ export default async function BookingDetailPage({
                       Durasi
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60))} jam
+                      {Math.round(
+                        (endTime.getTime() - startTime.getTime()) /
+                          (1000 * 60 * 60),
+                      )}{" "}
+                      jam
                     </p>
                   </div>
                   <div>
@@ -239,11 +274,16 @@ export default async function BookingDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {booking.venue_name || booking.venue?.name || booking.venue_name}
+                    {booking.venue_name ||
+                      booking.venue?.name ||
+                      booking.venue_name}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-300">
-                    {booking.venue?.address || booking.venue_address || "Alamat venue"}
-                    {(booking.venue_city || booking.venue?.city) && `, ${booking.venue_city || booking.venue?.city}`}
+                    {booking.venue?.address ||
+                      booking.venue_address ||
+                      "Alamat venue"}
+                    {(booking.venue_city || booking.venue?.city) &&
+                      `, ${booking.venue_city || booking.venue?.city}`}
                   </p>
                 </div>
 
@@ -252,13 +292,17 @@ export default async function BookingDetailPage({
                     <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
                       Lapangan
                     </label>
-                    <p className="text-slate-900 dark:text-white">{booking.court_name || booking.court?.name}</p>
+                    <p className="text-slate-900 dark:text-white">
+                      {booking.court_name || booking.court?.name}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-slate-500 dark:text-slate-400">
                       Tipe Olahraga
                     </label>
-                    <p className="text-slate-900 dark:text-white">{booking.sport}</p>
+                    <p className="text-slate-900 dark:text-white">
+                      {booking.sport}
+                    </p>
                   </div>
                 </div>
 
@@ -267,7 +311,9 @@ export default async function BookingDetailPage({
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-slate-500" />
                   <span className="text-sm text-slate-600 dark:text-slate-300">
-                    {booking.venue?.phone || booking.venue_phone || "Contact venue for details"}
+                    {booking.venue?.phone ||
+                      booking.venue_phone ||
+                      "Contact venue for details"}
                   </span>
                 </div>
 
@@ -288,7 +334,6 @@ export default async function BookingDetailPage({
 
           {/* Sidebar */}
           <div className="space-y-6">
-
             {/* Payment Status */}
             <Card>
               <CardHeader>
@@ -301,13 +346,18 @@ export default async function BookingDetailPage({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status</span>
-                    <Badge variant={getPaymentStatusVariant(booking.payment_status)}>
-                      {PAYMENT_STATUS_LABEL[booking.payment_status] ?? booking.payment_status}
+                    <Badge
+                      variant={getPaymentStatusVariant(booking.payment_status)}
+                    >
+                      {PAYMENT_STATUS_LABEL[booking.payment_status] ??
+                        booking.payment_status}
                     </Badge>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Total Pembayaran</span>
+                    <span className="text-sm font-medium">
+                      Total Pembayaran
+                    </span>
                     <span className="font-bold text-lg text-slate-900 dark:text-white">
                       Rp {booking.price_total.toLocaleString("id-ID")}
                     </span>
@@ -328,21 +378,27 @@ export default async function BookingDetailPage({
                     <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-green-800 dark:text-green-200">
                         <CheckCircle className="h-4 w-4 mr-2" />
-                        <span className="text-sm font-medium">Pembayaran Berhasil</span>
+                        <span className="text-sm font-medium">
+                          Pembayaran Berhasil
+                        </span>
                       </div>
                       <div className="grid gap-1 text-xs text-green-700 dark:text-green-300">
                         <div className="flex justify-between">
                           <span>Waktu Bayar:</span>
-                          <span>{new Date(booking.paid_at).toLocaleString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}</span>
+                          <span>
+                            {new Date(booking.paid_at).toLocaleString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span>Metode:</span>
-                          <span>{booking.payment_method || "Transfer Bank"}</span>
+                          <span>
+                            {booking.payment_method || "Transfer Bank"}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -352,7 +408,9 @@ export default async function BookingDetailPage({
                     <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                       <div className="flex items-center text-orange-800 dark:text-orange-200">
                         <Timer className="h-4 w-4 mr-2" />
-                        <span className="text-sm font-medium">Batas Waktu Pembayaran</span>
+                        <span className="text-sm font-medium">
+                          Batas Waktu Pembayaran
+                        </span>
                       </div>
                       <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
                         {paymentExpiresAt.toLocaleDateString("id-ID", {
@@ -365,7 +423,16 @@ export default async function BookingDetailPage({
                         })}
                       </p>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                        Sisa waktu: {Math.max(0, Math.ceil((paymentExpiresAt.getTime() - new Date().getTime()) / (1000 * 60)))} menit
+                        Sisa waktu:{" "}
+                        {Math.max(
+                          0,
+                          Math.ceil(
+                            (paymentExpiresAt.getTime() -
+                              new Date().getTime()) /
+                              (1000 * 60),
+                          ),
+                        )}{" "}
+                        menit
                       </p>
                     </div>
                   )}
@@ -374,7 +441,9 @@ export default async function BookingDetailPage({
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-blue-800 dark:text-blue-200">
                         <Clock className="h-4 w-4 mr-2" />
-                        <span className="text-sm font-medium">Menunggu Verifikasi</span>
+                        <span className="text-sm font-medium">
+                          Menunggu Verifikasi
+                        </span>
                       </div>
                       <p className="text-xs text-blue-700 dark:text-blue-300">
                         Pembayaran sedang diverifikasi oleh admin venue
@@ -421,7 +490,9 @@ export default async function BookingDetailPage({
                       Hubungi Venue
                     </p>
                     <p className="text-slate-600 dark:text-slate-300">
-                      {booking.venue?.phone || booking.venue_phone || "Contact support"}
+                      {booking.venue?.phone ||
+                        booking.venue_phone ||
+                        "Contact support"}
                     </p>
                   </div>
                 </div>
