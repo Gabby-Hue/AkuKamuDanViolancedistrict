@@ -38,7 +38,7 @@ export default async function BlackoutPage() {
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
   const email = identity?.email ?? "partner@courtease.id";
-  const avatarUrl = identity?.avatarUrl ?? null;
+  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -136,7 +136,7 @@ export default async function BlackoutPage() {
   return (
     <SidebarProvider>
       <AppSidebar
-        user={{ name: displayName, email, avatarUrl }}
+        user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
         navProjects={navProjects}
@@ -171,7 +171,9 @@ export default async function BlackoutPage() {
         <div className="flex-1 space-y-4 p-4 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Blackout Schedule</h2>
+              <h2 className="text-3xl font-bold tracking-tight">
+                Blackout Schedule
+              </h2>
               <p className="text-muted-foreground">
                 Kelola tanggal ketika lapangan tidak tersedia untuk booking
               </p>
@@ -193,20 +195,43 @@ export default async function BlackoutPage() {
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Lapangan</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Lapangan
+                    </p>
                     <p className="text-2xl font-bold">{courts.length}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Lapangan dengan Blackout</p>
-                    <p className="text-2xl font-bold">{courts.filter(c => c.blackoutDates.length > 0).length}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Lapangan dengan Blackout
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {courts.filter((c) => c.blackoutDates.length > 0).length}
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Total Hari Blackout</p>
-                    <p className="text-2xl font-bold">{courts.reduce((sum, court) => sum + court.blackoutDates.length, 0)}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Hari Blackout
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {courts.reduce(
+                        (sum, court) => sum + court.blackoutDates.length,
+                        0,
+                      )}
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Lapangan Tersedia</p>
-                    <p className="text-2xl font-bold">{courts.filter(c => c.status === "active" && c.blackoutDates.length === 0).length}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Lapangan Tersedia
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {
+                        courts.filter(
+                          (c) =>
+                            c.status === "active" &&
+                            c.blackoutDates.length === 0,
+                        ).length
+                      }
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -252,11 +277,15 @@ export default async function BlackoutPage() {
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h4 className="font-medium">{court.name}</h4>
-                        <p className="text-sm text-muted-foreground">{court.type}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {court.type}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge
-                          variant={court.status === "active" ? "default" : "secondary"}
+                          variant={
+                            court.status === "active" ? "default" : "secondary"
+                          }
                         >
                           {court.status === "active" ? "Aktif" : "Maintenance"}
                         </Badge>
@@ -269,11 +298,15 @@ export default async function BlackoutPage() {
                     {court.blackoutDates.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {court.blackoutDates.map((date, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {new Date(date).toLocaleDateString("id-ID", {
                               day: "numeric",
                               month: "short",
-                              year: "numeric"
+                              year: "numeric",
                             })}
                             <button className="ml-1 hover:text-red-600">
                               ×

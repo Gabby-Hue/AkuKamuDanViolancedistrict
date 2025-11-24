@@ -19,4 +19,4 @@ export {
 export * from "./queries";
 
 // Legacy exports (for backward compatibility)
-export type { Database } from "@/types/supabase";
+// Database type export removed until types/supabase is available

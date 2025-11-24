@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -82,6 +82,7 @@ export function NavbarAuthMenu({
 
         if (error) {
           console.error("Failed to fetch session", error.message);
+          // Don't throw here, just continue with null user
         }
 
         if (!authUser) {
@@ -94,7 +95,7 @@ export function NavbarAuthMenu({
 
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url, role")
+          .select("full_name, role")
           .eq("id", authUser.id)
           .maybeSingle();
 
@@ -111,11 +112,7 @@ export function NavbarAuthMenu({
               (typeof authUser.user_metadata?.full_name === "string"
                 ? (authUser.user_metadata.full_name as string)
                 : null),
-            avatarUrl:
-              (profile?.avatar_url as string | null) ??
-              (typeof authUser.user_metadata?.avatar_url === "string"
-                ? (authUser.user_metadata.avatar_url as string)
-                : null),
+            avatarUrl: null,
             role: (profile?.role as string | null) ?? null,
           });
           setLoading(false);
@@ -265,10 +262,7 @@ export function NavbarAuthMenu({
       <div className="space-y-3 rounded-3xl border border-slate-200/80 bg-white/80 p-5 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/60">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 rounded-2xl">
-            <AvatarImage
-              src={user.avatarUrl ?? undefined}
-              alt={user.fullName ?? user.email}
-            />
+            <AvatarImage alt={user.fullName ?? user.email} />
             <AvatarFallback className="rounded-2xl">{initials}</AvatarFallback>
           </Avatar>
           <div>
@@ -322,10 +316,7 @@ export function NavbarAuthMenu({
           className="group flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-brand-strong dark:text-slate-300"
         >
           <Avatar className="h-9 w-9">
-            <AvatarImage
-              src={user.avatarUrl ?? undefined}
-              alt={user.fullName ?? user.email}
-            />
+            <AvatarImage alt={user.fullName ?? user.email} />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <span className="hidden text-left sm:block">

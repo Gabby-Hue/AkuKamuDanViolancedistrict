@@ -107,11 +107,11 @@ export async function getForumThreads(options?: {
     reply_count: thread.reply_count ?? 0,
     created_at: thread.created_at,
     tags: Array.isArray(thread.tags) ? thread.tags : [],
-    category: thread.category,
-    author_name: thread.author?.full_name ?? null,
+    category: Array.isArray(thread.category) ? thread.category[0] : thread.category,
+    author_name: (thread.author as any)?.full_name ?? null,
     latestReplyBody: thread.latest_reply_body ?? null,
     latestReplyAt: thread.latest_reply_at ?? null,
-    reviewCourt: thread.review_court,
+    reviewCourt: Array.isArray(thread.review_court) ? thread.review_court[0] : thread.review_court,
   }));
 
   return {
@@ -179,8 +179,8 @@ export async function getForumThreadBySlug(
       id: reply.id,
       body: reply.body,
       created_at: reply.created_at,
-      author_name: reply.author?.full_name ?? null,
-      author_avatar_url: reply.author?.avatar_url ?? null,
+      author_name: (reply.author as any)?.full_name ?? null,
+      author_avatar_url: (reply.author as any)?.avatar_url ?? null,
     })),
   };
 }

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/types/supabase";
+import type { CourtSummary } from "./courts";
 import type {
   CourtSummaryRow,
   CourtBlackoutRow,
@@ -176,12 +176,12 @@ export async function getVenueDashboardData(
     const current = blackoutsByCourt.get(row.court_id) ?? [];
     current.push({
       id: row.id,
-      title: row.title,
+      title: row.title ?? "Blackout",
       notes: row.notes ?? null,
-      scope: row.scope,
-      frequency: row.frequency,
-      start_date: row.start_date,
-      end_date: row.end_date,
+      scope: row.scope as "once" | "recurring" ?? "once",
+      frequency: row.frequency as "daily" | "weekly" | "monthly" ?? "daily",
+      start_date: row.start_date ?? "",
+      end_date: row.end_date ?? "",
       start_time: row.start_time ?? null,
       end_time: row.end_time ?? null,
       repeat_day_of_week: row.repeat_day_of_week ?? null,
@@ -198,7 +198,7 @@ export async function getVenueDashboardData(
     status: normalizeBookingStatus(booking.status),
     checked_in_at: booking.checked_in_at ?? null,
     completed_at: booking.completed_at ?? null,
-    price_total: Number(booking.price_total ?? 0),
+    price_total: Number(booking.total_price ?? 0),
     court_name: booking.court?.name ?? "",
     sport: booking.court?.sport ?? "",
   }));

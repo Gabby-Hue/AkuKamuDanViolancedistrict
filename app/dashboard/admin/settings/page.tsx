@@ -46,7 +46,7 @@ export default async function Page() {
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
   const email = identity?.email ?? "admin@courtease.id";
-  const avatarUrl = identity?.avatarUrl ?? null;
+  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -150,7 +150,7 @@ export default async function Page() {
   return (
     <SidebarProvider>
       <AppSidebar
-        user={{ name: displayName, email, avatarUrl }}
+        user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
       />
@@ -196,7 +196,6 @@ export default async function Page() {
                   <div className="flex flex-col items-center space-y-4">
                     <div className="relative">
                       <Avatar className="h-24 w-24">
-                        <AvatarImage src={avatarUrl} alt={displayName} />
                         <AvatarFallback className="text-2xl">
                           {displayName
                             ?.split(" ")

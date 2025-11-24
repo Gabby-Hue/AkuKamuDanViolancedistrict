@@ -147,8 +147,8 @@ export async function getUserDashboardData(
 
   const bookings = (bookingsResult.data ?? []).map((booking) => ({
     id: booking.id,
-    courtName: booking.court?.name ?? "",
-    sport: booking.court?.sport ?? "",
+    courtName: (booking.court as any)?.name ?? "",
+    sport: (booking.court as any)?.sport ?? "",
     startTime: booking.start_time,
     endTime: booking.end_time,
     status: normalizeBookingStatus(booking.status),

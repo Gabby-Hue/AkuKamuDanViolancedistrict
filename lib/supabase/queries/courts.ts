@@ -1,6 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/types/supabase";
 
 export type CourtSummary = {
   id: string;
@@ -128,7 +127,7 @@ export async function getCourtBySlug(slug: string): Promise<CourtDetail | null> 
       rating: review.rating,
       comment: review.comment ?? null,
       created_at: review.created_at,
-      author: review.profile?.full_name ?? null,
+      author: (review.profile as any)?.full_name ?? null,
     })),
   };
 }

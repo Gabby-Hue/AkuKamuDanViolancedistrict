@@ -40,10 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import {
-  Settings,
-  Building2,
-} from "lucide-react";
+import { Settings, Building2 } from "lucide-react";
 
 export default async function SettingsPage() {
   const profile = await requireRole("venue_partner");
@@ -52,7 +49,7 @@ export default async function SettingsPage() {
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
   const email = identity?.email ?? "partner@courtease.id";
-  const avatarUrl = identity?.avatarUrl ?? null;
+  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -75,7 +72,7 @@ export default async function SettingsPage() {
       url: "/dashboard/venue/blackout",
       icon: "CalendarX",
     },
-        {
+    {
       title: "Pengaturan",
       url: "/dashboard/venue/settings",
       icon: "Settings2",
@@ -108,11 +105,10 @@ export default async function SettingsPage() {
     icon: "MapPin",
   }));
 
-  
   return (
     <SidebarProvider>
       <AppSidebar
-        user={{ name: displayName, email, avatarUrl }}
+        user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
         navProjects={navProjects}
@@ -311,7 +307,7 @@ export default async function SettingsPage() {
                       defaultValue="Fasilitas olahraga lengkap dengan lapangan futsal, badminton, basket, dan tenis. Dilengkapi dengan ruang ganti, kafe, dan area parkir luas."
                     />
                   </div>
-                    <div className="flex justify-end">
+                  <div className="flex justify-end">
                     <Button>Simpan Perubahan</Button>
                   </div>
                 </CardContent>

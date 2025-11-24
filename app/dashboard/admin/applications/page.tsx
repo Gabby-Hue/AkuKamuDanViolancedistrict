@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
+import { getAdminDashboardData, type AdminDashboardData } from "@/lib/supabase/queries/dashboard";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import {
@@ -50,14 +51,79 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export default async function Page() {
   const profile = await requireRole("admin");
   const identity = await getAuthenticatedProfile();
 
+  let dashboardData: AdminDashboardData;
+  try {
+    dashboardData = await getAdminDashboardData();
+  } catch (error) {
+    console.error("Failed to load admin dashboard data:", error);
+    dashboardData = {
+      metrics: {
+        totalVenues: 0,
+        totalCourts: 0,
+        totalBookings: 0,
+        totalUsers: 0,
+        totalRevenue: 0,
+        pendingApplications: 0,
+      },
+      revenueTrend: [],
+      sportBreakdown: [],
+      venueLeaders: [],
+      partnerApplications: {
+        total: 0,
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        recent: [],
+      },
+    };
+  }
+
+  // Fetch all partner applications
+  let allApplications: any[] = [];
+  try {
+    const supabase = await createAdminClient();
+    const { data, error } = await supabase
+      .from("partner_applications")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      allApplications = data.map(app => ({
+        id: app.id,
+        name: app.business_name || app.full_name,
+        owner: app.full_name,
+        email: app.email,
+        phone: app.phone,
+        city: app.city || "Unknown",
+        sport: app.sport_type || "Multi-sport",
+        status: app.status,
+        submittedDate: app.created_at,
+        description: app.description || "No description provided",
+        facilities: app.facilities ? JSON.parse(app.facilities as string) : [],
+        operatingHours: app.operating_hours || "Not specified",
+        courts: app.number_of_courts || 1,
+        businessName: app.business_name,
+        address: app.address,
+        rejectionReason: app.rejection_reason,
+      }));
+    }
+  } catch (error) {
+    console.error("Failed to load partner applications:", error);
+  }
+
+  const pendingApplications = allApplications.filter(app => app.status === "pending");
+  const approvedApplications = allApplications.filter(app => app.status === "approved");
+  const rejectedApplications = allApplications.filter(app => app.status === "rejected");
+
   const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
   const email = identity?.email ?? "admin@courtease.id";
-  const avatarUrl = identity?.avatarUrl ?? null;
+  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -87,142 +153,6 @@ export default async function Page() {
     },
   ];
 
-  // Mock data untuk venue applications
-  const pendingApplications = [
-    {
-      id: "VNY-001",
-      name: "Champion Futsal Center",
-      owner: "Budi Santoso",
-      email: "budi@championfutsal.com",
-      phone: "0812-3456-7890",
-      city: "Jakarta Selatan",
-      sport: "Futsal",
-      status: "pending" as const,
-      submittedDate: "2024-06-20",
-      description: "Futsal court dengan fasilitas lengkap, lokasi strategis di tengah kota",
-      facilities: ["Lapangan Standar", "Loker", "Mushola", "Parkir Luas", "Kantin"],
-      operatingHours: "08:00 - 23:00",
-      courts: 3,
-    },
-    {
-      id: "VNY-002",
-      name: "Elite Badminton Hall",
-      owner: "Siti Nurhaliza",
-      email: "siti@elitebadminton.com",
-      phone: "0813-9876-5432",
-      city: "Bandung",
-      sport: "Badminton",
-      status: "pending" as const,
-      submittedDate: "2024-06-21",
-      description: "Hall bulutangkis profesional dengan lantai kayu import",
-      facilities: ["8 Lapangan", "AC", "Loker", "Cafe", "Pro Shop"],
-      operatingHours: "06:00 - 22:00",
-      courts: 8,
-    },
-    {
-      id: "VNY-003",
-      name: "Victory Tennis Court",
-      owner: "Ahmad Rizki",
-      email: "ahmad@victorytennis.com",
-      phone: "0815-6789-0123",
-      city: "Surabaya",
-      sport: "Tenis",
-      status: "pending" as const,
-      submittedDate: "2024-06-22",
-      description: "Lapangan tenis hardcourt dengan lighting malam",
-      facilities: ["2 Lapangan Hardcourt", "Floodlight", "Loker", "Rest Area"],
-      operatingHours: "07:00 - 21:00",
-      courts: 2,
-    },
-    {
-      id: "VNY-004",
-      name: "Premier Basketball Arena",
-      owner: "Rina Wijaya",
-      email: "rina@premierbasketball.com",
-      phone: "0816-2345-6789",
-      city: "Jakarta Pusat",
-      sport: "Basket",
-      status: "pending" as const,
-      submittedDate: "2024-06-23",
-      description: "Lapangan basket indoor dengan standar internasional",
-      facilities: ["2 Lapangan", "Scoreboard", "Locker Room", "Shower", "Cafeteria"],
-      operatingHours: "07:00 - 22:00",
-      courts: 2,
-    },
-    {
-      id: "VNY-005",
-      name: "Golden Swimming Pool",
-      owner: "Faisal Rahman",
-      email: "faisal@goldenswim.com",
-      phone: "0817-3456-7890",
-      city: "Tangerang",
-      sport: "Renang",
-      status: "pending" as const,
-      submittedDate: "2024-06-23",
-      description: "Kolam renang olympic size dengan fasilitas lengkap",
-      facilities: ["8 Lane Olympic Pool", "Warm-up Pool", "Kids Pool", "Gym", "Sauna"],
-      operatingHours: "06:00 - 21:00",
-      courts: 1,
-    },
-  ];
-
-  const approvedApplications = [
-    {
-      id: "VNY-006",
-      name: "Mega Sport Center",
-      owner: "Joko Widodo",
-      email: "joko@megaport.com",
-      phone: "0818-4567-8901",
-      city: "Bekasi",
-      sport: "Multi-sport",
-      status: "approved" as const,
-      submittedDate: "2024-06-15",
-      approvedDate: "2024-06-18",
-      description: "Multi-sport complex dengan berbagai macam olahraga",
-      facilities: ["Futsal", "Basket", "Badminton", "Gym", "Cafe"],
-      operatingHours: "06:00 - 23:00",
-      courts: 10,
-    },
-    {
-      id: "VNY-007",
-      name: "Victory Volleyball Hall",
-      owner: "Dewi Lestari",
-      email: "dewi@victoryvolly.com",
-      phone: "0819-5678-9012",
-      city: "Depok",
-      sport: "Voli",
-      status: "approved" as const,
-      submittedDate: "2024-06-10",
-      approvedDate: "2024-06-12",
-      description: "Hall voli dengan matras berkualitas tinggi",
-      facilities: ["4 Lapangan Voli", "Matras Import", "AC", "Loker", "Gym"],
-      operatingHours: "07:00 - 22:00",
-      courts: 4,
-    },
-  ];
-
-  const rejectedApplications = [
-    {
-      id: "VNY-008",
-      name: "Small Sports Corner",
-      owner: "Andi Pratama",
-      email: "andi@smallcorner.com",
-      phone: "0820-6789-0123",
-      city: "Bogor",
-      sport: "Futsal",
-      status: "rejected" as const,
-      submittedDate: "2024-06-05",
-      rejectedDate: "2024-06-07",
-      description: "Lapangan futsal mini di kompleks perumahan",
-      facilities: ["1 Lapangan Mini", "Loker Sederhana"],
-      operatingHours: "08:00 - 18:00",
-      courts: 1,
-      rejectionReason: "Lokasi tidak strategis dan fasilitas belum memenuhi standar minimum",
-    },
-  ];
-
-  const allApplications = [...pendingApplications, ...approvedApplications, ...rejectedApplications];
-
   // Pagination logic
   const itemsPerPage = 5;
   const currentPage = 1;
@@ -233,7 +163,7 @@ export default async function Page() {
   return (
     <SidebarProvider>
       <AppSidebar
-        user={{ name: displayName, email, avatarUrl }}
+        user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
       />
@@ -480,19 +410,19 @@ export default async function Page() {
 function ApplicationRow({ application }: { application: any }) {
   return (
     <TableRow>
-      <TableCell className="font-medium">{application.id}</TableCell>
+      <TableCell className="font-medium">{application.id.substring(0, 8)}...</TableCell>
       <TableCell>{application.name}</TableCell>
       <TableCell>{application.owner}</TableCell>
       <TableCell>
         <Badge variant="outline">{application.sport}</Badge>
       </TableCell>
       <TableCell>{application.city}</TableCell>
-      <TableCell>{application.submittedDate}</TableCell>
+      <TableCell>{new Date(application.submittedDate).toLocaleDateString('id-ID')}</TableCell>
       {application.status === 'approved' && (
-        <TableCell>{application.approvedDate}</TableCell>
+        <TableCell>{new Date(application.updated_at).toLocaleDateString('id-ID')}</TableCell>
       )}
       {application.status === 'rejected' && (
-        <TableCell>{application.rejectedDate}</TableCell>
+        <TableCell>{new Date(application.updated_at).toLocaleDateString('id-ID')}</TableCell>
       )}
       {application.status === 'pending' && <TableCell>-</TableCell>}
       <TableCell>
@@ -522,7 +452,7 @@ function ApplicationRow({ application }: { application: any }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Application ID</Label>
-                    <p className="text-sm font-medium">{application.id}</p>
+                    <p className="text-sm font-medium">{application.id.substring(0, 8)}...</p>
                   </div>
                   <div>
                     <Label>Status</Label>
@@ -548,12 +478,14 @@ function ApplicationRow({ application }: { application: any }) {
                 </div>
 
                 <div>
-                  <Label>Venue Details</Label>
+                  <Label>Business Information</Label>
                   <div className="mt-2 space-y-1">
+                    <p className="text-sm"><strong>Business Name:</strong> {application.businessName || "N/A"}</p>
                     <p className="text-sm"><strong>Sport Type:</strong> {application.sport}</p>
                     <p className="text-sm"><strong>City:</strong> {application.city}</p>
                     <p className="text-sm"><strong>Courts:</strong> {application.courts}</p>
                     <p className="text-sm"><strong>Operating Hours:</strong> {application.operatingHours}</p>
+                    {application.address && <p className="text-sm"><strong>Address:</strong> {application.address}</p>}
                   </div>
                 </div>
 
@@ -565,16 +497,18 @@ function ApplicationRow({ application }: { application: any }) {
                 <div>
                   <Label>Facilities</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {application.facilities.map((facility: string, index: number) => (
+                    {application.facilities.length > 0 ? application.facilities.map((facility: string, index: number) => (
                       <Badge key={index} variant="outline">{facility}</Badge>
-                    ))}
+                    )) : (
+                      <span className="text-sm text-muted-foreground">No facilities listed</span>
+                    )}
                   </div>
                 </div>
 
                 {application.status === 'approved' && (
                   <div>
-                    <Label>Approval Date</Label>
-                    <p className="text-sm mt-2">{application.approvedDate}</p>
+                    <Label>Approval Information</Label>
+                    <p className="text-sm mt-2">Approved on {new Date(application.updated_at).toLocaleDateString('id-ID')}</p>
                   </div>
                 )}
 
@@ -582,8 +516,8 @@ function ApplicationRow({ application }: { application: any }) {
                   <div>
                     <Label>Rejection Information</Label>
                     <div className="mt-2 space-y-1">
-                      <p className="text-sm"><strong>Rejected Date:</strong> {application.rejectedDate}</p>
-                      <p className="text-sm"><strong>Reason:</strong> {application.rejectionReason}</p>
+                      <p className="text-sm"><strong>Rejected Date:</strong> {new Date(application.updated_at).toLocaleDateString('id-ID')}</p>
+                      {application.rejectionReason && <p className="text-sm"><strong>Reason:</strong> {application.rejectionReason}</p>}
                     </div>
                   </div>
                 )}

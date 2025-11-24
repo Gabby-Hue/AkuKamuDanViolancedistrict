@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export type PartnerApplicationState = {
   status: "idle" | "success" | "error";
@@ -11,6 +13,16 @@ export async function submitPartnerApplication(
   prevState: PartnerApplicationState,
   formData: FormData,
 ): Promise<PartnerApplicationState> {
+  // Check if user is authenticated
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    // Store the current page URL to redirect back after login
+    const currentUrl = new URL("/venue-partner", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+    redirect(`/auth/login?redirect=${encodeURIComponent(currentUrl.pathname)}`);
+  }
+
   const organizationName = (formData.get("organizationName") ?? "")
     .toString()
     .trim();
@@ -51,9 +63,9 @@ export async function submitPartnerApplication(
     : null;
 
   try {
-    const supabase = createServiceRoleClient();
+    const adminSupabase = await createAdminClient();
 
-    const { error } = await supabase.from("venue_partner_applications").insert({
+    const { error } = await adminSupabase.from("venue_partner_applications").insert({
       organization_name: organizationName,
       contact_name: contactName,
       contact_email: contactEmail,

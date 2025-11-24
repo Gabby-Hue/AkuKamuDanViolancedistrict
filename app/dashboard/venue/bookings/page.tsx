@@ -55,12 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
   Clock,
@@ -80,7 +75,7 @@ export default async function BookingsPage() {
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
   const email = identity?.email ?? "partner@courtease.id";
-  const avatarUrl = identity?.avatarUrl ?? null;
+  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -104,7 +99,7 @@ export default async function BookingsPage() {
       url: "/dashboard/venue/blackout",
       icon: "CalendarX",
     },
-        {
+    {
       title: "Pengaturan",
       url: "/dashboard/venue/settings",
       icon: "Settings2",
@@ -225,14 +220,22 @@ export default async function BookingsPage() {
     },
   ];
 
-  const todayBookings = bookings.filter(booking => booking.date === "2024-06-21");
-  const upcomingBookings = bookings.filter(booking => booking.status === "confirmed" && new Date(booking.date) >= new Date("2024-06-21"));
-  const pendingBookings = bookings.filter(booking => booking.status === "pending");
+  const todayBookings = bookings.filter(
+    (booking) => booking.date === "2024-06-21",
+  );
+  const upcomingBookings = bookings.filter(
+    (booking) =>
+      booking.status === "confirmed" &&
+      new Date(booking.date) >= new Date("2024-06-21"),
+  );
+  const pendingBookings = bookings.filter(
+    (booking) => booking.status === "pending",
+  );
 
   return (
     <SidebarProvider>
       <AppSidebar
-        user={{ name: displayName, email, avatarUrl }}
+        user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
         navProjects={navProjects}
@@ -266,15 +269,15 @@ export default async function BookingsPage() {
 
         <div className="flex-1 space-y-4 p-4 pt-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Jadwal & Booking</h2>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Jadwal & Booking
+            </h2>
             <div className="flex gap-2">
               <Button variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 Lihat Kalender
               </Button>
-              <Button>
-                Tambah Booking Manual
-              </Button>
+              <Button>Tambah Booking Manual</Button>
             </div>
           </div>
 
@@ -296,9 +299,15 @@ export default async function BookingsPage() {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{todayBookings.length}</div>
+                    <div className="text-2xl font-bold">
+                      {todayBookings.length}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      {todayBookings.filter(b => b.status === "confirmed").length} dikonfirmasi
+                      {
+                        todayBookings.filter((b) => b.status === "confirmed")
+                          .length
+                      }{" "}
+                      dikonfirmasi
                     </p>
                   </CardContent>
                 </Card>
@@ -311,13 +320,19 @@ export default async function BookingsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      Rp {todayBookings
-                        .filter(b => b.status === "confirmed")
+                      Rp{" "}
+                      {todayBookings
+                        .filter((b) => b.status === "confirmed")
                         .reduce((sum, b) => sum + b.totalPrice, 0)
                         .toLocaleString("id-ID")}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Dari {todayBookings.filter(b => b.status === "confirmed").length} booking
+                      Dari{" "}
+                      {
+                        todayBookings.filter((b) => b.status === "confirmed")
+                          .length
+                      }{" "}
+                      booking
                     </p>
                   </CardContent>
                 </Card>
@@ -361,13 +376,18 @@ export default async function BookingsPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {todayBookings.map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
                             <Clock className="h-6 w-6 text-primary" />
                           </div>
                           <div>
-                            <h4 className="font-medium">{booking.startTime} - {booking.endTime}</h4>
+                            <h4 className="font-medium">
+                              {booking.startTime} - {booking.endTime}
+                            </h4>
                             <p className="text-sm text-muted-foreground">
                               {booking.courtName} • {booking.customerName}
                             </p>
@@ -379,20 +399,35 @@ export default async function BookingsPage() {
                               booking.status === "confirmed"
                                 ? "default"
                                 : booking.status === "pending"
-                                ? "secondary"
-                                : "destructive"
+                                  ? "secondary"
+                                  : "destructive"
                             }
                           >
-                            {booking.status === "confirmed" && <CheckCircle className="mr-1 h-3 w-3" />}
-                            {booking.status === "pending" && <AlertCircle className="mr-1 h-3 w-3" />}
-                            {booking.status === "cancelled" && <XCircle className="mr-1 h-3 w-3" />}
-                            {booking.status === "confirmed" ? "Dikonfirmasi" :
-                             booking.status === "pending" ? "Menunggu" : "Dibatalkan"}
+                            {booking.status === "confirmed" && (
+                              <CheckCircle className="mr-1 h-3 w-3" />
+                            )}
+                            {booking.status === "pending" && (
+                              <AlertCircle className="mr-1 h-3 w-3" />
+                            )}
+                            {booking.status === "cancelled" && (
+                              <XCircle className="mr-1 h-3 w-3" />
+                            )}
+                            {booking.status === "confirmed"
+                              ? "Dikonfirmasi"
+                              : booking.status === "pending"
+                                ? "Menunggu"
+                                : "Dibatalkan"}
                           </Badge>
                           <Badge
-                            variant={booking.paymentStatus === "paid" ? "default" : "secondary"}
+                            variant={
+                              booking.paymentStatus === "paid"
+                                ? "default"
+                                : "secondary"
+                            }
                           >
-                            {booking.paymentStatus === "paid" ? "Dibayar" : "Belum Bayar"}
+                            {booking.paymentStatus === "paid"
+                              ? "Dibayar"
+                              : "Belum Bayar"}
                           </Badge>
                           <Button size="sm" variant="outline">
                             Detail
@@ -421,25 +456,41 @@ export default async function BookingsPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {upcomingBookings.map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
                         <div className="flex items-center space-x-4">
                           <div className="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
                             <Calendar className="h-6 w-6 text-primary" />
-                            <span className="text-xs font-medium">{new Date(booking.date).getDate()}</span>
+                            <span className="text-xs font-medium">
+                              {new Date(booking.date).getDate()}
+                            </span>
                           </div>
                           <div>
                             <h4 className="font-medium">{booking.courtName}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(booking.date).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                              {new Date(booking.date).toLocaleDateString(
+                                "id-ID",
+                                {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                },
+                              )}
                             </p>
                             <p className="text-sm">
-                              {booking.startTime} - {booking.endTime} • {booking.duration} jam
+                              {booking.startTime} - {booking.endTime} •{" "}
+                              {booking.duration} jam
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{booking.customerName}</p>
-                          <p className="text-sm text-muted-foreground">{booking.customerEmail}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {booking.customerEmail}
+                          </p>
                           <p className="font-medium text-primary">
                             Rp {booking.totalPrice.toLocaleString("id-ID")}
                           </p>
@@ -467,34 +518,56 @@ export default async function BookingsPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {pendingBookings.map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100">
                             <AlertCircle className="h-6 w-6 text-yellow-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium">Booking #{booking.id}</h4>
+                            <h4 className="font-medium">
+                              Booking #{booking.id}
+                            </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.courtName} • {new Date(booking.date).toLocaleDateString("id-ID")}
+                              {booking.courtName} •{" "}
+                              {new Date(booking.date).toLocaleDateString(
+                                "id-ID",
+                              )}
                             </p>
                             <p className="text-sm">
-                              {booking.startTime} - {booking.endTime} • {booking.customerName}
+                              {booking.startTime} - {booking.endTime} •{" "}
+                              {booking.customerName}
                             </p>
                             {booking.notes && (
-                              <p className="text-sm text-muted-foreground italic">Catatan: {booking.notes}</p>
+                              <p className="text-sm text-muted-foreground italic">
+                                Catatan: {booking.notes}
+                              </p>
                             )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <div className="text-right mr-4">
-                            <p className="font-medium">Rp {booking.totalPrice.toLocaleString("id-ID")}</p>
-                            <p className="text-sm text-muted-foreground">Belum dibayar</p>
+                            <p className="font-medium">
+                              Rp {booking.totalPrice.toLocaleString("id-ID")}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Belum dibayar
+                            </p>
                           </div>
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Konfirmasi
                           </Button>
-                          <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                          >
                             <XCircle className="mr-2 h-4 w-4" />
                             Tolak
                           </Button>
@@ -550,47 +623,73 @@ export default async function BookingsPage() {
                     <TableBody>
                       {bookings.map((booking) => (
                         <TableRow key={booking.id}>
-                          <TableCell className="font-medium">{booking.id}</TableCell>
+                          <TableCell className="font-medium">
+                            {booking.id}
+                          </TableCell>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.customerName}</p>
-                              <p className="text-sm text-muted-foreground">{booking.customerEmail}</p>
+                              <p className="font-medium">
+                                {booking.customerName}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {booking.customerEmail}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div>
                               <p className="font-medium">{booking.courtName}</p>
-                              <p className="text-sm text-muted-foreground">{booking.courtType}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {booking.courtType}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div>
-                              <p>{new Date(booking.date).toLocaleDateString("id-ID")}</p>
-                              <p className="text-sm text-muted-foreground">{booking.startTime} - {booking.endTime}</p>
+                              <p>
+                                {new Date(booking.date).toLocaleDateString(
+                                  "id-ID",
+                                )}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {booking.startTime} - {booking.endTime}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell>{booking.duration} jam</TableCell>
-                          <TableCell>Rp {booking.totalPrice.toLocaleString("id-ID")}</TableCell>
+                          <TableCell>
+                            Rp {booking.totalPrice.toLocaleString("id-ID")}
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant={
                                 booking.status === "confirmed"
                                   ? "default"
                                   : booking.status === "pending"
-                                  ? "secondary"
-                                  : "destructive"
+                                    ? "secondary"
+                                    : "destructive"
                               }
                             >
-                              {booking.status === "confirmed" ? "Dikonfirmasi" :
-                               booking.status === "pending" ? "Menunggu" : "Dibatalkan"}
+                              {booking.status === "confirmed"
+                                ? "Dikonfirmasi"
+                                : booking.status === "pending"
+                                  ? "Menunggu"
+                                  : "Dibatalkan"}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             <Badge
-                              variant={booking.paymentStatus === "paid" ? "default" : "secondary"}
+                              variant={
+                                booking.paymentStatus === "paid"
+                                  ? "default"
+                                  : "secondary"
+                              }
                             >
-                              {booking.paymentStatus === "paid" ? "Dibayar" :
-                               booking.paymentStatus === "unpaid" ? "Belum" : "Refund"}
+                              {booking.paymentStatus === "paid"
+                                ? "Dibayar"
+                                : booking.paymentStatus === "unpaid"
+                                  ? "Belum"
+                                  : "Refund"}
                             </Badge>
                           </TableCell>
                           <TableCell>

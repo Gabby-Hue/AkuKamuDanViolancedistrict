@@ -169,8 +169,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           )}
           style={{
             scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            WebkitScrollbar: { display: "none" },
+            msOverflowStyle: "none"
           }}
         >
           {sports.map((sport, index) => (

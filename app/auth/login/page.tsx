@@ -1,9 +1,15 @@
+"use client";
+
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { LoginForm } from "@/components/auth/login-form";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="bg-muted relative hidden lg:block">
@@ -25,10 +31,14 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <LoginForm redirectTo={redirectTo} />
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return <LoginPageContent />;
 }

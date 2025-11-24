@@ -34,9 +34,9 @@ type ForumThreadRow = {
 // Helper aman tanpa any
 function getCategoryName(cat: ForumCategory): string | null {
   if (Array.isArray(cat)) {
-    return cat[0]?.name ?? null ?? null;
+    return cat[0]?.name ?? null;
   }
-  return cat?.name ?? null ?? null;
+  return cat?.name ?? null;
 }
 
 export async function GET(request: Request) {

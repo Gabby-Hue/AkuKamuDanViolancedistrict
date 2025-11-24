@@ -103,7 +103,7 @@ export default async function UserDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={profile.avatar_url} alt={firstName} />
+                  <AvatarImage src={undefined} alt={firstName} />
                   <AvatarFallback className="text-lg">
                     {firstName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>

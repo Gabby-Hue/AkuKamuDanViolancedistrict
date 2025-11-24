@@ -25,8 +25,9 @@ const DASHBOARD_BY_ROLE: Record<AppRole, string> = {
 
 export function LoginForm({
   className,
+  redirectTo,
   ...props
-}: React.ComponentProps<"form">) {
+}: React.ComponentProps<"form"> & { redirectTo?: string | null }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,13 +47,17 @@ export function LoginForm({
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         throw error;
+      }
+
+      if (!data.user) {
+        throw new Error("Login failed: No user returned");
       }
 
       const {
@@ -72,6 +77,7 @@ export function LoginForm({
 
       if (profileError) {
         console.error("Failed to load profile role", profileError.message);
+        // Continue with default role if profile lookup fails
       }
 
       const role = (profile?.role as AppRole | null) ?? "user";
@@ -84,7 +90,9 @@ export function LoginForm({
           .maybeSingle();
       }
 
-      router.replace(DASHBOARD_BY_ROLE[role] ?? DASHBOARD_BY_ROLE.user);
+      // Use custom redirect URL if provided, otherwise use role-based default
+      const redirectUrl = redirectTo ?? (DASHBOARD_BY_ROLE[role] ?? DASHBOARD_BY_ROLE.user);
+      router.replace(redirectUrl);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "An unexpected error occurred";

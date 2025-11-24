@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +26,6 @@ import { toast } from "sonner";
 export type SidebarUser = {
   name: string;
   email: string;
-  avatarUrl?: string | null;
 };
 
 export function NavUser({ user }: { user: SidebarUser }) {
@@ -76,10 +75,7 @@ export function NavUser({ user }: { user: SidebarUser }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={user.avatarUrl ?? undefined}
-                  alt={user.name}
-                />
+                <AvatarImage alt={user.name} />
                 <AvatarFallback className="rounded-lg uppercase">
                   {fallback}
                 </AvatarFallback>
@@ -100,10 +96,7 @@ export function NavUser({ user }: { user: SidebarUser }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={user.avatarUrl ?? undefined}
-                    alt={user.name}
-                  />
+                  <AvatarImage alt={user.name} />
                   <AvatarFallback className="rounded-lg uppercase">
                     {fallback}
                   </AvatarFallback>
