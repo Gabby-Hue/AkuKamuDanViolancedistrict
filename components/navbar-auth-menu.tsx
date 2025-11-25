@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ArrowRight,
   LayoutDashboard,
@@ -56,6 +56,7 @@ export function NavbarAuthMenu({
   onAction,
 }: NavbarAuthMenuProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
@@ -206,7 +207,7 @@ export function NavbarAuthMenu({
           <div className="grid gap-2">
             <Button asChild className="w-full rounded-full">
               <Link
-                href="/auth/login"
+                href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}
                 onClick={() => {
                   actionRef.current?.();
                 }}
@@ -237,10 +238,16 @@ export function NavbarAuthMenu({
     return (
       <div className="hidden sm:flex items-center gap-2">
         <Button asChild variant="link">
-          <Link href="/auth/login">Masuk</Link>
+          <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}>
+            Masuk
+          </Link>
         </Button>
         <Button asChild className="rounded-full px-6 text-sm font-semibold">
-          <Link href="/auth/register">Daftar</Link>
+          <Link
+            href={`/auth/register?redirect=${encodeURIComponent(pathname)}`}
+          >
+            Daftar
+          </Link>
         </Button>
       </div>
     );
@@ -329,7 +336,7 @@ export function NavbarAuthMenu({
           </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2">
+      <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 z-501">
         <DropdownMenuLabel className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
           Akun kamu
         </DropdownMenuLabel>

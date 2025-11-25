@@ -1,7 +1,22 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 export default function Display404() {
+  const router = useRouter();
+
+  const handleGoBack = () => {
+    // Try to go back in history
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      // If no history, go to home
+      router.push('/');
+    }
+  };
   return (
     <main className="min-h-dvh">
       <h2 className="absolute ml-12.5 top-25 text-2xl font-bold dark:text-white">
@@ -26,12 +41,21 @@ export default function Display404() {
             unavailable
           </p>
 
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center mt-6 rounded-2xl px-5 py-3 bg-[#fb8f39] hover:bg-amber-500 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600/40 transition-colors"
-          >
-            Back to homepage
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <button
+              onClick={handleGoBack}
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 bg-gray-500 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-600/40 transition-colors"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Go back
+            </button>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 bg-[#fb8f39] hover:bg-amber-500 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600/40 transition-colors"
+            >
+              Back to homepage
+            </Link>
+          </div>
         </div>
       </div>
     </main>

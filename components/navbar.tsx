@@ -66,7 +66,7 @@ export default function NavbarNew() {
     <>
       <header
         className={clsx(
-          "fixed w-full transition-all duration-300 top-0 z-50",
+          "fixed w-full transition-all duration-300 top-0 z-500",
           scrolled
             ? "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
             : "bg-transparent",

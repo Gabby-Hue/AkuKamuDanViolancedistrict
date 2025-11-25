@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import {
   Check,
@@ -13,65 +14,86 @@ import {
   Shield,
   TrendingUp,
 } from "lucide-react";
+import { submitPartnerApplication, type PartnerApplicationState } from "./actions";
+import { useRouter } from "next/navigation";
+
+// --- Submit Button Component ---
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed dark:from-teal-600 dark:to-teal-700 dark:hover:from-teal-700 dark:hover:to-teal-800"
+    >
+      {pending ? (
+        <>
+          <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          Mengirim...
+        </>
+      ) : (
+        <>
+          Kirim Aplikasi Kemitraan
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </>
+      )}
+    </button>
+  );
+}
 
 // --- Komponen Form Aplikasi Partner ---
 function PartnerApplicationForm() {
-  const [formData, setFormData] = useState({
-    venueName: "",
-    contactPerson: "",
-    email: "",
-    phone: "",
-    address: "",
-    sportTypes: "",
-    courtCount: "",
-    operationHours: "",
-    additionalInfo: "",
-  });
+  const router = useRouter();
+  const [state, formAction] = useFormState<PartnerApplicationState, FormData>(
+    submitPartnerApplication,
+    { status: "idle" }
+  );
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitting Partner Application:", formData);
-    // Logika pengiriman data ke backend atau API
-    alert(
-      "Aplikasi Anda telah terkirim! Tim kami akan segera menghubungi Anda.",
+  // Handle successful submission
+  if (state.status === "success") {
+    return (
+      <div className="rounded-lg bg-green-50 p-8 text-center dark:bg-green-900/20">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-800">
+          <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+        </div>
+        <h3 className="mt-4 text-lg font-semibold text-green-900 dark:text-green-100">
+          Aplikasi Berhasil Terkirim!
+        </h3>
+        <p className="mt-2 text-green-700 dark:text-green-300">
+          {state.message}
+        </p>
+        <button
+          onClick={() => router.push("/")}
+          className="mt-6 rounded-lg bg-green-600 px-6 py-2 text-white hover:bg-green-700 dark:bg-green-800 dark:hover:bg-green-900"
+        >
+          Kembali ke Beranda
+        </button>
+      </div>
     );
-    // Reset form
-    setFormData({
-      venueName: "",
-      contactPerson: "",
-      email: "",
-      phone: "",
-      address: "",
-      sportTypes: "",
-      courtCount: "",
-      operationHours: "",
-      additionalInfo: "",
-    });
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form action={formAction} className="space-y-6">
+      {/* Error message */}
+      {state.status === "error" && (
+        <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+          <p className="text-red-800 dark:text-red-200">{state.message}</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label
-            htmlFor="venueName"
+            htmlFor="organizationName"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Nama Venue
           </label>
           <input
             type="text"
-            id="venueName"
-            name="venueName"
-            value={formData.venueName}
-            onChange={handleChange}
+            id="organizationName"
+            name="organizationName"
             required
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="Nama usaha venue Anda"
@@ -79,17 +101,15 @@ function PartnerApplicationForm() {
         </div>
         <div>
           <label
-            htmlFor="contactPerson"
+            htmlFor="contactName"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Nama Lengkap (Penanggung Jawab)
           </label>
           <input
             type="text"
-            id="contactPerson"
-            name="contactPerson"
-            value={formData.contactPerson}
-            onChange={handleChange}
+            id="contactName"
+            name="contactName"
             required
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="Nama lengkap Anda"
@@ -100,17 +120,15 @@ function PartnerApplicationForm() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label
-            htmlFor="email"
+            htmlFor="contactEmail"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Email Aktif
           </label>
           <input
             type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            id="contactEmail"
+            name="contactEmail"
             required
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="email@venue.com"
@@ -118,18 +136,15 @@ function PartnerApplicationForm() {
         </div>
         <div>
           <label
-            htmlFor="phone"
+            htmlFor="contactPhone"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Nomor Telepon / WhatsApp
           </label>
           <input
             type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            required
+            id="contactPhone"
+            name="contactPhone"
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="0812-3456-7890"
           />
@@ -138,37 +153,32 @@ function PartnerApplicationForm() {
 
       <div>
         <label
-          htmlFor="address"
+          htmlFor="city"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Alamat Lengkap Venue
+          Kota
         </label>
-        <textarea
-          id="address"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          rows={3}
-          required
+        <input
+          type="text"
+          id="city"
+          name="city"
           className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota, Provinsi"
+          placeholder="Jakarta, Bandung, Surabaya, dll"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div>
           <label
-            htmlFor="sportTypes"
+            htmlFor="facilityTypes"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Jenis Olahraga
           </label>
           <input
             type="text"
-            id="sportTypes"
-            name="sportTypes"
-            value={formData.sportTypes}
-            onChange={handleChange}
+            id="facilityTypes"
+            name="facilityTypes"
             required
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="Futsal, Bulutangkis"
@@ -176,17 +186,15 @@ function PartnerApplicationForm() {
         </div>
         <div>
           <label
-            htmlFor="courtCount"
+            htmlFor="facilityCount"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Jumlah Lapangan
           </label>
           <input
             type="number"
-            id="courtCount"
-            name="courtCount"
-            value={formData.courtCount}
-            onChange={handleChange}
+            id="facilityCount"
+            name="facilityCount"
             required
             min="1"
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -195,36 +203,31 @@ function PartnerApplicationForm() {
         </div>
         <div>
           <label
-            htmlFor="operationHours"
+            htmlFor="existingSystem"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Jam Operasional
+            Sistem Booking Saat Ini
           </label>
           <input
             type="text"
-            id="operationHours"
-            name="operationHours"
-            value={formData.operationHours}
-            onChange={handleChange}
-            required
+            id="existingSystem"
+            name="existingSystem"
             className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="08:00 - 23:00"
+            placeholder="WhatsApp, Manual, dll"
           />
         </div>
       </div>
 
       <div>
         <label
-          htmlFor="additionalInfo"
+          htmlFor="notes"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Informasi Tambahan (Opsional)
         </label>
         <textarea
-          id="additionalInfo"
-          name="additionalInfo"
-          value={formData.additionalInfo}
-          onChange={handleChange}
+          id="notes"
+          name="notes"
           rows={3}
           className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="Ceritakan sedikit tentang venue Anda..."
@@ -255,13 +258,7 @@ function PartnerApplicationForm() {
       </div>
 
       <div className="pt-2">
-        <button
-          type="submit"
-          className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:from-teal-600 dark:to-teal-700 dark:hover:from-teal-700 dark:hover:to-teal-800"
-        >
-          Kirim Aplikasi Kemitraan
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </button>
+        <SubmitButton />
       </div>
     </form>
   );
