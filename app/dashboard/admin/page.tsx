@@ -56,7 +56,7 @@ export default async function Page() {
       partnerApplications: {
         total: 0,
         pending: 0,
-        approved: 0,
+        accepted: 0,
         rejected: 0,
         recent: [],
       },
@@ -280,7 +280,7 @@ export default async function Page() {
                         <div className="text-right">
                           <Badge
                             variant={
-                              application.status === "approved" ? "default" :
+                              application.status === "accepted" ? "default" :
                               application.status === "rejected" ? "destructive" :
                               "secondary"
                             }

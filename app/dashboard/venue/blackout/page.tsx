@@ -17,6 +17,16 @@ import {
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import {
+  getVenueBlackouts,
+  getVenueBlackoutMetrics,
+  getVenueCourtsForBlackout,
+  createCourtBlackout,
+  updateCourtBlackout,
+  deleteCourtBlackout,
+  type VenueBlackout,
+  type VenueBlackoutMetrics
+} from "@/lib/supabase/queries/venue-blackouts";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
@@ -94,44 +104,32 @@ export default async function BlackoutPage() {
     icon: "MapPin",
   }));
 
-  // Mock data for courts with blackout dates
-  const courts = [
-    {
-      id: 1,
-      name: "Lapangan Futsal 1",
-      type: "Futsal",
-      status: "active",
-      blackoutDates: ["2024-06-25", "2024-06-26"],
-    },
-    {
-      id: 2,
-      name: "Lapangan Badminton A",
-      type: "Badminton",
-      status: "active",
-      blackoutDates: [],
-    },
-    {
-      id: 3,
-      name: "Lapangan Basket 1",
-      type: "Basket",
-      status: "maintenance",
-      blackoutDates: ["2024-06-24", "2024-06-25", "2024-06-26"],
-    },
-    {
-      id: 4,
-      name: "Lapangan Tenis 1",
-      type: "Tennis",
-      status: "active",
-      blackoutDates: [],
-    },
-    {
-      id: 5,
-      name: "Lapangan Voli Pantai",
-      type: "Volleyball",
-      status: "active",
-      blackoutDates: ["2024-06-27"],
-    },
-  ];
+  // Get real data from Supabase
+  const venues = dashboardData.venues;
+  const primaryVenueId = venues.length > 0 ? venues[0].id : null;
+
+  let blackouts: VenueBlackout[] = [];
+  let metrics: VenueBlackoutMetrics | null = null;
+  let venueCourts: Array<{ id: string; name: string; sport: string }> = [];
+
+  if (primaryVenueId) {
+    [blackouts, metrics, venueCourts] = await Promise.all([
+      getVenueBlackouts(primaryVenueId),
+      getVenueBlackoutMetrics(primaryVenueId),
+      getVenueCourtsForBlackout(primaryVenueId),
+    ]);
+  }
+
+  // Calculate courts with blackouts
+  const courtsWithBlackouts = venueCourts.map(court => ({
+    id: court.id,
+    name: court.name,
+    type: court.sport,
+    status: "active" as const,
+    blackoutDates: blackouts
+      .filter(blackout => blackout.courtId === court.id)
+      .map(blackout => blackout.startDate),
+  }));
 
   return (
     <SidebarProvider>
@@ -198,25 +196,23 @@ export default async function BlackoutPage() {
                     <p className="text-sm font-medium text-muted-foreground">
                       Total Lapangan
                     </p>
-                    <p className="text-2xl font-bold">{courts.length}</p>
+                    <p className="text-2xl font-bold">{metrics?.totalCourts ?? venueCourts.length}</p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
                       Lapangan dengan Blackout
                     </p>
                     <p className="text-2xl font-bold">
-                      {courts.filter((c) => c.blackoutDates.length > 0).length}
+                      {metrics?.affectedCourts ??
+                        courtsWithBlackouts.filter((c) => c.blackoutDates.length > 0).length}
                     </p>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Total Hari Blackout
+                      Total Blackout Aktif
                     </p>
                     <p className="text-2xl font-bold">
-                      {courts.reduce(
-                        (sum, court) => sum + court.blackoutDates.length,
-                        0,
-                      )}
+                      {metrics?.activeBlackouts ?? 0}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -224,12 +220,9 @@ export default async function BlackoutPage() {
                       Lapangan Tersedia
                     </p>
                     <p className="text-2xl font-bold">
-                      {
-                        courts.filter(
-                          (c) =>
-                            c.status === "active" &&
-                            c.blackoutDates.length === 0,
-                        ).length
+                      {metrics?.totalCourts && metrics?.affectedCourts
+                        ? metrics.totalCourts - metrics.affectedCourts
+                        : venueCourts.length - courtsWithBlackouts.filter((c) => c.blackoutDates.length > 0).length
                       }
                     </p>
                   </div>
@@ -272,7 +265,7 @@ export default async function BlackoutPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {courts.map((court) => (
+                {courtsWithBlackouts.map((court) => (
                   <div key={court.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>
@@ -321,6 +314,105 @@ export default async function BlackoutPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* All Blackouts List */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Daftar Blackout Lengkap</CardTitle>
+                  <CardDescription>
+                    Semua jadwal blackout untuk venue Anda
+                  </CardDescription>
+                </div>
+                <Button>
+                  <CalendarX className="mr-2 h-4 w-4" />
+                  Tambah Blackout Baru
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {blackouts.map((blackout) => (
+                  <div
+                    key={blackout.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-orange-100">
+                        <CalendarX className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{blackout.title}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {blackout.courtName} • {blackout.courtSport}
+                        </p>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-sm">
+                            {new Date(blackout.startDate).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                            {" - "}
+                            {new Date(blackout.endDate).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                          {blackout.startTime && blackout.endTime && (
+                            <span className="text-sm">
+                              {blackout.startTime} - {blackout.endTime}
+                            </span>
+                          )}
+                          <Badge
+                            variant={
+                              blackout.frequency === "once"
+                                ? "secondary"
+                                : blackout.frequency === "daily"
+                                  ? "default"
+                                  : "outline"
+                            }
+                          >
+                            {blackout.frequency === "once"
+                              ? "Sekali"
+                              : blackout.frequency === "daily"
+                                ? "Harian"
+                                : blackout.frequency === "weekly"
+                                  ? "Mingguan"
+                                  : "Bulanan"}
+                          </Badge>
+                        </div>
+                        {blackout.notes && (
+                          <p className="text-sm text-muted-foreground italic mt-1">
+                            Catatan: {blackout.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Hapus
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {blackouts.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">
+                    Tidak ada jadwal blackout yang terdaftar
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

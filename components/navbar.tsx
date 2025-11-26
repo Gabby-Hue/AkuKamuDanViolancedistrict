@@ -162,7 +162,7 @@ export default function NavbarNew() {
       {/* Mobile menu overlay - FULL PAGE */}
       <div
         className={clsx(
-          "fixed inset-0 z-50 sm:hidden",
+          "fixed inset-0 z-600 sm:hidden",
           menuOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
       >

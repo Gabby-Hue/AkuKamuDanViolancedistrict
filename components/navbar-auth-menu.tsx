@@ -168,7 +168,6 @@ export function NavbarAuthMenu({
       }
 
       setUser(null);
-      router.replace("/");
       router.refresh();
       if (actionRef.current) {
         actionRef.current();

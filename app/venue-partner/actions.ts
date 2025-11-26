@@ -9,17 +9,219 @@ export type PartnerApplicationState = {
   message?: string;
 };
 
+export async function approveApplication(
+  applicationId: string,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const adminSupabase = await createAdminClient();
+
+    // Get current admin user
+    const {
+      data: { user: adminUser },
+    } = await adminSupabase.auth.getUser();
+
+    // Get application details
+    const { data: application, error: appError } = await adminSupabase
+      .from("venue_partner_applications")
+      .select("*")
+      .eq("id", applicationId)
+      .single();
+
+    if (appError || !application) {
+      throw new Error("Application not found");
+    }
+
+    // Find user profile by email address
+    let finalUserProfile = await adminSupabase
+      .from("profiles")
+      .select("id, email, role")
+      .ilike("email", application.contact_email)
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data) return data;
+        return null;
+      });
+
+    if (!finalUserProfile) {
+      // Find from auth.users and create profile if needed
+      const { data: authUsers } = await adminSupabase.auth.admin.listUsers();
+      const authUser = authUsers.users.find(user =>
+        user.email?.toLowerCase() === application.contact_email?.toLowerCase()
+      );
+
+      if (authUser) {
+        // Create or update profile
+        const { data: newProfile, error: upsertError } = await adminSupabase
+          .from("profiles")
+          .upsert({
+            id: authUser.id,
+            email: authUser.email!,
+            full_name: application.contact_name,
+            role: "user",
+          }, {
+            onConflict: "id"
+          })
+          .select("id, email, role")
+          .single();
+
+        if (upsertError || !newProfile) {
+          throw new Error("User profile not found for this application");
+        }
+        finalUserProfile = newProfile;
+      } else {
+        throw new Error("User profile not found for this application");
+      }
+    }
+
+    // Check if user is already a venue partner
+    if (finalUserProfile.role === "venue_partner") {
+      // Just update the application status
+      const { error: updateError } = await adminSupabase
+        .from("venue_partner_applications")
+        .update({
+          status: "accepted",
+          handled_by: adminUser?.id || null,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", applicationId);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      revalidatePath("/dashboard/admin/applications");
+      return {
+        success: true,
+        message:
+          "Application accepted successfully (user is already a venue partner)",
+      };
+    }
+
+    // Perform all operations in sequence
+    try {
+      // 1. Update application status
+      const { error: updateError } = await adminSupabase
+        .from("venue_partner_applications")
+        .update({
+          status: "accepted",
+          handled_by: adminUser?.id || null,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", applicationId);
+
+      if (updateError) {
+        throw new Error(`Failed to update application: ${updateError.message}`);
+      }
+
+      // 2. Update user role to venue_partner
+      const { error: roleError } = await adminSupabase
+        .from("profiles")
+        .update({ role: "venue_partner" })
+        .eq("id", finalUserProfile.id);
+
+      if (roleError) {
+        throw new Error(`Failed to update user role: ${roleError.message}`);
+      }
+
+      // 3. Create venue record in venues table
+      const { error: venueError } = await adminSupabase.from("venues").insert({
+        name: application.organization_name,
+        description: application.notes,
+        owner_profile_id: finalUserProfile.id,
+        contact_phone: application.contact_phone,
+        contact_email: application.contact_email,
+        city: application.city,
+        facility_types: application.facility_types,
+        facility_count: application.facility_count,
+        existing_system: application.existing_system,
+        website: null, // bisa diisi nanti
+        business_license_url: null, // bisa diisi nanti
+        venue_status: "active",
+        verified_at: new Date().toISOString(),
+      });
+
+      if (venueError) {
+        throw new Error(`Failed to create venue record: ${venueError.message}`);
+      }
+
+      revalidatePath("/dashboard/admin/applications");
+      return {
+        success: true,
+        message:
+          "Application accepted and user upgraded to venue partner successfully",
+      };
+    } catch (operationError) {
+      // If any operation fails, we might want to rollback, but for now just log the error
+      console.error("Operation failed during approval:", operationError);
+      throw operationError;
+    }
+  } catch (error) {
+    console.error("Failed to approve application:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to accept application",
+    };
+  }
+}
+
+export async function rejectApplication(
+  applicationId: string,
+  reason?: string,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const adminSupabase = await createAdminClient();
+
+    // Get current admin user
+    const {
+      data: { user },
+    } = await adminSupabase.auth.getUser();
+
+    const { error } = await adminSupabase
+      .from("venue_partner_applications")
+      .update({
+        status: "rejected",
+        decision_note: reason || null,
+        handled_by: user?.id || null,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", applicationId);
+
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath("/dashboard/admin/applications");
+    return {
+      success: true,
+      message: "Application rejected successfully",
+    };
+  } catch (error) {
+    console.error("Failed to reject application:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to reject application",
+    };
+  }
+}
+
 export async function submitPartnerApplication(
   prevState: PartnerApplicationState,
   formData: FormData,
 ): Promise<PartnerApplicationState> {
   // Check if user is authenticated
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     // Store the current page URL to redirect back after login
-    const currentUrl = new URL("/venue-partner", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+    const currentUrl = new URL(
+      "/venue-partner",
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    );
     redirect(`/auth/login?redirect=${encodeURIComponent(currentUrl.pathname)}`);
   }
 
@@ -65,17 +267,32 @@ export async function submitPartnerApplication(
   try {
     const adminSupabase = await createAdminClient();
 
-    const { error } = await adminSupabase.from("venue_partner_applications").insert({
-      organization_name: organizationName,
-      contact_name: contactName,
-      contact_email: contactEmail,
-      contact_phone: contactPhone || null,
-      city: city || null,
-      facility_types: facilityTypes.length ? facilityTypes : null,
-      facility_count: parsedFacilityCount,
-      existing_system: existingSystem || null,
-      notes: notes || null,
-    });
+    // Ensure user profile exists
+    await adminSupabase
+      .from("profiles")
+      .upsert({
+        id: user.id,
+        email: user.email,
+        full_name: contactName,
+        role: "user",
+      }, {
+        onConflict: "id"
+      });
+
+    const { error } = await adminSupabase
+      .from("venue_partner_applications")
+      .insert({
+        organization_name: organizationName,
+        contact_name: contactName,
+        contact_email: user.email, // Use authenticated user's email
+        contact_phone: contactPhone || null,
+        city: city || null,
+        facility_types: facilityTypes.length ? facilityTypes : null,
+        facility_count: parsedFacilityCount,
+        existing_system: existingSystem || null,
+        notes: notes || null,
+        status: "pending",
+      });
 
     if (error) {
       throw error;

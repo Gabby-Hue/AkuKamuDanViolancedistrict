@@ -35,7 +35,7 @@ export type VenueLeader = {
 export type PartnerApplications = {
   total: number;
   pending: number;
-  approved: number;
+  accepted: number;
   rejected: number;
   recent: Array<{
     id: string;
@@ -44,7 +44,7 @@ export type PartnerApplications = {
     phone: string | null;
     businessName: string | null;
     submittedAt: string;
-    status: "pending" | "approved" | "rejected";
+    status: "pending" | "accepted" | "rejected";
   }>;
 };
 
@@ -84,8 +84,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     supabase.from("bookings").select("price_total, created_at"),
     supabase.from("profiles").select("id").eq("role", "user"),
     supabase
-      .from("partner_applications")
-      .select("id, status, created_at, full_name, email, phone, business_name")
+      .from("venue_partner_applications")
+      .select("id, status, created_at, reviewed_at, contact_name, contact_email, contact_phone, organization_name, decision_note, handled_by")
       .order("created_at", { ascending: false })
       .limit(10),
   ]);
@@ -100,7 +100,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       0
     ),
     pendingApplications: (applicationsResult.data ?? []).filter(
-      (app) => app.status === "pending"
+      (app) => (app.status ?? "pending") === "pending"
     ).length,
   };
 
@@ -268,13 +268,13 @@ async function getPartnerApplications(): Promise<PartnerApplications> {
 
   const [totalResult, recentResult] = await Promise.all([
     supabase
-      .from("partner_applications")
+      .from("venue_partner_applications")
       .select("status")
       .eq("status", "pending"),
     supabase
-      .from("partner_applications")
+      .from("venue_partner_applications")
       .select(
-        "id, status, created_at, full_name, email, phone, business_name"
+        "id, status, created_at, reviewed_at, contact_name, contact_email, contact_phone, organization_name, decision_note, handled_by"
       )
       .order("created_at", { ascending: false })
       .limit(5),
@@ -285,16 +285,16 @@ async function getPartnerApplications(): Promise<PartnerApplications> {
   return {
     total: pending,
     pending,
-    approved: 0,
+    accepted: 0,
     rejected: 0,
     recent: (recentResult.data ?? []).map((app) => ({
       id: app.id,
-      fullName: app.full_name,
-      email: app.email,
-      phone: app.phone,
-      businessName: app.business_name,
+      fullName: app.contact_name,
+      email: app.contact_email,
+      phone: app.contact_phone,
+      businessName: app.organization_name,
       submittedAt: app.created_at,
-      status: app.status,
+      status: app.status ?? "pending",
     })),
   };
 }

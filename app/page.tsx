@@ -116,8 +116,8 @@ export default async function Home() {
 
   return (
     <main className="space-y-24 pb-24">
-      <section className="relative overflow-hidden bg-linear-to-br from-orange-50 via-white to-orange-100 py-24 dark:from-emerald-950 dark:via-slate-950 dark:to-emerald-900/70">
-        <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
+      <section className="lg:min-h-screen relative overflow-hidden bg-linear-to-br from-orange-50 via-white to-orange-100 dark:from-emerald-950 dark:via-slate-950 dark:to-emerald-900/70">
+        <div className="lg:min-h-screen mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
           <div className="flex-1 space-y-6">
             <h1 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl dark:text-white">
               Cari Lapangan, Booking Instan, Main Sekarang.

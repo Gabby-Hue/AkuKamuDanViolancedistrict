@@ -17,6 +17,15 @@ import {
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import {
+  getVenueCourts,
+  getVenueCourtMetrics,
+  createCourt,
+  updateCourt,
+  deleteCourt,
+  type VenueCourtDetail,
+  type VenueCourtMetrics
+} from "@/lib/supabase/queries/venue-courts";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
@@ -122,69 +131,19 @@ export default async function CourtsPage() {
     icon: "MapPin",
   }));
 
-  // Mock data for courts
-  const courts = [
-    {
-      id: 1,
-      name: "Lapangan Futsal 1",
-      type: "Futsal",
-      status: "active",
-      pricePerHour: 150000,
-      capacity: 10,
-      surface: "Synthetic Grass",
-      photo: "/courts/futsal1.jpg",
-      bookingsToday: 8,
-      blackoutDates: ["2024-06-25", "2024-06-26"],
-    },
-    {
-      id: 2,
-      name: "Lapangan Badminton A",
-      type: "Badminton",
-      status: "active",
-      pricePerHour: 80000,
-      capacity: 4,
-      surface: "Wooden",
-      photo: "/courts/badminton-a.jpg",
-      bookingsToday: 12,
-      blackoutDates: [],
-    },
-    {
-      id: 3,
-      name: "Lapangan Basket 1",
-      type: "Basket",
-      status: "maintenance",
-      pricePerHour: 200000,
-      capacity: 20,
-      surface: "Concrete",
-      photo: "/courts/basket1.jpg",
-      bookingsToday: 0,
-      blackoutDates: ["2024-06-24", "2024-06-25", "2024-06-26"],
-    },
-    {
-      id: 4,
-      name: "Lapangan Tenis 1",
-      type: "Tennis",
-      status: "active",
-      pricePerHour: 180000,
-      capacity: 4,
-      surface: "Hard Court",
-      photo: "/courts/tennis1.jpg",
-      bookingsToday: 6,
-      blackoutDates: [],
-    },
-    {
-      id: 5,
-      name: "Lapangan Voli Pantai",
-      type: "Volleyball",
-      status: "active",
-      pricePerHour: 120000,
-      capacity: 12,
-      surface: "Sand",
-      photo: "/courts/voli-pantai.jpg",
-      bookingsToday: 4,
-      blackoutDates: ["2024-06-27"],
-    },
-  ];
+  // Get real data from Supabase
+  const venues = dashboardData.venues;
+  const primaryVenueId = venues.length > 0 ? venues[0].id : null;
+
+  let courts: VenueCourtDetail[] = [];
+  let metrics: VenueCourtMetrics | null = null;
+
+  if (primaryVenueId) {
+    [courts, metrics] = await Promise.all([
+      getVenueCourts(primaryVenueId, true),
+      getVenueCourtMetrics(primaryVenueId),
+    ]);
+  }
 
   return (
     <SidebarProvider>
@@ -322,9 +281,11 @@ export default async function CourtsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{courts.length}</div>
+                  <div className="text-2xl font-bold">
+                    {metrics?.totalCourts ?? courts.length}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    {courts.filter((c) => c.status === "active").length} aktif
+                    {metrics?.activeCourts ?? courts.filter((c) => c.isActive).length} aktif
                   </p>
                 </CardContent>
               </Card>
@@ -336,19 +297,24 @@ export default async function CourtsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {courts.reduce(
-                      (sum, court) => sum + court.bookingsToday,
-                      0,
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Rata-rata{" "}
-                    {Math.round(
+                    {metrics?.todayBookings ??
                       courts.reduce(
                         (sum, court) => sum + court.bookingsToday,
                         0,
-                      ) / courts.length,
-                    )}{" "}
+                      )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Rata-rata{" "}
+                    {metrics?.totalCourts && metrics?.todayBookings
+                      ? Math.round(metrics.todayBookings / metrics.totalCourts)
+                      : courts.length > 0
+                        ? Math.round(
+                            courts.reduce(
+                              (sum, court) => sum + court.bookingsToday,
+                              0,
+                            ) / courts.length,
+                          )
+                        : 0}{" "}
                     per lapangan
                   </p>
                 </CardContent>
@@ -362,16 +328,14 @@ export default async function CourtsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">
                     Rp{" "}
-                    {courts
-                      .reduce(
-                        (sum, court) =>
-                          sum + court.pricePerHour * court.bookingsToday,
+                    {(metrics?.todayRevenue ??
+                      courts.reduce(
+                        (sum, court) => sum + court.pricePerHour * court.bookingsToday,
                         0,
-                      )
-                      .toLocaleString("id-ID")}
+                      )).toLocaleString("id-ID")}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Proyeksi berdasarkan booking
+                    {metrics ? "Data real dari booking" : "Proyeksi berdasarkan booking"}
                   </p>
                 </CardContent>
               </Card>
@@ -383,7 +347,8 @@ export default async function CourtsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {courts.reduce((sum, court) => sum + court.capacity, 0)}
+                    {metrics?.totalCapacity ??
+                      courts.reduce((sum, court) => sum + (court.capacity || 0), 0)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Total semua lapangan
@@ -397,23 +362,23 @@ export default async function CourtsPage() {
               {courts.map((court) => (
                 <Card key={court.id} className="relative overflow-hidden">
                   <CourtImage
-                    src={court.photo}
+                    src={court.primaryImageUrl || `/courts/fallback-${court.id}.jpg`}
                     alt={court.name}
                     fallbackId={`fallback-${court.id}`}
                   />
                   <div className="absolute top-2 right-2">
                     <Badge
                       variant={
-                        court.status === "active" ? "default" : "secondary"
+                        court.isActive ? "default" : "secondary"
                       }
                     >
-                      {court.status === "active" ? "Aktif" : "Maintenance"}
+                      {court.isActive ? "Aktif" : "Maintenance"}
                     </Badge>
                   </div>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">{court.name}</CardTitle>
                     <CardDescription>
-                      {court.type} • {court.surface}
+                      {court.sport} • {court.surface || "Tidak ada permukaan"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -431,9 +396,21 @@ export default async function CourtsPage() {
                       <div className="text-sm">
                         <div className="flex items-center justify-between">
                           <span>Kapasitas:</span>
-                          <span>{court.capacity} orang</span>
+                          <span>{court.capacity || 0} orang</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span>Rating:</span>
+                          <span>⭐ {court.averageRating.toFixed(1)} ({court.reviewCount})</span>
                         </div>
                       </div>
+                      {court.blackouts.length > 0 && (
+                        <div className="text-sm text-orange-600">
+                          <div className="flex items-center">
+                            <CalendarX className="mr-2 h-4 w-4" />
+                            {court.blackouts.length} blackout terdaftar
+                          </div>
+                        </div>
+                      )}
                       <div className="flex gap-2 mt-3">
                         <Button size="sm" variant="outline" className="flex-1">
                           <Edit className="mr-2 h-3 w-3" />
@@ -451,6 +428,23 @@ export default async function CourtsPage() {
                   </CardContent>
                 </Card>
               ))}
+              {courts.length === 0 && (
+                <Card className="col-span-full">
+                  <CardContent className="text-center py-12">
+                    <div className="text-muted-foreground">
+                      <Building2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                      <h3 className="text-lg font-medium mb-2">Belum ada lapangan</h3>
+                      <p className="text-sm mb-4">
+                        Tambahkan lapangan pertama Anda untuk memulai bisnis venue
+                      </p>
+                      <Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Tambah Lapangan Pertama
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

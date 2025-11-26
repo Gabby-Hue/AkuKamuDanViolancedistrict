@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import {
   Check,
@@ -14,7 +15,10 @@ import {
   Shield,
   TrendingUp,
 } from "lucide-react";
-import { submitPartnerApplication, type PartnerApplicationState } from "./actions";
+import {
+  submitPartnerApplication,
+  type PartnerApplicationState,
+} from "./actions";
 import { useRouter } from "next/navigation";
 
 // --- Submit Button Component ---
@@ -45,9 +49,9 @@ function SubmitButton() {
 // --- Komponen Form Aplikasi Partner ---
 function PartnerApplicationForm() {
   const router = useRouter();
-  const [state, formAction] = useFormState<PartnerApplicationState, FormData>(
+  const [state, formAction] = useActionState<PartnerApplicationState, FormData>(
     submitPartnerApplication,
-    { status: "idle" }
+    { status: "idle" },
   );
 
   // Handle successful submission

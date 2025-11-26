@@ -17,6 +17,14 @@ import {
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import {
+  getVenueBookings,
+  getVenueBookingMetrics,
+  getVenueCourts,
+  updateBookingStatus,
+  type VenueBooking,
+  type VenueBookingMetrics
+} from "@/lib/supabase/queries/venue-bookings-fixed";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
@@ -131,102 +139,28 @@ export default async function BookingsPage() {
     icon: "MapPin",
   }));
 
-  // Mock data for bookings
-  const bookings = [
-    {
-      id: "BK001",
-      customerName: "Budi Santoso",
-      customerEmail: "budi@example.com",
-      customerPhone: "+62812345678",
-      courtName: "Lapangan Futsal 1",
-      courtType: "Futsal",
-      date: "2024-06-21",
-      startTime: "18:00",
-      endTime: "20:00",
-      duration: 2,
-      totalPrice: 300000,
-      status: "confirmed",
-      paymentStatus: "paid",
-      bookingDate: "2024-06-18",
-      notes: "Meminta lampu lebih terang",
-    },
-    {
-      id: "BK002",
-      customerName: "Sarah Wijaya",
-      customerEmail: "sarah@example.com",
-      customerPhone: "+62823456789",
-      courtName: "Lapangan Badminton A",
-      courtType: "Badminton",
-      date: "2024-06-21",
-      startTime: "19:00",
-      endTime: "21:00",
-      duration: 2,
-      totalPrice: 160000,
-      status: "pending",
-      paymentStatus: "unpaid",
-      bookingDate: "2024-06-20",
-      notes: "Regular customer",
-    },
-    {
-      id: "BK003",
-      customerName: "Ahmad Hidayat",
-      customerEmail: "ahmad@example.com",
-      customerPhone: "+62834567890",
-      courtName: "Lapangan Tenis 1",
-      courtType: "Tennis",
-      date: "2024-06-22",
-      startTime: "07:00",
-      endTime: "09:00",
-      duration: 2,
-      totalPrice: 360000,
-      status: "confirmed",
-      paymentStatus: "paid",
-      bookingDate: "2024-06-19",
-      notes: "Meminta raket cadangan",
-    },
-    {
-      id: "BK004",
-      customerName: "Maya Putri",
-      customerEmail: "maya@example.com",
-      customerPhone: "+62845678901",
-      courtName: "Lapangan Futsal 1",
-      courtType: "Futsal",
-      date: "2024-06-21",
-      startTime: "20:00",
-      endTime: "22:00",
-      duration: 2,
-      totalPrice: 300000,
-      status: "cancelled",
-      paymentStatus: "refunded",
-      bookingDate: "2024-06-17",
-      notes: "Cancel karena hujan",
-    },
-    {
-      id: "BK005",
-      customerName: "Rudi Hermawan",
-      customerEmail: "rudi@example.com",
-      customerPhone: "+62856789012",
-      courtName: "Lapangan Basket 1",
-      courtType: "Basket",
-      date: "2024-06-23",
-      startTime: "16:00",
-      endTime: "18:00",
-      duration: 2,
-      totalPrice: 400000,
-      status: "confirmed",
-      paymentStatus: "paid",
-      bookingDate: "2024-06-20",
-      notes: "Tim training",
-    },
-  ];
+  // Get real data from Supabase
+  const venues = dashboardData.venues;
+  const primaryVenueId = venues.length > 0 ? venues[0].id : null;
 
+  let bookings: VenueBooking[] = [];
+  let metrics: VenueBookingMetrics | null = null;
+
+  if (primaryVenueId) {
+    [bookings, metrics] = await Promise.all([
+      getVenueBookings(primaryVenueId),
+      getVenueBookingMetrics(primaryVenueId),
+    ]);
+  }
+
+  const today = new Date().toISOString().split('T')[0];
   const todayBookings = bookings.filter(
-    (booking) => booking.date === "2024-06-21",
+    (booking) => booking.date === today,
   );
   const upcomingBookings = bookings.filter(
     (booking) =>
-      booking.status === "confirmed" &&
-      new Date(booking.date) >= new Date("2024-06-21"),
+      (booking.status === "confirmed" || booking.status === "checked_in") &&
+      new Date(booking.date) >= new Date(today),
   );
   const pendingBookings = bookings.filter(
     (booking) => booking.status === "pending",
@@ -300,14 +234,13 @@ export default async function BookingsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {todayBookings.length}
+                      {metrics?.todayBookings ?? todayBookings.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {
-                        todayBookings.filter((b) => b.status === "confirmed")
-                          .length
-                      }{" "}
-                      dikonfirmasi
+                      {metrics?.todayBookings
+                        ? `${todayBookings.filter((b) => b.status === "confirmed").length} dikonfirmasi`
+                        : "Data tidak tersedia"
+                      }
                     </p>
                   </CardContent>
                 </Card>
@@ -321,17 +254,15 @@ export default async function BookingsPage() {
                   <CardContent>
                     <div className="text-2xl font-bold">
                       Rp{" "}
-                      {todayBookings
-                        .filter((b) => b.status === "confirmed")
-                        .reduce((sum, b) => sum + b.totalPrice, 0)
-                        .toLocaleString("id-ID")}
+                      {(metrics?.todayRevenue ??
+                        todayBookings
+                          .filter((b) => b.status === "confirmed")
+                          .reduce((sum, b) => sum + b.totalPrice, 0)
+                      ).toLocaleString("id-ID")}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Dari{" "}
-                      {
-                        todayBookings.filter((b) => b.status === "confirmed")
-                          .length
-                      }{" "}
+                      {metrics?.todayBookings ?? todayBookings.filter((b) => b.status === "confirmed").length}{" "}
                       booking
                     </p>
                   </CardContent>
@@ -344,9 +275,11 @@ export default async function BookingsPage() {
                     <Clock className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">8</div>
+                    <div className="text-2xl font-bold">
+                      {metrics?.availableHours ?? 0}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Dari 16 jam operasional
+                      Dari {metrics?.totalHours ?? 16} jam operasional
                     </p>
                   </CardContent>
                 </Card>
@@ -358,9 +291,14 @@ export default async function BookingsPage() {
                     <CheckCircle className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">50%</div>
+                    <div className="text-2xl font-bold">
+                      {metrics?.occupancyRate ?? 0}%
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      8 dari 16 jam terisi
+                      {metrics?.totalHours
+                        ? `${metrics.totalHours - metrics.availableHours} dari ${metrics.totalHours} jam terisi`
+                        : "Data tidak tersedia"
+                      }
                     </p>
                   </CardContent>
                 </Card>
