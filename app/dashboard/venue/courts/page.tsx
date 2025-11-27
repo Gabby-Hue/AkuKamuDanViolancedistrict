@@ -24,7 +24,7 @@ import {
   updateCourt,
   deleteCourt,
   type VenueCourtDetail,
-  type VenueCourtMetrics
+  type VenueCourtMetrics,
 } from "@/lib/supabase/queries/venue-courts";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
@@ -60,6 +60,7 @@ import {
   Plus,
   Edit,
   Trash2,
+  Building2,
   Clock,
   DollarSign,
   Upload,
@@ -285,7 +286,9 @@ export default async function CourtsPage() {
                     {metrics?.totalCourts ?? courts.length}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {metrics?.activeCourts ?? courts.filter((c) => c.isActive).length} aktif
+                    {metrics?.activeCourts ??
+                      courts.filter((c) => c.isActive).length}{" "}
+                    aktif
                   </p>
                 </CardContent>
               </Card>
@@ -328,14 +331,19 @@ export default async function CourtsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">
                     Rp{" "}
-                    {(metrics?.todayRevenue ??
+                    {(
+                      metrics?.todayRevenue ??
                       courts.reduce(
-                        (sum, court) => sum + court.pricePerHour * court.bookingsToday,
+                        (sum, court) =>
+                          sum + court.pricePerHour * court.bookingsToday,
                         0,
-                      )).toLocaleString("id-ID")}
+                      )
+                    ).toLocaleString("id-ID")}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {metrics ? "Data real dari booking" : "Proyeksi berdasarkan booking"}
+                    {metrics
+                      ? "Data real dari booking"
+                      : "Proyeksi berdasarkan booking"}
                   </p>
                 </CardContent>
               </Card>
@@ -348,7 +356,10 @@ export default async function CourtsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">
                     {metrics?.totalCapacity ??
-                      courts.reduce((sum, court) => sum + (court.capacity || 0), 0)}
+                      courts.reduce(
+                        (sum, court) => sum + (court.capacity || 0),
+                        0,
+                      )}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Total semua lapangan
@@ -362,16 +373,15 @@ export default async function CourtsPage() {
               {courts.map((court) => (
                 <Card key={court.id} className="relative overflow-hidden">
                   <CourtImage
-                    src={court.primaryImageUrl || `/courts/fallback-${court.id}.jpg`}
+                    src={
+                      court.primaryImageUrl ||
+                      `/courts/fallback-${court.id}.jpg`
+                    }
                     alt={court.name}
                     fallbackId={`fallback-${court.id}`}
                   />
                   <div className="absolute top-2 right-2">
-                    <Badge
-                      variant={
-                        court.isActive ? "default" : "secondary"
-                      }
-                    >
+                    <Badge variant={court.isActive ? "default" : "secondary"}>
                       {court.isActive ? "Aktif" : "Maintenance"}
                     </Badge>
                   </div>
@@ -400,7 +410,10 @@ export default async function CourtsPage() {
                         </div>
                         <div className="flex items-center justify-between">
                           <span>Rating:</span>
-                          <span>⭐ {court.averageRating.toFixed(1)} ({court.reviewCount})</span>
+                          <span>
+                            ⭐ {court.averageRating.toFixed(1)} (
+                            {court.reviewCount})
+                          </span>
                         </div>
                       </div>
                       {court.blackouts.length > 0 && (
@@ -433,9 +446,12 @@ export default async function CourtsPage() {
                   <CardContent className="text-center py-12">
                     <div className="text-muted-foreground">
                       <Building2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                      <h3 className="text-lg font-medium mb-2">Belum ada lapangan</h3>
+                      <h3 className="text-lg font-medium mb-2">
+                        Belum ada lapangan
+                      </h3>
                       <p className="text-sm mb-4">
-                        Tambahkan lapangan pertama Anda untuk memulai bisnis venue
+                        Tambahkan lapangan pertama Anda untuk memulai bisnis
+                        venue
                       </p>
                       <Button>
                         <Plus className="mr-2 h-4 w-4" />

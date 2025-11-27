@@ -127,7 +127,7 @@ export function BookingScheduler({
     return limit;
   }, [maxBookingDate]);
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedHour, setSelectedHour] = useState<number | null>(null);
   const [duration, setDuration] = useState<number>(2);
   const [notes, setNotes] = useState("");
@@ -182,7 +182,15 @@ export function BookingScheduler({
       }
 
       // Create proper dates with timezone handling
-      const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0, 0, 0);
+      const start = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        hour,
+        0,
+        0,
+        0,
+      );
       const end = new Date(start);
       end.setHours(end.getHours() + durationHours);
 
@@ -234,7 +242,15 @@ export function BookingScheduler({
       return null;
     }
     // Use consistent timezone handling
-    const start = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), selectedHour, 0, 0, 0);
+    const start = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      selectedHour,
+      0,
+      0,
+      0,
+    );
     const end = new Date(start);
     end.setHours(end.getHours() + duration);
     if (
@@ -261,7 +277,8 @@ export function BookingScheduler({
     }
 
     return DURATIONS.filter((duration) => {
-      return checkSlotAvailability(selectedDate, selectedHour, duration).available;
+      return checkSlotAvailability(selectedDate, selectedHour, duration)
+        .available;
     });
   }, [selectedDate, selectedHour, checkSlotAvailability]);
 
@@ -307,14 +324,16 @@ export function BookingScheduler({
           {/* Calendar Section */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Pilih Tanggal</label>
+              <label className="text-sm font-medium mb-2 block">
+                Pilih Tanggal
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !selectedDate && "text-muted-foreground"
+                      !selectedDate && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -334,13 +353,16 @@ export function BookingScheduler({
                     initialFocus
                     locale={localeID}
                     className="rounded-md border"
+                    required={false}
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
             <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">{selectionMessage}</p>
+              <p className="text-sm text-muted-foreground">
+                {selectionMessage}
+              </p>
             </div>
           </div>
 
@@ -372,18 +394,27 @@ export function BookingScheduler({
 
             {/* Duration Picker */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Durasi (jam)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Durasi (jam)
+              </label>
               <Select
                 value={duration.toString()}
                 onValueChange={(value) => setDuration(parseInt(value))}
-                disabled={!selectedDate || selectedHour === null || availableDurations.length === 0}
+                disabled={
+                  !selectedDate ||
+                  selectedHour === null ||
+                  availableDurations.length === 0
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih durasi" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableDurations.map((durationValue) => (
-                    <SelectItem key={durationValue} value={durationValue.toString()}>
+                    <SelectItem
+                      key={durationValue}
+                      value={durationValue.toString()}
+                    >
                       {durationValue} jam
                     </SelectItem>
                   ))}
@@ -420,7 +451,8 @@ export function BookingScheduler({
           />
 
           <p className="text-xs text-muted-foreground text-center">
-            Jadwal dan pembayaran kamu akan tersimpan otomatis di dashboard CourtEase.
+            Jadwal dan pembayaran kamu akan tersimpan otomatis di dashboard
+            CourtEase.
           </p>
         </div>
       </CardContent>

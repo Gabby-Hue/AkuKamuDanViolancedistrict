@@ -38,16 +38,18 @@ import TicketModal from "./ticket-modal";
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
   confirmed: "Dikonfirmasi",
+  checked_in: "Sudah Check-in",
   completed: "Selesai",
   cancelled: "Dibatalkan",
 };
 
 const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Belum Dibayar",
-  waiting_confirmation: "Menunggu Verifikasi",
-  paid: "Berhasil",
-  expired: "Kadaluarsa",
+  processing: "Diproses",
+  completed: "Berhasil",
+  failed: "Gagal",
   cancelled: "Dibatalkan",
+  refunded: "Dikembalikan",
 };
 
 const getBookingStatusVariant = (status: BookingStatus) => {
@@ -56,6 +58,8 @@ const getBookingStatusVariant = (status: BookingStatus) => {
       return "default";
     case "pending":
       return "secondary";
+    case "checked_in":
+      return "default";
     case "completed":
       return "outline";
     case "cancelled":
@@ -67,16 +71,18 @@ const getBookingStatusVariant = (status: BookingStatus) => {
 
 const getPaymentStatusVariant = (status: PaymentStatus) => {
   switch (status) {
-    case "paid":
+    case "completed":
       return "default";
     case "pending":
       return "destructive";
-    case "waiting_confirmation":
+    case "processing":
       return "secondary";
-    case "expired":
-      return "outline";
-    case "cancelled":
+    case "failed":
       return "destructive";
+    case "cancelled":
+      return "outline";
+    case "refunded":
+      return "outline";
     default:
       return "secondary";
   }
@@ -274,16 +280,14 @@ export default async function BookingDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {booking.venue_name ||
-                      booking.venue?.name ||
-                      booking.venue_name}
+                    {booking.court.venue_name ||
+                      booking.court.name}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-300">
-                    {booking.venue?.address ||
-                      booking.venue_address ||
+                    {booking.court.venue_address ||
                       "Alamat venue"}
-                    {(booking.venue_city || booking.venue?.city) &&
-                      `, ${booking.venue_city || booking.venue?.city}`}
+                    {booking.court.venue_city &&
+                      `, ${booking.court.venue_city}`}
                   </p>
                 </div>
 
@@ -293,7 +297,7 @@ export default async function BookingDetailPage({
                       Lapangan
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {booking.court_name || booking.court?.name}
+                      {booking.court.name}
                     </p>
                   </div>
                   <div>
@@ -301,33 +305,16 @@ export default async function BookingDetailPage({
                       Tipe Olahraga
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {booking.sport}
+                      {booking.court.sport}
                     </p>
                   </div>
                 </div>
 
                 <Separator />
 
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">
-                    {booking.venue?.phone ||
-                      booking.venue_phone ||
-                      "Contact venue for details"}
-                  </span>
-                </div>
+                {/* Phone contact info would need to be fetched from venues table if needed */}
 
-                {booking.venue?.rating && (
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium text-slate-900 dark:text-white">
-                      {booking.venue.rating.toFixed(1)}
-                    </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      ({booking.venue.total_reviews || 0} review)
-                    </span>
-                  </div>
-                )}
+                {/* Venue ratings would need to be fetched separately if needed */}
               </CardContent>
             </Card>
           </div>
@@ -374,7 +361,7 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "paid" && booking.paid_at && (
+                  {booking.payment_status === "completed" && booking.completed_at && (
                     <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-green-800 dark:text-green-200">
                         <CheckCircle className="h-4 w-4 mr-2" />
@@ -386,7 +373,7 @@ export default async function BookingDetailPage({
                         <div className="flex justify-between">
                           <span>Waktu Bayar:</span>
                           <span>
-                            {new Date(booking.paid_at).toLocaleString("id-ID", {
+                            {new Date(booking.completed_at).toLocaleString("id-ID", {
                               day: "numeric",
                               month: "short",
                               hour: "2-digit",
@@ -394,12 +381,7 @@ export default async function BookingDetailPage({
                             })}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Metode:</span>
-                          <span>
-                            {booking.payment_method || "Transfer Bank"}
-                          </span>
-                        </div>
+                        {/* Payment method would need to be tracked separately if needed */}
                       </div>
                     </div>
                   )}
@@ -437,12 +419,12 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "waiting_confirmation" && (
+                  {booking.payment_status === "processing" && (
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-blue-800 dark:text-blue-200">
                         <Clock className="h-4 w-4 mr-2" />
                         <span className="text-sm font-medium">
-                          Menunggu Verifikasi
+                          Sedang Diproses
                         </span>
                       </div>
                       <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -490,9 +472,7 @@ export default async function BookingDetailPage({
                       Hubungi Venue
                     </p>
                     <p className="text-slate-600 dark:text-slate-300">
-                      {booking.venue?.phone ||
-                        booking.venue_phone ||
-                        "Contact support"}
+                      Contact venue for details
                     </p>
                   </div>
                 </div>

@@ -160,6 +160,12 @@ export type BookingDetail = {
     venue_city: string | null;
     venue_address: string | null;
   };
+  profile: {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+    avatar_url: string | null;
+  } | null;
 };
 
 export type UserDashboardData = {
@@ -383,7 +389,7 @@ type LatestThreadReplyRow = {
 
 async function attachLatestReplyMetadata(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  threads: ForumThreadSummary[]
+  threads: ForumThreadSummary[],
 ): Promise<ForumThreadSummary[]> {
   const threadIds = threads.map((thread) => thread.id);
   if (!threadIds.length) {
@@ -467,6 +473,12 @@ type BookingDetailRow = {
       address: string | null;
     } | null;
   } | null;
+  profile: {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+    avatar_url: string | null;
+  } | null;
 };
 
 type BookingReviewRow = {
@@ -549,14 +561,14 @@ function shouldCheckMidtrans(paymentStatus: PaymentStatus) {
 
 async function syncBookingPaymentStatusWithMidtrans(
   supabase: SupabaseClient,
-  booking: BookingStatusSource
+  booking: BookingStatusSource,
 ): Promise<{ paymentStatus: PaymentStatus; bookingStatus: BookingStatus }> {
   const normalizedPaymentStatus = normalizePaymentStatus(
-    booking.payment_status
+    booking.payment_status,
   );
   const normalizedBookingStatus = normalizeBookingStatus(booking.status);
   const completedAt =
-    "completed_at" in booking ? booking.completed_at ?? null : null;
+    "completed_at" in booking ? (booking.completed_at ?? null) : null;
   const isCompleted =
     normalizedBookingStatus === "completed" || Boolean(completedAt);
 
@@ -572,7 +584,7 @@ async function syncBookingPaymentStatusWithMidtrans(
 
   try {
     const midtransStatus = await getMidtransTransactionStatus(
-      booking.payment_reference
+      booking.payment_reference,
     );
     const mapped = mapMidtransStatusToBooking(midtransStatus);
 
@@ -612,7 +624,7 @@ async function syncBookingPaymentStatusWithMidtrans(
     if (error) {
       console.error(
         "Failed to update booking status from Midtrans",
-        error.message
+        error.message,
       );
     }
 
@@ -687,7 +699,7 @@ export async function fetchVenueSummaries(): Promise<VenueSummary[]> {
   const { data: venuesData, error: venuesError } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, city, district, address, latitude, longitude, description, contact_phone, contact_email"
+      "id, slug, name, city, district, address, latitude, longitude, description, contact_phone, contact_email",
     )
     .order("name", { ascending: true });
 
@@ -734,13 +746,13 @@ export async function fetchVenueSummaries(): Promise<VenueSummary[]> {
   return venues.map((venue) => ({
     ...venue,
     courts: (courtsByVenue.get(venue.id) ?? []).sort(
-      (a, b) => b.averageRating - a.averageRating
+      (a, b) => b.averageRating - a.averageRating,
     ),
   }));
 }
 
 export async function fetchCourtDetail(
-  slug: string
+  slug: string,
 ): Promise<CourtDetail | null> {
   const supabase = await createClient();
 
@@ -750,7 +762,7 @@ export async function fetchCourtDetail(
       `id, slug, name, sport, surface, price_per_hour, capacity, amenities, description,
        venue:venues(id, name, city, district, address, latitude, longitude, contact_phone, contact_email),
        images:court_images(image_url, caption, is_primary, display_order),
-       reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`
+       reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`,
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -857,14 +869,14 @@ export async function fetchExploreData(): Promise<{
       .select(
         `id, slug, title, excerpt, reply_count, created_at, tags,
          category:forum_categories(id, slug, name),
-         author:profiles(full_name)`
+         author:profiles(full_name)`,
       )
       .order("created_at", { ascending: false })
       .limit(8),
   ]);
 
   const courts = ((courtsRes.data ?? []) as CourtSummaryRow[]).map(
-    mapCourtSummary
+    mapCourtSummary,
   );
 
   const threadRows = (threadsRes.data ?? []) as unknown as ForumThreadRow[];
@@ -893,7 +905,7 @@ export async function fetchExploreData(): Promise<{
 
   const totalReplies = threads.reduce(
     (acc, thread) => acc + thread.reply_count,
-    0
+    0,
   );
 
   return { courts, threads, totalReplies };
@@ -921,7 +933,7 @@ export async function fetchForumThreads(): Promise<ForumThreadSummary[]> {
     .select(
       `id, slug, title, excerpt, reply_count, created_at, tags,
        category:forum_categories(id, slug, name),
-       author:profiles(full_name)`
+       author:profiles(full_name)`,
     )
     .order("created_at", { ascending: false })
     .limit(50);
@@ -985,7 +997,7 @@ export async function fetchForumThreads(): Promise<ForumThreadSummary[]> {
 }
 
 export async function fetchForumThreadDetail(
-  slug: string
+  slug: string,
 ): Promise<ForumThreadDetail | null> {
   const supabase = await createClient();
 
@@ -994,7 +1006,7 @@ export async function fetchForumThreadDetail(
     .select(
       `id, slug, title, body, excerpt, reply_count, created_at, tags,
        category:forum_categories(id, slug, name),
-       author:profiles(full_name, avatar_url)`
+       author:profiles(full_name, avatar_url)`,
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -1088,7 +1100,7 @@ export async function fetchAdminMetrics(): Promise<AdminMetrics> {
 
   const totalRevenue = ((bookingsRes.data ?? []) as BookingPriceRow[]).reduce(
     (acc, item) => acc + Number(item.price_total ?? 0),
-    0
+    0,
   );
 
   return {
@@ -1100,7 +1112,7 @@ export async function fetchAdminMetrics(): Promise<AdminMetrics> {
 }
 
 function mapPartnerApplicationRow(
-  row: PartnerApplicationRow
+  row: PartnerApplicationRow,
 ): PartnerApplication {
   return {
     id: row.id,
@@ -1126,7 +1138,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
 
   const now = new Date();
   const rangeStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1)
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1),
   );
   const rangeStartIso = rangeStart.toISOString();
 
@@ -1145,13 +1157,13 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
     supabase
       .from("venue_partner_applications")
       .select(
-        "*, credential:venue_partner_credentials(temporary_password, partner_profile_id)"
+        "*, credential:venue_partner_credentials(temporary_password, partner_profile_id)",
       )
       .order("created_at", { ascending: false }),
     supabase
       .from("bookings")
       .select(
-        "id, start_time, price_total, court:courts(id, name, sport, venue:venues(id, name, city))"
+        "id, start_time, price_total, court:courts(id, name, sport, venue:venues(id, name, city))",
       )
       .gte("start_time", rangeStartIso),
   ]);
@@ -1186,7 +1198,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
     const bucketDate = new Date(rangeStart);
     bucketDate.setUTCMonth(rangeStart.getUTCMonth() + offset);
     const key = `${bucketDate.getUTCFullYear()}-${String(
-      bucketDate.getUTCMonth() + 1
+      bucketDate.getUTCMonth() + 1,
     ).padStart(2, "0")}`;
     monthBuckets.set(key, {
       label: bucketDate.toLocaleDateString("id-ID", { month: "short" }),
@@ -1211,7 +1223,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
   bookingRangeRows.forEach((booking) => {
     const bookingDate = new Date(booking.start_time);
     const monthKey = `${bookingDate.getUTCFullYear()}-${String(
-      bookingDate.getUTCMonth() + 1
+      bookingDate.getUTCMonth() + 1,
     ).padStart(2, "0")}`;
     const bucket = monthBuckets.get(monthKey);
     if (bucket) {
@@ -1244,7 +1256,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
       label: value.label,
       revenue: value.revenue,
       bookings: value.bookings,
-    })
+    }),
   );
 
   const sportBreakdown = Array.from(sportMap.entries())
@@ -1295,7 +1307,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
 }
 
 export async function fetchPartnerApplications(
-  limit = 10
+  limit = 10,
 ): Promise<PartnerApplication[]> {
   const supabase = await createClient();
 
@@ -1311,12 +1323,12 @@ export async function fetchPartnerApplications(
   }
 
   return ((data ?? []) as PartnerApplicationRow[]).map(
-    mapPartnerApplicationRow
+    mapPartnerApplicationRow,
   );
 }
 
 export async function fetchUserDashboardData(
-  profile: ProfileWithRole
+  profile: ProfileWithRole,
 ): Promise<UserDashboardData> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
@@ -1327,7 +1339,7 @@ export async function fetchUserDashboardData(
       .select(
         `id, start_time, end_time, status, payment_status, payment_reference,
          payment_redirect_url, payment_expired_at, price_total, completed_at,
-         court:courts(slug, name, sport, venue:venues(name, city))`
+         court:courts(slug, name, sport, venue:venues(name, city))`,
       )
       .eq("profile_id", profile.id)
       .gte("start_time", nowIso)
@@ -1368,7 +1380,7 @@ export async function fetchUserDashboardData(
         venue_name: booking.court?.venue?.name ?? "",
         venue_city: booking.court?.venue?.city ?? null,
       };
-    })
+    }),
   );
 
   const recommendedCourts = (
@@ -1383,7 +1395,7 @@ export async function fetchUserDashboardData(
 
 export async function fetchUserBookingDetail(
   bookingId: string,
-  profile: ProfileWithRole
+  profile: ProfileWithRole,
 ): Promise<BookingDetail | null> {
   const supabase = await createClient();
 
@@ -1394,7 +1406,8 @@ export async function fetchUserBookingDetail(
        payment_redirect_url, payment_token, payment_expired_at, price_total, notes,
        checked_in_at, completed_at,
        court:courts(id, slug, name, sport, price_per_hour,
-         venue:venues(name, city, address))`
+         venue:venues(name, city, address)),
+       profile:profiles(id, full_name, email, avatar_url)`,
     )
     .eq("id", bookingId)
     .eq("profile_id", profile.id)
@@ -1460,11 +1473,19 @@ export async function fetchUserBookingDetail(
       venue_city: bookingRow.court.venue?.city ?? null,
       venue_address: bookingRow.court.venue?.address ?? null,
     },
+    profile: bookingRow.profile
+      ? {
+          id: bookingRow.profile.id,
+          full_name: bookingRow.profile.full_name,
+          email: bookingRow.profile.email,
+          avatar_url: bookingRow.profile.avatar_url,
+        }
+      : null,
   };
 }
 
 export async function fetchVenueDashboardData(
-  profile: ProfileWithRole
+  profile: ProfileWithRole,
 ): Promise<VenueDashboardData> {
   const supabase = await createClient();
 
@@ -1472,7 +1493,7 @@ export async function fetchVenueDashboardData(
     .from("venues")
     .select(
       `id, name, city, district, address, latitude, longitude, contact_phone, contact_email, description,
-       courts:courts(id, name, sport, surface, price_per_hour, capacity, amenities, description, is_active)`
+       courts:courts(id, name, sport, surface, price_per_hour, capacity, amenities, description, is_active)`,
     )
     .eq("owner_profile_id", profile.id);
 
@@ -1514,7 +1535,7 @@ export async function fetchVenueDashboardData(
   }));
 
   const courtIds = managedVenues.flatMap((venue) =>
-    venue.courts.map((court) => court.id)
+    venue.courts.map((court) => court.id),
   );
 
   if (courtIds.length === 0) {
@@ -1531,7 +1552,7 @@ export async function fetchVenueDashboardData(
     supabase
       .from("bookings")
       .select(
-        "id, start_time, end_time, status, checked_in_at, completed_at, price_total, court:courts(name, sport)"
+        "id, start_time, end_time, status, checked_in_at, completed_at, price_total, court:courts(name, sport)",
       )
       .in("court_id", courtIds)
       .order("start_time", { ascending: true })
@@ -1544,7 +1565,7 @@ export async function fetchVenueDashboardData(
   ]);
 
   const ownedCourts = ((courtsRes.data ?? []) as CourtSummaryRow[]).map(
-    mapCourtSummary
+    mapCourtSummary,
   );
 
   const blackoutsByCourt = new Map<string, CourtBlackout[]>();
@@ -1581,11 +1602,11 @@ export async function fetchVenueDashboardData(
 
   const revenueTotal = upcomingBookings.reduce(
     (acc, booking) => acc + booking.price_total,
-    0
+    0,
   );
 
   const primaryImageMap = new Map(
-    ownedCourts.map((court) => [court.id, court.primaryImageUrl ?? null])
+    ownedCourts.map((court) => [court.id, court.primaryImageUrl ?? null]),
   );
 
   const venuesWithImages = managedVenues.map((venue) => ({

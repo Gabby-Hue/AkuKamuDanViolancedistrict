@@ -1,6 +1,7 @@
 export const BOOKING_STATUS_VALUES = [
   "pending",
   "confirmed",
+  "checked_in",
   "completed",
   "cancelled",
 ] as const;
@@ -17,10 +18,11 @@ export function normalizeBookingStatus(value: unknown): BookingStatus {
 
 export const PAYMENT_STATUS_VALUES = [
   "pending",
-  "waiting_confirmation",
-  "paid",
-  "expired",
+  "processing",
+  "completed",
+  "failed",
   "cancelled",
+  "refunded",
 ] as const;
 
 export type PaymentStatus = (typeof PAYMENT_STATUS_VALUES)[number];

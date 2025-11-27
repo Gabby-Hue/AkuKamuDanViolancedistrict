@@ -1,8 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BookingScheduler } from "@/components/venues/booking-scheduler";
+import { HeroSection } from "@/components/ui/hero-section";
+import { InfoGrid } from "@/components/ui/info-grid";
+import { PhotoGallery } from "@/components/ui/photo-gallery";
+import { BookingSidebar } from "@/components/ui/booking-sidebar";
 import { VenueLocationMap } from "@/components/venues/venue-location-map";
 import { fetchCourtDetail } from "@/lib/supabase/queries";
 import { getProfileWithRole } from "@/lib/supabase/roles";
@@ -44,160 +46,63 @@ export default async function CourtDetailPage({
     null;
   const otherImages = images.filter((image) => image.image_url !== heroImage);
 
+  const subtitle = `${court.venueName}${court.venueCity ? ` • ${court.venueCity}` : ""}${court.venueDistrict ? `, ${court.venueDistrict}` : ""}`;
+
   return (
-    <div className="mx-auto max-w-5xl space-y-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-      <nav className="text-xs text-slate-500 dark:text-slate-400">
+    <div className="mx-auto max-w-7xl space-y-8 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+      {/* Breadcrumb Navigation */}
+      <nav className="text-sm text-gray-500">
         <Link
           href="/venues"
-          className="hover:text-brand dark:hover:text-brand-muted"
+          className="hover:text-blue-600 transition-colors"
         >
           Venues
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-slate-700 dark:text-slate-200">{court.name}</span>
+        <span className="text-gray-700 font-medium">{court.name}</span>
       </nav>
 
-      <header className="space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand dark:border-brand/30 dark:bg-brand/10 dark:text-brand-muted">
-          {court.sport}
-        </div>
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
-              {court.name}
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              {court.venueName}
-              {court.venueCity ? ` • ${court.venueCity}` : ""}
-              {court.venueDistrict ? `, ${court.venueDistrict}` : ""}
-            </p>
-          </div>
-          <div className="text-right text-sm text-slate-500 dark:text-slate-400">
-            <p className="text-xs uppercase tracking-[0.3em] text-brand">
-              Mulai dari
-            </p>
-            <p className="text-2xl font-semibold text-brand dark:text-brand-muted">
-              Rp{new Intl.NumberFormat("id-ID").format(court.pricePerHour)}
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                /jam
-              </span>
-            </p>
-            <p className="text-xs">
-              {court.averageRating.toFixed(1)} ★ • {court.reviewCount} review
-            </p>
-          </div>
-        </div>
-        {court.description && (
-          <p className="max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+      {/* Hero Section */}
+      <HeroSection
+        title={court.name}
+        subtitle={subtitle}
+        sport={court.sport}
+        price={court.pricePerHour}
+        rating={court.averageRating}
+        reviewCount={court.reviewCount}
+        heroImage={heroImage}
+      />
+
+      {/* Description */}
+      {court.description && (
+        <div className="max-w-4xl">
+          <p className="text-gray-600 leading-relaxed">
             {court.description}
           </p>
-        )}
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-[2fr_1fr]">
-        <div className="relative h-80 overflow-hidden rounded-3xl bg-slate-100 shadow-sm dark:bg-slate-900">
-          {heroImage ? (
-            <Image
-              src={heroImage}
-              alt={court.name}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              Preview coming soon
-            </div>
-          )}
         </div>
-        <div className="grid gap-3">
-          {otherImages.slice(0, 3).map((image) => (
-            <div
-              key={image.image_url}
-              className="relative h-24 overflow-hidden rounded-2xl bg-slate-100 shadow-sm dark:bg-slate-900"
-            >
-              <Image
-                src={image.image_url}
-                alt={`${court.name} preview`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-          {otherImages.length === 0 && (
-            <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200/70 bg-white/70 text-xs text-slate-500 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-400">
-              Galeri tambahan akan tampil setelah venue mengunggah foto di
-              dashboard.
-            </div>
-          )}
-        </div>
-      </section>
+      )}
 
-      <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-8">
-          <div className="rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Fasilitas & info teknis
-            </h2>
-            <dl className="mt-4 grid gap-3 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-2">
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                  Permukaan
-                </dt>
-                <dd>{court.surface ?? "Disesuaikan venue"}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                  Kapasitas
-                </dt>
-                <dd>
-                  {court.capacity ? `${court.capacity} pemain` : "Fleksibel"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                  Kontak
-                </dt>
-                <dd>
-                  {court.venueContactPhone && (
-                    <div>{court.venueContactPhone}</div>
-                  )}
-                  {court.venueContactEmail && (
-                    <div>{court.venueContactEmail}</div>
-                  )}
-                  {!court.venueContactPhone &&
-                    !court.venueContactEmail &&
-                    "Hubungi venue via dashboard"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                  Lokasi
-                </dt>
-                <dd>
-                  {court.venueAddress ?? "Alamat lengkap tersedia saat booking"}
-                </dd>
-              </div>
-            </dl>
-            {court.amenities.length > 0 && (
-              <div className="mt-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                  Fasilitas unggulan
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300">
-                  {court.amenities.map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800/80"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      {/* Two Column Layout */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Left Column - Main Content */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Information Grid */}
+          <InfoGrid
+            surface={court.surface}
+            capacity={court.capacity}
+            contactPhone={court.venueContactPhone}
+            contactEmail={court.venueContactEmail}
+            location={court.venueAddress}
+            amenities={court.amenities}
+          />
 
+          {/* Photo Gallery */}
+          <PhotoGallery
+            images={otherImages}
+            title={court.name}
+          />
+
+          {/* Location Map */}
           <VenueLocationMap
             venueName={court.venueName}
             latitude={court.venueLatitude}
@@ -205,26 +110,27 @@ export default async function CourtDetailPage({
             address={court.venueAddress}
           />
 
-          <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                Review komunitas
+          {/* Reviews Section */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Review Komunitas
               </h2>
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">
+              <span className="text-sm font-medium text-blue-600">
                 {court.reviewCount} review
               </span>
             </div>
-            <ul className="space-y-4">
+            <div className="space-y-4">
               {court.reviews.map((review) => (
-                <li
+                <div
                   key={review.id}
-                  className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 dark:border-slate-700/60 dark:bg-slate-900/60"
+                  className="border border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
                 >
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-medium text-gray-900">
                       {review.author ?? "Member CourtEase"}
                     </span>
-                    <span>
+                    <span className="text-sm text-gray-500">
                       {new Date(review.created_at).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
@@ -232,56 +138,48 @@ export default async function CourtDetailPage({
                       })}
                     </span>
                   </div>
-                  <div className="mt-2 text-sm font-semibold text-brand dark:text-brand-muted">
-                    {review.rating.toFixed(1)} ★
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex text-amber-400">
+                      ★
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">
+                      {review.rating.toFixed(1)}
+                    </span>
                   </div>
                   {review.comment && (
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    <p className="text-gray-600 text-sm leading-relaxed">
                       {review.comment}
                     </p>
                   )}
-                </li>
+                </div>
               ))}
               {!court.reviews.length && (
-                <li className="rounded-2xl border border-dashed border-slate-200/70 bg-white/70 p-6 text-sm text-slate-500 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-400">
-                  Belum ada review. Jadilah yang pertama memberikan pengalamanmu
-                  setelah booking lapangan ini.
-                </li>
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
+                  <div className="text-4xl mb-3">⭐</div>
+                  <p className="text-gray-500 text-sm">
+                    Belum ada review. Jadilah yang pertama memberikan pengalamanmu
+                    setelah booking lapangan ini.
+                  </p>
+                </div>
               )}
-            </ul>
+            </div>
           </div>
         </div>
 
-        <aside className="space-y-6 rounded-3xl border border-slate-200/70 bg-slate-50/80 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
-          <div className="space-y-2">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Booking cepat
-            </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Semua transaksi diproses melalui Supabase. Kamu bisa mengatur
-              jadwal, mengundang tim, dan memantau pembayaran langsung dari
-              dashboard CourtEase.
-            </p>
+        {/* Right Column - Booking Sidebar */}
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-8">
+            <BookingSidebar
+              courtId={court.id}
+              isConfigured={midtransConfigured}
+              midtransClientKey={midtransClientKey}
+              snapScriptUrl={midtransScriptUrl}
+              isBookingAllowed={isBookingAllowed}
+              disallowedMessage={bookingRestrictionMessage}
+            />
           </div>
-          <BookingScheduler
-            courtId={court.id}
-            isConfigured={midtransConfigured}
-            midtransClientKey={midtransClientKey}
-            snapScriptUrl={midtransScriptUrl}
-            isBookingAllowed={isBookingAllowed}
-            disallowedMessage={bookingRestrictionMessage}
-          />
-          <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 text-sm text-slate-600 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-300">
-            <p className="font-semibold text-slate-900 dark:text-white">
-              Butuh paket turnamen?
-            </p>
-            <p className="mt-2">
-              Hubungi tim venue untuk paket multi-hari. Data kontak dan dokumen
-              penawaran dapat kamu akses setelah melakukan permintaan booking.
-            </p>
-          </div>
-        </aside>
-      </section>
+        </div>
+      </div>
     </div>
   );
 }

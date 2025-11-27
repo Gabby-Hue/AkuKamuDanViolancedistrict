@@ -22,7 +22,7 @@ export class MidtransTransactionError extends Error {
 
   constructor(
     message: string,
-    options: { status?: number; detail?: unknown } = {}
+    options: { status?: number; detail?: unknown } = {},
   ) {
     super(message);
     this.name = "MidtransTransactionError";
@@ -58,7 +58,7 @@ const DEFAULT_ITEM_NAME = "Booking Lapangan CourtEase";
 function sanitizeItems(
   items: MidtransItem[] | null | undefined,
   fallbackName: string | null | undefined,
-  amount: number
+  amount: number,
 ) {
   const normalized = Array.isArray(items) ? items : [];
   const validItems = normalized
@@ -70,7 +70,7 @@ function sanitizeItems(
     }))
     .filter(
       (
-        item
+        item,
       ): item is {
         id: string;
         price: number;
@@ -81,7 +81,7 @@ function sanitizeItems(
         Number.isFinite(item.price) &&
         item.price > 0 &&
         Number.isFinite(item.quantity) &&
-        item.quantity > 0
+        item.quantity > 0,
     );
 
   if (validItems.length > 0) {
@@ -125,7 +125,7 @@ export async function createMidtransTransaction({
   if (!MIDTRANS_SERVER_KEY) {
     throw new MidtransTransactionError(
       "Midtrans belum dikonfigurasi. Isi MIDTRANS_SERVER_KEY di environment server.",
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -168,11 +168,11 @@ export async function createMidtransTransaction({
       headers: {
         "Content-Type": "application/json",
         Authorization: `Basic ${Buffer.from(`${MIDTRANS_SERVER_KEY}:`).toString(
-          "base64"
+          "base64",
         )}`,
       },
       body: JSON.stringify(payload),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -189,14 +189,14 @@ export async function createMidtransTransaction({
       {
         status: 502,
         detail: error instanceof Error ? error.message : error,
-      }
+      },
     );
   })) as Record<string, unknown> | null;
 
   if (!data || typeof data !== "object") {
     throw new MidtransTransactionError(
       "Midtrans mengembalikan respons tidak valid.",
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -215,7 +215,7 @@ export async function createMidtransTransaction({
   if (!token) {
     throw new MidtransTransactionError(
       "Midtrans mengembalikan respons tidak valid.",
-      { status: 502, detail: data }
+      { status: 502, detail: data },
     );
   }
 
@@ -231,11 +231,11 @@ export async function createMidtransTransaction({
 }
 
 export async function getMidtransTransactionStatus(
-  orderId: string
+  orderId: string,
 ): Promise<MidtransStatusResponse | null> {
   if (!MIDTRANS_SERVER_KEY) {
     console.warn(
-      "Midtrans server key is not configured. Unable to verify transaction status."
+      "Midtrans server key is not configured. Unable to verify transaction status.",
     );
     return null;
   }
@@ -253,10 +253,10 @@ export async function getMidtransTransactionStatus(
       headers: {
         Accept: "application/json",
         Authorization: `Basic ${Buffer.from(`${MIDTRANS_SERVER_KEY}:`).toString(
-          "base64"
+          "base64",
         )}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -302,7 +302,7 @@ function normalizeMidtransValue(value: unknown) {
 }
 
 export function mapMidtransStatusToBooking(
-  status: MidtransStatusResponse | null
+  status: MidtransStatusResponse | null,
 ): { paymentStatus: PaymentStatus; bookingStatus: BookingStatus } | null {
   if (!status) {
     return null;
@@ -317,26 +317,26 @@ export function mapMidtransStatusToBooking(
 
   switch (transactionStatus) {
     case "settlement":
-      return { paymentStatus: "paid", bookingStatus: "confirmed" };
+      return { paymentStatus: "completed", bookingStatus: "confirmed" };
     case "capture":
       if (fraudStatus === "challenge") {
         return {
-          paymentStatus: "waiting_confirmation",
+          paymentStatus: "processing",
           bookingStatus: "pending",
         };
       }
 
-      return { paymentStatus: "paid", bookingStatus: "confirmed" };
+      return { paymentStatus: "completed", bookingStatus: "confirmed" };
     case "authorize":
       return {
-        paymentStatus: "waiting_confirmation",
+        paymentStatus: "processing",
         bookingStatus: "pending",
       };
     case "pending":
       return { paymentStatus: "pending", bookingStatus: "pending" };
     case "expire":
-    case "expired":
-      return { paymentStatus: "expired", bookingStatus: "cancelled" };
+    // case "expired":
+    //   return { paymentStatus: "expired", bookingStatus: "cancelled" };
     case "deny":
     case "cancel":
     case "failure":

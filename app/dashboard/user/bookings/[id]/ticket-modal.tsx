@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Eye, X } from "lucide-react";
 import Image from "next/image";
 import type { BookingStatus } from "@/lib/supabase/status";
+import type { BookingDetail } from "@/lib/supabase/queries";
 
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
   confirmed: "Dikonfirmasi",
+  checked_in: "Sudah Check-in",
   completed: "Selesai",
   cancelled: "Dibatalkan",
 };
@@ -20,6 +22,8 @@ const getBookingStatusVariant = (status: BookingStatus) => {
       return "default";
     case "pending":
       return "secondary";
+    case "checked_in":
+      return "default";
     case "completed":
       return "outline";
     case "cancelled":
@@ -30,7 +34,7 @@ const getBookingStatusVariant = (status: BookingStatus) => {
 };
 
 interface TicketModalProps {
-  booking: any;
+  booking: BookingDetail;
   startTime: Date;
   endTime: Date;
 }
@@ -81,7 +85,7 @@ export default function TicketModal({
   const bookingCode = generateBookingCode(
     booking.id,
     startTime,
-    booking.court_name || booking.court?.name,
+    booking.court.name || "",
   );
   const duration = Math.round(
     (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60),
@@ -186,11 +190,7 @@ export default function TicketModal({
                   fontWeight="700"
                   fill="#333"
                 >
-                  {(
-                    booking.court_name ||
-                    booking.court?.name ||
-                    ""
-                  ).toUpperCase()}
+                  {(booking.court.name || "").toUpperCase()}
                 </text>
 
                 {/* Info Table 1 */}
@@ -249,7 +249,7 @@ export default function TicketModal({
                   {duration} Jam
                 </text>
                 <text x="223" y="365" fontSize="14" fill="#333">
-                  {booking.user?.full_name || "User"}
+                  {booking.profile?.full_name || "User"}
                 </text>
 
                 {/* Dashed line */}
@@ -303,7 +303,7 @@ export default function TicketModal({
             >
               <Image
                 src={imageUrl}
-                alt={booking.court_name || booking.court?.name}
+                alt={booking.court?.name}
                 fill
                 style={{ objectFit: "cover" }}
                 sizes="(max-width: 280px) 100vw"

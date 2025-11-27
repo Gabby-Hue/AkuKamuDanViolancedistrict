@@ -233,7 +233,7 @@ export default async function UserDashboardPage() {
                             </Badge>
                             <Badge
                               variant={
-                                booking.payment_status === "paid"
+                                booking.payment_status === "completed"
                                   ? "default"
                                   : booking.payment_status === "pending"
                                     ? "destructive"
@@ -242,7 +242,7 @@ export default async function UserDashboardPage() {
                             >
                               {booking.payment_status === "pending"
                                 ? "Belum Dibayar"
-                                : booking.payment_status === "paid"
+                                : booking.payment_status === "completed"
                                   ? "Berhasil"
                                   : booking.payment_status}
                             </Badge>
