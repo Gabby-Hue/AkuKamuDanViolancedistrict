@@ -6,8 +6,8 @@ import { fetchCourtSummaries, fetchForumThreads } from "@/lib/supabase/queries";
 import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-highlights";
 import {
   NearestCourtSpotlight,
-  NearestCourtTiles,
 } from "@/components/venues/nearest-courts";
+import { HeroCarousel } from "@/components/landing/hero-carousel";
 import {
   SportsTabs,
   type SportCategory,
@@ -116,33 +116,7 @@ export default async function Home() {
 
   return (
     <main className="space-y-24 pb-24">
-      <section className="lg:min-h-screen relative overflow-hidden bg-linear-to-br from-orange-50 via-white to-orange-100 dark:from-emerald-950 dark:via-slate-950 dark:to-emerald-900/70">
-        <div className="lg:min-h-screen mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center">
-          <div className="flex-1 space-y-6">
-            <h1 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl dark:text-white">
-              Cari Lapangan, Booking Instan, Main Sekarang.
-            </h1>
-            <p className="max-w-xl text-base text-slate-600 dark:text-slate-300">
-              Temukan venue terdekat, atur jadwal bareng tim, dan selesaikan
-              pembayaran dalam satu langkah. Semua hal yang kamu butuhkan untuk
-              mulai bermain, tanpa ribet dan tanpa drama.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="link">
-                <Link href="/venue-partner">Daftar sebagai venue partner</Link>
-              </Button>
-              <Button>
-                <Link href="/explore">Mulai jelajahi</Link>
-              </Button>
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="grid gap-4 rounded-3xl border border-white/60 bg-white/80 p-7 shadow-2xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/60">
-              <NearestCourtTiles courts={courts} limit={3} />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroCarousel courts={courts} />
 
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <SportsTabs sports={sportsCategories} />
