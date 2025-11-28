@@ -146,8 +146,7 @@ export default async function BookingDetailPage({
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
                 {booking.court.venue_name || booking.court.name}
-                {(booking.court.venue_city) &&
-                  ` • ${booking.court.venue_city}`}
+                {booking.court.venue_city && ` • ${booking.court.venue_city}`}
               </p>
             </div>
 
@@ -280,12 +279,10 @@ export default async function BookingDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {booking.court.venue_name ||
-                      booking.court.name}
+                    {booking.court.venue_name || booking.court.name}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-300">
-                    {booking.court.venue_address ||
-                      "Alamat venue"}
+                    {booking.court.venue_address || "Alamat venue"}
                     {booking.court.venue_city &&
                       `, ${booking.court.venue_city}`}
                   </p>
@@ -361,30 +358,34 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "completed" && booking.completed_at && (
-                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
-                      <div className="flex items-center text-green-800 dark:text-green-200">
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        <span className="text-sm font-medium">
-                          Pembayaran Berhasil
-                        </span>
-                      </div>
-                      <div className="grid gap-1 text-xs text-green-700 dark:text-green-300">
-                        <div className="flex justify-between">
-                          <span>Waktu Bayar:</span>
-                          <span>
-                            {new Date(booking.completed_at).toLocaleString("id-ID", {
-                              day: "numeric",
-                              month: "short",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                  {booking.payment_status === "completed" &&
+                    booking.completed_at && (
+                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
+                        <div className="flex items-center text-green-800 dark:text-green-200">
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">
+                            Pembayaran Berhasil
                           </span>
                         </div>
-                        {/* Payment method would need to be tracked separately if needed */}
+                        <div className="grid gap-1 text-xs text-green-700 dark:text-green-300">
+                          <div className="flex justify-between">
+                            <span>Waktu Bayar:</span>
+                            <span>
+                              {new Date(booking.completed_at).toLocaleString(
+                                "id-ID",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
+                            </span>
+                          </div>
+                          {/* Payment method would need to be tracked separately if needed */}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {paymentExpiresAt && booking.payment_status === "pending" && (
                     <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
@@ -432,6 +433,49 @@ export default async function BookingDetailPage({
                       </p>
                     </div>
                   )}
+
+                  {booking.payment_status === "cancelled" &&
+                    paymentExpiresAt &&
+                    new Date() > paymentExpiresAt && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg space-y-2">
+                        <div className="flex items-center text-red-800 dark:text-red-200">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">
+                            Pembayaran Kadaluarsa
+                          </span>
+                        </div>
+                        <p className="text-xs text-red-700 dark:text-red-300">
+                          Waktu pembayaran telah habis pada{" "}
+                          {paymentExpiresAt.toLocaleDateString("id-ID", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        <p className="text-xs text-red-600 dark:text-red-400">
+                          Silakan buat booking baru jika masih ingin menggunakan
+                          lapangan
+                        </p>
+                      </div>
+                    )}
+
+                  {booking.payment_status === "cancelled" &&
+                    (!paymentExpiresAt || new Date() <= paymentExpiresAt) && (
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg space-y-2">
+                        <div className="flex items-center text-gray-800 dark:text-gray-200">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">
+                            Pembayaran Dibatalkan
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">
+                          Booking ini telah dibatalkan
+                        </p>
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>

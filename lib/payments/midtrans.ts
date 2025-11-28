@@ -335,8 +335,8 @@ export function mapMidtransStatusToBooking(
     case "pending":
       return { paymentStatus: "pending", bookingStatus: "pending" };
     case "expire":
-    // case "expired":
-    //   return { paymentStatus: "expired", bookingStatus: "cancelled" };
+    case "expired":
+      return { paymentStatus: "cancelled", bookingStatus: "cancelled" };
     case "deny":
     case "cancel":
     case "failure":

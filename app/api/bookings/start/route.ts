@@ -114,7 +114,7 @@ export async function POST(request: Request) {
       } as const;
 
       const paymentExpiresAt = new Date(
-        Date.now() + 3 * 60 * 60 * 1000,
+        Date.now() + 30 * 60 * 1000,
       ).toISOString();
 
       const { error: updateError } = await supabase

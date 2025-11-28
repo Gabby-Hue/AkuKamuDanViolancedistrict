@@ -237,14 +237,22 @@ export default async function UserDashboardPage() {
                                   ? "default"
                                   : booking.payment_status === "pending"
                                     ? "destructive"
-                                    : "secondary"
+                                    : booking.payment_status === "cancelled"
+                                      ? "outline"
+                                      : booking.payment_status === "processing"
+                                        ? "secondary"
+                                        : "secondary"
                               }
                             >
                               {booking.payment_status === "pending"
                                 ? "Belum Dibayar"
                                 : booking.payment_status === "completed"
                                   ? "Berhasil"
-                                  : booking.payment_status}
+                                  : booking.payment_status === "cancelled"
+                                    ? "Dibatalkan"
+                                    : booking.payment_status === "processing"
+                                      ? "Diproses"
+                                      : booking.payment_status}
                             </Badge>
                           </div>
                         </div>
@@ -312,6 +320,28 @@ export default async function UserDashboardPage() {
                           booking.payment_expires_at && (
                             <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-orange-400">
                               <Timer className="h-3 w-3 mr-1" />
+                              Batas Bayar:{" "}
+                              {new Date(
+                                booking.payment_expires_at,
+                              ).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                              {new Date(booking.payment_expires_at) < new Date() && (
+                                <span className="ml-1 text-red-600 dark:text-red-400 font-semibold">
+                                  (Kadaluarsa)
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                        {booking.payment_status === "cancelled" &&
+                          booking.payment_expires_at &&
+                          new Date(booking.payment_expires_at) < new Date() && (
+                            <div className="mt-2 flex items-center text-xs text-red-600 dark:text-red-400">
+                              <AlertCircle className="h-3 w-3 mr-1" />
                               Kadaluarsa:{" "}
                               {new Date(
                                 booking.payment_expires_at,

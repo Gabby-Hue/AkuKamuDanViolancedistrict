@@ -103,6 +103,17 @@ export type CourtSummaryRow = {
   review_count: number | null;
 };
 
+export type CourtImageRow = {
+  id: string;
+  court_id: string;
+  image_url: string;
+  caption: string | null;
+  is_primary: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type CourtBlackoutRow = {
   id: string;
   court_id: string;

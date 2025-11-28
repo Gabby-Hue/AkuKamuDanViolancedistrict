@@ -85,7 +85,7 @@ export default function TicketModal({
   const bookingCode = generateBookingCode(
     booking.id,
     startTime,
-    booking.court.name || "",
+    booking.court?.name || "",
   );
   const duration = Math.round(
     (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60),
@@ -190,7 +190,7 @@ export default function TicketModal({
                   fontWeight="700"
                   fill="#333"
                 >
-                  {(booking.court.name || "").toUpperCase()}
+                  {(booking.court?.name || "").toUpperCase()}
                 </text>
 
                 {/* Info Table 1 */}
@@ -303,7 +303,7 @@ export default function TicketModal({
             >
               <Image
                 src={imageUrl}
-                alt={booking.court?.name}
+                alt={booking.court?.name || ""}
                 fill
                 style={{ objectFit: "cover" }}
                 sizes="(max-width: 280px) 100vw"

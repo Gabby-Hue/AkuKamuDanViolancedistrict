@@ -555,7 +555,7 @@ type BookingStatusSource = {
 
 function shouldCheckMidtrans(paymentStatus: PaymentStatus) {
   return (
-    paymentStatus === "pending" || paymentStatus === "waiting_confirmation"
+    paymentStatus === "pending" || paymentStatus === "processing"
   );
 }
 
