@@ -99,6 +99,7 @@ export default async function BlackoutPage() {
   }));
 
   const navProjects: NavProject[] = dashboardData.venues.map((venue) => ({
+    id: venue.id,
     name: venue.name,
     url: `/dashboard/venue/venues/${venue.id}`,
     icon: "MapPin",

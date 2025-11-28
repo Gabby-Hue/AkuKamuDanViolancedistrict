@@ -40,6 +40,7 @@ function resolveIcon(icon: IconLike): LucideIcon {
 }
 
 export type NavProject = {
+  id: string;
   name: string;
   url: string;
   icon: IconLike;
@@ -63,7 +64,7 @@ export function NavProjects({
         {projects.map((item) => {
           const Icon = resolveIcon(item.icon);
           return (
-            <SidebarMenuItem key={item.name}>
+            <SidebarMenuItem key={item.id}>
               <SidebarMenuButton asChild>
                 <Link href={item.url}>
                   <Icon />

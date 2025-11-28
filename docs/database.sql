@@ -331,7 +331,7 @@ create table public.profiles (
   id uuid not null,
   email text null,
   full_name text null,
-  avatar_url text null,
+  phone text unique null,
   role public.app_role not null default 'user'::app_role,
   created_at timestamp with time zone not null default timezone ('utc'::text, now()),
   updated_at timestamp with time zone not null default timezone ('utc'::text, now()),

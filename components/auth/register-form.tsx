@@ -35,10 +35,16 @@ export function RegisterForm({
     const formData = new FormData(event.currentTarget);
     const fullName = String(formData.get("full_name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
+    const phone = String(formData.get("phone") ?? "").trim();
     const password = String(formData.get("password") ?? "");
 
     if (!fullName) {
       toast.error("Nama lengkap wajib diisi");
+      return;
+    }
+
+    if (!phone) {
+      toast.error("Nomor telepon wajib diisi");
       return;
     }
 
@@ -54,9 +60,11 @@ export function RegisterForm({
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        phone: `+62${phone}`,
         options: {
           data: {
             full_name: fullName,
+            phone: `+62${phone}`,
           },
         },
       });
@@ -70,7 +78,9 @@ export function RegisterForm({
       if (user) {
         const { error: profileError } = await supabase.from("profiles").upsert({
           id: user.id,
+          email: email,
           full_name: fullName,
+          phone: `+62${phone}`,
           role: "user",
         });
 
