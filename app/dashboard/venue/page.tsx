@@ -17,6 +17,7 @@ import {
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import { fetchVenueRevenueData } from "@/lib/supabase/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
@@ -34,6 +35,7 @@ export default async function Page() {
   const profile = await requireRole("venue_partner");
   const identity = await getAuthenticatedProfile();
   const dashboardData = await fetchVenueDashboardData(profile);
+  const revenueData = await fetchVenueRevenueData(profile);
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
   const email = identity?.email ?? "partner@courtease.id";
@@ -143,9 +145,11 @@ export default async function Page() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Rp 45.231.890</div>
+                  <div className="text-2xl font-bold">
+                    Rp {revenueData.totalRevenue.toLocaleString("id-ID")}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    +20.1% dari bulan lalu
+                    6 bulan terakhir
                   </p>
                 </CardContent>
               </Card>
@@ -156,9 +160,11 @@ export default async function Page() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">124</div>
+                  <div className="text-2xl font-bold">
+                    {revenueData.bookingStats.totalBookings}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    +19% dari bulan lalu
+                    6 bulan terakhir
                   </p>
                 </CardContent>
               </Card>
@@ -184,9 +190,11 @@ export default async function Page() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">73%</div>
+                  <div className="text-2xl font-bold">
+                    {revenueData.bookingStats.averageOccupancy}%
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    +5% dari bulan lalu
+                    6 bulan terakhir
                   </p>
                 </CardContent>
               </Card>
@@ -196,14 +204,10 @@ export default async function Page() {
             <div className="grid gap-4 md:grid-cols-2">
               {/* Bar Chart - Pendapatan Bulanan */}
               <RevenueBarChart
-                data={[
-                  { month: "Januari", revenue: 45000000 },
-                  { month: "Februari", revenue: 52000000 },
-                  { month: "Maret", revenue: 48000000 },
-                  { month: "April", revenue: 61000000 },
-                  { month: "Mei", revenue: 58000000 },
-                  { month: "Juni", revenue: 67000000 },
-                ]}
+                data={revenueData.monthlyRevenue.map((item) => ({
+                  month: item.month,
+                  revenue: item.revenue,
+                }))}
               />
 
               {/* Top Courts */}
@@ -216,24 +220,30 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {[1, 2, 3, 4, 5].map((item) => (
-                      <div key={item} className="flex items-center">
-                        <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
-                          {item}
+                    {revenueData.topCourts.length > 0 ? (
+                      revenueData.topCourts.map((court, index) => (
+                        <div key={court.courtId} className="flex items-center">
+                          <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
+                            {index + 1}
+                          </div>
+                          <div className="ml-4 space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                              {court.courtName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {court.sport} • {court.bookingCount} booking
+                            </p>
+                          </div>
+                          <div className="ml-auto font-medium">
+                            Rp {court.revenue.toLocaleString("id-ID")}
+                          </div>
                         </div>
-                        <div className="ml-4 space-y-1">
-                          <p className="text-sm font-medium leading-none">
-                            Lapangan {item}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {25 - item * 3} booking
-                          </p>
-                        </div>
-                        <div className="ml-auto font-medium">
-                          Rp {(2500000 - item * 100000).toLocaleString("id-ID")}
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        Belum ada data booking
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -262,9 +272,13 @@ export default async function Page() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">18:00 - 21:00</div>
+                  <div className="text-2xl font-bold">
+                    {revenueData.bookingStats.peakHours}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Rata-rata 12 booking/jam
+                    {revenueData.bookingStats.totalBookings > 0
+                      ? `Total ${revenueData.bookingStats.totalBookings} booking`
+                      : "Belum ada data"}
                   </p>
                 </CardContent>
               </Card>
@@ -276,9 +290,13 @@ export default async function Page() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">Sabtu</div>
+                  <div className="text-2xl font-bold">
+                    {revenueData.bookingStats.peakDay}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    Rata-rata 28 booking/hari
+                    {revenueData.bookingStats.totalBookings > 0
+                      ? `Total ${revenueData.bookingStats.totalBookings} booking`
+                      : "Belum ada data"}
                   </p>
                 </CardContent>
               </Card>

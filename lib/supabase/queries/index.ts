@@ -39,3 +39,9 @@ export {
   type VenueLeader,
   type PartnerApplications,
 } from "./dashboard";
+
+// Venue revenue related queries
+export {
+  fetchVenueRevenueData,
+  type VenueRevenueData,
+} from "./venue-revenue";
