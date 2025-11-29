@@ -9,6 +9,8 @@
     --color-brand: var(--brand);
     --color-brand-strong: var(--brand-strong);
     --color-brand-soft: var(--brand-soft);
+    --color-brand-muted: var(--brand-muted);
+    --color-brand-contrast: var(--brand-contrast);
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
     --color-sidebar-ring: var(--sidebar-ring);
@@ -48,9 +50,11 @@
 
 :root {
     --radius: 0.625rem;
-    --brand: 27 68% 50%;
-    --brand-strong: 27 78% 44%;
-    --brand-soft: 27 78% 92%;
+    --brand: 24 96% 52%;
+    --brand-strong: 24 100% 45%;
+    --brand-soft: 24 92% 90%;
+    --brand-muted: 24 70% 40%;
+    --brand-contrast: 0 0% 100%;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -85,9 +89,11 @@
 }
 
 .dark {
-    --brand: 181 66% 30%;
-    --brand-strong: 181 72% 26%;
-    --brand-soft: 181 40% 18%;
+    --brand: 179 51% 32%;
+    --brand-strong: 179 55% 26%;
+    --brand-soft: 179 45% 18%;
+    --brand-muted: 179 40% 70%;
+    --brand-contrast: 0 0% 100%;
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
