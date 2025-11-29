@@ -41,16 +41,14 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   checked_in: "Sudah Check-in",
   completed: "Selesai",
   cancelled: "Dibatalkan",
-  refunded: "Dikembalikan",
 };
 
 const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Belum Dibayar",
   processing: "Diproses",
-  completed: "Berhasil",
-  failed: "Gagal",
+  paid: "Berhasil",
+  expired: "Kedaluwarsa",
   cancelled: "Dibatalkan",
-  refunded: "Dikembalikan",
 };
 
 const getBookingStatusVariant = (status: BookingStatus) => {
@@ -65,8 +63,6 @@ const getBookingStatusVariant = (status: BookingStatus) => {
       return "outline";
     case "cancelled":
       return "destructive";
-    case "refunded":
-      return "outline";
     default:
       return "secondary";
   }
@@ -74,17 +70,15 @@ const getBookingStatusVariant = (status: BookingStatus) => {
 
 const getPaymentStatusVariant = (status: PaymentStatus) => {
   switch (status) {
-    case "completed":
+    case "paid":
       return "default";
     case "pending":
       return "destructive";
     case "processing":
       return "secondary";
-    case "failed":
+    case "expired":
       return "destructive";
     case "cancelled":
-      return "outline";
-    case "refunded":
       return "outline";
     default:
       return "secondary";
@@ -370,7 +364,7 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "completed" &&
+                  {booking.payment_status === "paid" &&
                     booking.completed_at && (
                       <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
                         <div className="flex items-center text-green-800 dark:text-green-200">

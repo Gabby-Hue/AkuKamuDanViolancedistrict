@@ -83,7 +83,6 @@ export default async function BookingsPage() {
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
   const email = identity?.email ?? "partner@courtease.id";
-  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -324,10 +323,11 @@ export default async function BookingsPage() {
                           </div>
                           <div>
                             <h4 className="font-medium">
-                              {booking.startTime} - {booking.endTime}
+                              {booking.start_time} - {booking.end_time}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.courtName} • {booking.customerName}
+                              {booking.court?.name || "Unknown Court"} •{" "}
+                              {booking.profile?.full_name || "Unknown Customer"}
                             </p>
                           </div>
                         </div>
@@ -358,12 +358,12 @@ export default async function BookingsPage() {
                           </Badge>
                           <Badge
                             variant={
-                              booking.paymentStatus === "paid"
+                              booking.payment_status === "paid"
                                 ? "default"
                                 : "secondary"
                             }
                           >
-                            {booking.paymentStatus === "paid"
+                            {booking.payment_status === "paid"
                               ? "Dibayar"
                               : "Belum Bayar"}
                           </Badge>
@@ -406,7 +406,9 @@ export default async function BookingsPage() {
                             </span>
                           </div>
                           <div>
-                            <h4 className="font-medium">{booking.courtName}</h4>
+                            <h4 className="font-medium">
+                              {booking.court?.name}
+                            </h4>
                             <p className="text-sm text-muted-foreground">
                               {new Date(booking.date).toLocaleDateString(
                                 "id-ID",
@@ -419,15 +421,14 @@ export default async function BookingsPage() {
                               )}
                             </p>
                             <p className="text-sm">
-                              {booking.startTime} - {booking.endTime} •{" "}
-                              {booking.duration} jam
+                              {booking.start_time} - {booking.end_time}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{booking.customerName}</p>
+                          <p className="font-medium">{booking.court?.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {booking.customerEmail}
+                            {booking.profile?.full_name}
                           </p>
                           <p className="font-medium text-primary">
                             Rp {booking.totalPrice.toLocaleString("id-ID")}
@@ -469,14 +470,14 @@ export default async function BookingsPage() {
                               Booking #{booking.id}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.courtName} •{" "}
+                              {booking.court?.name} •{" "}
                               {new Date(booking.date).toLocaleDateString(
                                 "id-ID",
                               )}
                             </p>
                             <p className="text-sm">
-                              {booking.startTime} - {booking.endTime} •{" "}
-                              {booking.customerName}
+                              {booking.start_time} - {booking.end_time} •{" "}
+                              {booking.profile?.full_name}
                             </p>
                             {booking.notes && (
                               <p className="text-sm text-muted-foreground italic">
@@ -567,18 +568,20 @@ export default async function BookingsPage() {
                           <TableCell>
                             <div>
                               <p className="font-medium">
-                                {booking.customerName}
+                                {booking.profile?.full_name}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {booking.customerEmail}
+                                {booking.profile?.email}
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.courtName}</p>
+                              <p className="font-medium">
+                                {booking.court?.name}
+                              </p>
                               <p className="text-sm text-muted-foreground">
-                                {booking.courtType}
+                                {booking.court?.sport || "Unknown Sport"}
                               </p>
                             </div>
                           </TableCell>
@@ -590,11 +593,13 @@ export default async function BookingsPage() {
                                 )}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {booking.startTime} - {booking.endTime}
+                                {booking.start_time} - {booking.end_time}
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{booking.duration} jam</TableCell>
+                          <TableCell>
+                            {booking.start_time} - {booking.end_time}
+                          </TableCell>
                           <TableCell>
                             Rp {booking.totalPrice.toLocaleString("id-ID")}
                           </TableCell>
@@ -618,16 +623,16 @@ export default async function BookingsPage() {
                           <TableCell>
                             <Badge
                               variant={
-                                booking.paymentStatus === "paid"
+                                booking.payment_status === "paid"
                                   ? "default"
                                   : "secondary"
                               }
                             >
-                              {booking.paymentStatus === "paid"
+                              {booking.payment_status === "paid"
                                 ? "Dibayar"
-                                : booking.paymentStatus === "unpaid"
+                                : booking.payment_status === "pending"
                                   ? "Belum"
-                                  : "Refund"}
+                                  : "Kedaluwarsa"}
                             </Badge>
                           </TableCell>
                           <TableCell>

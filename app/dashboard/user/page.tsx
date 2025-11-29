@@ -233,7 +233,7 @@ export default async function UserDashboardPage() {
                             </Badge>
                             <Badge
                               variant={
-                                booking.payment_status === "completed"
+                                booking.payment_status === "paid"
                                   ? "default"
                                   : booking.payment_status === "pending"
                                     ? "destructive"
@@ -246,7 +246,7 @@ export default async function UserDashboardPage() {
                             >
                               {booking.payment_status === "pending"
                                 ? "Belum Dibayar"
-                                : booking.payment_status === "completed"
+                                : booking.payment_status === "paid"
                                   ? "Berhasil"
                                   : booking.payment_status === "cancelled"
                                     ? "Dibatalkan"
@@ -329,7 +329,8 @@ export default async function UserDashboardPage() {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
-                              {new Date(booking.payment_expires_at) < new Date() && (
+                              {new Date(booking.payment_expires_at) <
+                                new Date() && (
                                 <span className="ml-1 text-red-600 dark:text-red-400 font-semibold">
                                   (Kadaluarsa)
                                 </span>

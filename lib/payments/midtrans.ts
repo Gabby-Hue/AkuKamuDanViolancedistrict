@@ -317,7 +317,7 @@ export function mapMidtransStatusToBooking(
 
   switch (transactionStatus) {
     case "settlement":
-      return { paymentStatus: "completed", bookingStatus: "confirmed" };
+      return { paymentStatus: "paid", bookingStatus: "confirmed" };
     case "capture":
       if (fraudStatus === "challenge") {
         return {
@@ -326,7 +326,7 @@ export function mapMidtransStatusToBooking(
         };
       }
 
-      return { paymentStatus: "completed", bookingStatus: "confirmed" };
+      return { paymentStatus: "paid", bookingStatus: "confirmed" };
     case "authorize":
       return {
         paymentStatus: "processing",
@@ -345,7 +345,7 @@ export function mapMidtransStatusToBooking(
     case "partial_refund":
     case "chargeback":
     case "partial_chargeback":
-      return { paymentStatus: "cancelled", bookingStatus: "cancelled" };
+      return { paymentStatus: "expired", bookingStatus: "cancelled" };
     default:
       return null;
   }

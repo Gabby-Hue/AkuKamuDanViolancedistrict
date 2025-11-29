@@ -22,10 +22,9 @@ CREATE TYPE public.booking_status AS ENUM (
 CREATE TYPE public.payment_status AS ENUM (
   'pending',
   'processing',
-  'completed',
-  'failed',
-  'cancelled',
-  'refunded'
+  'paid',
+  'expired',
+  'cancelled'
 );
 
 CREATE TYPE public.blackout_scope AS ENUM (

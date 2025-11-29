@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ProfileWithRole } from "./roles";
+import type { ProfileWithRole } from "../roles";
 
 export type VenueRevenueData = {
   totalRevenue: number;
@@ -72,7 +72,7 @@ export async function fetchVenueRevenueData(
     .in("court_id", venueIds)
     .gte("start_time", sixMonthsAgo.toISOString())
     .eq("status", "completed")
-    .eq("payment_status", "completed")
+    .eq("payment_status", "paid")
     .order("start_time", { ascending: true });
 
   if (bookingsError) {
@@ -148,10 +148,14 @@ export async function fetchVenueRevenueData(
     const court = booking.court;
     if (!court) return;
 
-    const courtId = court.id;
+    // Handle case where court might be an array (from Supabase join)
+    const courtData = Array.isArray(court) ? court[0] : court;
+    if (!courtData) return;
+
+    const courtId = courtData.id || '';
     const existing = courtStats.get(courtId) || {
-      name: court.name,
-      sport: court.sport,
+      name: courtData.name,
+      sport: courtData.sport,
       bookingCount: 0,
       revenue: 0,
     };

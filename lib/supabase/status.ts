@@ -5,16 +5,14 @@ export type BookingStatus =
   | "confirmed"
   | "checked_in"
   | "completed"
-  | "cancelled"
-  | "refunded";
+  | "cancelled";
 
 export type PaymentStatus =
   | "pending"
   | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "refunded";
+  | "paid"
+  | "expired"
+  | "cancelled";
 
 export function normalizeBookingStatus(status: string): BookingStatus {
   switch (status) {
@@ -23,7 +21,6 @@ export function normalizeBookingStatus(status: string): BookingStatus {
     case "checked_in":
     case "completed":
     case "cancelled":
-    case "refunded":
       return status as BookingStatus;
     default:
       return "pending";
@@ -34,10 +31,9 @@ export function normalizePaymentStatus(status: string): PaymentStatus {
   switch (status) {
     case "pending":
     case "processing":
-    case "completed":
-    case "failed":
+    case "paid":
+    case "expired":
     case "cancelled":
-    case "refunded":
       return status as PaymentStatus;
     default:
       return "pending";
