@@ -175,7 +175,6 @@ CREATE TABLE profiles (
   full_name TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('user', 'venue_partner', 'admin')),
   phone TEXT,
-  avatar_url TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

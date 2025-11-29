@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { CourtSummary } from "@/lib/supabase/queries";
+import type { CourtSummary } from "@/lib/supabase/queries/courts";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { NearestCourtTiles } from "@/components/venues/nearest-courts";

@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 export type AuthenticatedProfile = {
   id: string;
   email: string;
+  phone: string | null;
   fullName: string | null;
-  avatarUrl: string | null;
 };
 
 export async function getAuthenticatedProfile(): Promise<AuthenticatedProfile | null> {
@@ -17,6 +17,7 @@ export async function getAuthenticatedProfile(): Promise<AuthenticatedProfile | 
 
   if (authError) {
     console.error("Failed to load authenticated user", authError.message);
+    return null;
   }
 
   if (!user) {
@@ -25,30 +26,29 @@ export async function getAuthenticatedProfile(): Promise<AuthenticatedProfile | 
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("full_name, avatar_url")
+    .select("full_name, email, phone")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profileError) {
     console.error("Failed to load profile details", profileError.message);
+    return null;
   }
 
   const fullName =
     (profile?.full_name as string | null) ??
-    (typeof user.user_metadata?.full_name === "string"
-      ? (user.user_metadata.full_name as string)
+    (typeof profile?.full_name === "string"
+      ? (profile.full_name as string)
       : null);
 
-  const avatarUrl =
-    (profile?.avatar_url as string | null) ??
-    (typeof user.user_metadata?.avatar_url === "string"
-      ? (user.user_metadata.avatar_url as string)
-      : null);
+  const phone =
+    (profile?.phone as string | null) ??
+    (typeof profile?.phone === "string" ? (profile.phone as string) : null);
 
   return {
     id: user.id,
     email: user.email ?? "",
+    phone: user.phone ?? null,
     fullName,
-    avatarUrl,
   };
 }

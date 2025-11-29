@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { CourtSummary } from "@/lib/supabase/queries";
+import type { CourtSummary } from "@/lib/supabase/queries/courts";
 import { formatDistance } from "@/lib/geo";
 import type { Coordinates } from "@/lib/geo";
 import { cn } from "@/lib/utils";

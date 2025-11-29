@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import type { ForumThreadSummary } from "@/lib/supabase/queries";
+import type { ForumThreadSummary } from "@/lib/supabase/queries/forum";
 import { truncateText } from "@/lib/strings";
 
 import { useRealtimeThreadSummaries } from "@/components/forum/use-realtime-thread-summaries";

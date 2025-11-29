@@ -16,42 +16,54 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
-import { getAdminDashboardData, type AdminDashboardData } from "@/lib/supabase/queries/dashboard";
+import {
+  getAdminDashboardData,
+  type AdminDashboardData,
+} from "@/lib/supabase/queries/dashboard";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createAdminClient } from "@/lib/supabase/server";
 import { ApplicationsClient } from "./applications-client";
+
+function getDefaultAdminDashboardData(): AdminDashboardData {
+  return {
+    metrics: {
+      totalVenues: 0,
+      totalCourts: 0,
+      totalBookings: 0,
+      totalUsers: 0,
+      totalRevenue: 0,
+      pendingApplications: 0,
+      totalThreads: 0,
+    },
+    revenueTrend: [],
+    sportBreakdown: [],
+    venueLeaders: [],
+    partnerApplications: {
+      pending: [],
+      accepted: [],
+      rejected: [],
+    },
+  };
+}
 
 export default async function Page() {
   const profile = await requireRole("admin");
   const identity = await getAuthenticatedProfile();
 
-  let dashboardData: AdminDashboardData;
+  let dashboardData = getDefaultAdminDashboardData();
+
   try {
     dashboardData = await getAdminDashboardData();
   } catch (error) {
     console.error("Failed to load admin dashboard data:", error);
-    dashboardData = {
-      metrics: {
-        totalVenues: 0,
-        totalCourts: 0,
-        totalBookings: 0,
-        totalUsers: 0,
-        totalRevenue: 0,
-        pendingApplications: 0,
-      },
-      revenueTrend: [],
-      sportBreakdown: [],
-      venueLeaders: [],
-      partnerApplications: {
-        total: 0,
-        pending: 0,
-        accepted: 0,
-        rejected: 0,
-        recent: [],
-      },
-    };
   }
 
   // Fetch all partner applications
@@ -64,14 +76,16 @@ export default async function Page() {
       .order("created_at", { ascending: false });
 
     if (data) {
-      allApplications = data.map(app => ({
+      allApplications = data.map((app) => ({
         id: app.id,
         name: app.organization_name,
         owner: app.contact_name,
         email: app.contact_email,
         phone: app.contact_phone,
         city: app.city || "Unknown",
-        sport: app.facility_types ? app.facility_types.join(", ") : "Multi-sport",
+        sport: app.facility_types
+          ? app.facility_types.join(", ")
+          : "Multi-sport",
         status: app.status || "pending",
         submittedDate: app.created_at,
         description: app.notes || "No description provided",
@@ -92,9 +106,15 @@ export default async function Page() {
     console.error("Failed to load partner applications:", error);
   }
 
-  const pendingApplications = allApplications.filter(app => app.status === "pending");
-  const acceptedApplications = allApplications.filter(app => app.status === "accepted");
-  const rejectedApplications = allApplications.filter(app => app.status === "rejected");
+  const pendingApplications = allApplications.filter(
+    (app) => app.status === "pending",
+  );
+  const acceptedApplications = allApplications.filter(
+    (app) => app.status === "accepted",
+  );
+  const rejectedApplications = allApplications.filter(
+    (app) => app.status === "rejected",
+  );
 
   const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
   const email = identity?.email ?? "admin@courtease.id";
@@ -128,7 +148,6 @@ export default async function Page() {
     },
   ];
 
-  
   return (
     <SidebarProvider>
       <AppSidebar
@@ -165,7 +184,9 @@ export default async function Page() {
 
         <div className="flex-1 space-y-4 p-4 pt-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Venue Applications</h2>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Venue Applications
+            </h2>
             <div className="flex items-center space-x-2">
               <Select defaultValue="all">
                 <SelectTrigger className="w-32">
@@ -192,4 +213,3 @@ export default async function Page() {
     </SidebarProvider>
   );
 }
-

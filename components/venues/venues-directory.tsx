@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { calculateDistanceKm, formatDistance } from "@/lib/geo";
 import type { Coordinates } from "@/lib/geo";
-import type { CourtSummary, VenueSummary } from "@/lib/supabase/queries";
+import type { CourtSummary, VenueSummary } from "@/lib/supabase/queries/courts";
 
 import { useProximitySort } from "@/components/location/use-proximity-sort";
 import type { LocationState } from "@/components/location/use-user-geolocation";

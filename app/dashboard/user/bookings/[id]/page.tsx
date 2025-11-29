@@ -41,6 +41,7 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   checked_in: "Sudah Check-in",
   completed: "Selesai",
   cancelled: "Dibatalkan",
+  refunded: "Dikembalikan",
 };
 
 const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
@@ -64,6 +65,8 @@ const getBookingStatusVariant = (status: BookingStatus) => {
       return "outline";
     case "cancelled":
       return "destructive";
+    case "refunded":
+      return "outline";
     default:
       return "secondary";
   }
@@ -96,7 +99,16 @@ export default async function BookingDetailPage({
   const profile = await requireRole(["user", "admin"]);
   const { id } = await params;
 
-  const booking = await fetchUserBookingDetail(id, profile);
+  // Extract only the properties needed for fetchUserBookingDetail
+  const userProfile = {
+    id: profile.id,
+    full_name: profile.full_name,
+    email: profile.email,
+    phone: profile.phone,
+    role: profile.role,
+  };
+
+  const booking = await fetchUserBookingDetail(id, userProfile);
 
   if (!booking) {
     notFound();
@@ -455,7 +467,7 @@ export default async function BookingDetailPage({
                             minute: "2-digit",
                           })}
                         </p>
-                        <p className="text-xs text-red-600 dark:text-red-400">
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           Silakan buat booking baru jika masih ingin menggunakan
                           lapangan
                         </p>

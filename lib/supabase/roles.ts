@@ -7,6 +7,8 @@ export type ProfileWithRole = {
   id: string;
   full_name: string | null;
   role: AppRole;
+  email: string | null;
+  phone: string | null;
 };
 
 export async function getProfileWithRole(): Promise<ProfileWithRole | null> {
@@ -22,7 +24,7 @@ export async function getProfileWithRole(): Promise<ProfileWithRole | null> {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, role, email, phone")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -39,6 +41,8 @@ export async function getProfileWithRole(): Promise<ProfileWithRole | null> {
     id: profile.id,
     full_name: profile.full_name,
     role: profile.role as AppRole,
+    email: profile.email,
+    phone: profile.phone,
   };
 }
 

@@ -14,6 +14,7 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   checked_in: "Sudah Check-in",
   completed: "Selesai",
   cancelled: "Dibatalkan",
+  refunded: "Dikembalikan",
 };
 
 const getBookingStatusVariant = (status: BookingStatus) => {
@@ -28,6 +29,8 @@ const getBookingStatusVariant = (status: BookingStatus) => {
       return "outline";
     case "cancelled":
       return "destructive";
+    case "refunded":
+      return "outline";
     default:
       return "secondary";
   }

@@ -209,7 +209,6 @@ const { data, error } = await supabase.auth.signUp({
   options: {
     data: {
       full_name: 'John Doe',
-      avatar_url: 'https://example.com/avatar.jpg'
     }
   }
 });
@@ -269,7 +268,6 @@ CREATE TABLE profiles (
   full_name TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('user', 'venue_partner', 'admin')),
   phone TEXT,
-  avatar_url TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

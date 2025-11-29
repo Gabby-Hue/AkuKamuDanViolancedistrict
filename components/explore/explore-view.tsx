@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import type { CourtSummary, ForumThreadSummary } from "@/lib/supabase/queries";
+import type { CourtSummary } from "@/lib/supabase/queries/courts";
+import type { ForumThreadSummary } from "@/lib/supabase/queries/forum";
 import { cn } from "@/lib/utils";
 
 const priceOptions = [

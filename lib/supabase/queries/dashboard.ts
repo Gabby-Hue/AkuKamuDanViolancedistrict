@@ -1,313 +1,310 @@
 import { createClient } from "@/lib/supabase/server";
 import type { CourtSummary } from "./courts";
+import type { ProfileWithRole } from "../roles";
 
 export type AdminMetrics = {
-  totalVenues: number;
-  totalCourts: number;
-  totalBookings: number;
-  totalUsers: number;
   totalRevenue: number;
+  totalBookings: number;
+  totalVenues: number;
+  totalThreads: number;
+  totalCourts: number;
+  totalUsers: number;
   pendingApplications: number;
-};
-
-export type RevenueTrend = {
-  date: string;
-  revenue: number;
-  bookings: number;
-};
-
-export type SportBreakdown = {
-  sport: string;
-  count: number;
-  percentage: number;
-};
-
-export type VenueLeader = {
-  id: string;
-  slug: string;
-  name: string;
-  city: string | null;
-  bookingCount: number;
-  revenue: number;
-  averageRating: number;
-};
-
-export type PartnerApplications = {
-  total: number;
-  pending: number;
-  accepted: number;
-  rejected: number;
-  recent: Array<{
-    id: string;
-    fullName: string;
-    email: string;
-    phone: string | null;
-    businessName: string | null;
-    submittedAt: string;
-    status: "pending" | "accepted" | "rejected";
-  }>;
 };
 
 export type AdminDashboardData = {
   metrics: AdminMetrics;
-  revenueTrend: RevenueTrend[];
-  sportBreakdown: SportBreakdown[];
-  venueLeaders: VenueLeader[];
-  partnerApplications: PartnerApplications;
-};
-
-export type UserDashboardData = {
-  bookings: Array<{
-    id: string;
-    courtName: string;
-    sport: string;
-    startTime: string;
-    endTime: string;
-    status: "pending" | "confirmed" | "checked_in" | "completed" | "cancelled";
-    totalPrice: number;
+  revenueTrend: Array<{
+    label: string;
+    month: string;
+    revenue: number;
+    bookings: number;
   }>;
-  recommendedCourts: CourtSummary[];
+  sportBreakdown: Array<{
+    sport: string;
+    bookings: number;
+    revenue: number;
+  }>;
+  venueLeaders: Array<{
+    venueId: string;
+    venueName: string;
+    city: string | null;
+    revenue: number;
+    bookings: number;
+  }>;
+  partnerApplications: {
+    pending: any[];
+    accepted: any[];
+    rejected: any[];
+  };
 };
 
-export async function getAdminDashboardData(): Promise<AdminDashboardData> {
+type BookingPriceRow = { price_total: number | null };
+
+type PartnerApplicationRow = {
+  id: string;
+  organization_name: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string | null;
+  city: string | null;
+  facility_types: string[] | null;
+  facility_count: number | null;
+  existing_system: string | null;
+  notes: string | null;
+  status: string;
+  handled_by: string | null;
+  decision_note: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+};
+
+type PartnerApplicationWithCredentialRow = PartnerApplicationRow & {
+  credential: {
+    temporary_password: string | null;
+    partner_profile_id: string | null;
+  } | null;
+};
+
+function mapPartnerApplicationRow(row: PartnerApplicationRow): any {
+  return {
+    id: row.id,
+    organization_name: row.organization_name,
+    contact_name: row.contact_name,
+    contact_email: row.contact_email,
+    contact_phone: row.contact_phone ?? null,
+    city: row.city ?? null,
+    facility_types: Array.isArray(row.facility_types) ? row.facility_types : [],
+    facility_count: row.facility_count ?? null,
+    existing_system: row.existing_system ?? null,
+    notes: row.notes ?? null,
+    status: row.status,
+    handled_by: row.handled_by ?? null,
+    decision_note: row.decision_note ?? null,
+    created_at: row.created_at,
+    reviewed_at: row.reviewed_at ?? null,
+  };
+}
+
+// Alias untuk backward compatibility
+export const getAdminDashboardData = fetchAdminDashboardData;
+
+export async function fetchAdminMetrics(): Promise<AdminMetrics> {
   const supabase = await createClient();
 
-  const [
-    venuesResult,
-    courtsResult,
-    bookingsResult,
-    usersResult,
-    applicationsResult,
-  ] = await Promise.all([
-    supabase.from("venues").select("id").eq("is_active", true),
-    supabase.from("courts").select("id").eq("is_active", true),
-    supabase.from("bookings").select("price_total, created_at"),
-    supabase.from("profiles").select("id").eq("role", "user"),
-    supabase
-      .from("venue_partner_applications")
-      .select("id, status, created_at, reviewed_at, contact_name, contact_email, contact_phone, organization_name, decision_note, handled_by")
-      .order("created_at", { ascending: false })
-      .limit(10),
+  const [bookingsRes, venuesRes, threadsRes, usersRes] = await Promise.all([
+    supabase.from("bookings").select("price_total", { count: "exact" }),
+    supabase.from("venues").select("id", { count: "exact", head: true }),
+    supabase.from("forum_threads").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
   ]);
 
-  const metrics: AdminMetrics = {
-    totalVenues: (venuesResult.data ?? []).length,
-    totalCourts: (courtsResult.data ?? []).length,
-    totalBookings: (bookingsResult.data ?? []).length,
-    totalUsers: (usersResult.data ?? []).length,
-    totalRevenue: (bookingsResult.data ?? []).reduce(
-      (sum, booking) => sum + Number(booking.price_total ?? 0),
-      0
-    ),
-    pendingApplications: (applicationsResult.data ?? []).filter(
-      (app) => (app.status ?? "pending") === "pending"
-    ).length,
+  const totalRevenue = ((bookingsRes.data ?? []) as BookingPriceRow[]).reduce(
+    (acc, item) => acc + Number(item.price_total ?? 0),
+    0,
+  );
+
+  return {
+    totalRevenue,
+    totalBookings: bookingsRes.count ?? 0,
+    totalVenues: venuesRes.count ?? 0,
+    totalThreads: threadsRes.count ?? 0,
+    totalCourts: 0, // Not in original, would need separate query
+    totalUsers: usersRes.count ?? 0,
+    pendingApplications: 0, // Not in original, would need separate query
+  };
+}
+
+export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
+  const supabase = await createClient();
+
+  const now = new Date();
+  const rangeStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1),
+  );
+  const rangeStartIso = rangeStart.toISOString();
+
+  const [
+    bookingsTotalsRes,
+    venuesCountRes,
+    courtsCountRes,
+    threadsCountRes,
+    usersCountRes,
+    applicationsRes,
+    bookingsRangeRes,
+  ] = await Promise.all([
+    supabase.from("bookings").select("price_total", { count: "exact" }),
+    supabase.from("venues").select("id", { count: "exact", head: true }),
+    supabase.from("courts").select("id", { count: "exact", head: true }),
+    supabase.from("forum_threads").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase
+      .from("venue_partner_applications")
+      .select(
+        "*, credential:venue_partner_credentials(temporary_password, partner_profile_id)",
+      )
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("bookings")
+      .select(
+        "id, start_time, price_total, court:courts(id, name, sport, venue:venues(id, name, city))",
+      )
+      .gte("start_time", rangeStartIso),
+  ]);
+
+  const totalRevenue = (
+    (bookingsTotalsRes.data ?? []) as BookingPriceRow[]
+  ).reduce((acc, item) => acc + Number(item.price_total ?? 0), 0);
+
+  const applications =
+    ((applicationsRes.data ?? []) as PartnerApplicationWithCredentialRow[]) ??
+    [];
+
+  const metrics: AdminDashboardData["metrics"] = {
+    totalRevenue,
+    totalBookings: bookingsTotalsRes.count ?? 0,
+    totalVenues: venuesCountRes.count ?? 0,
+    totalThreads: threadsCountRes.count ?? 0,
+    totalCourts: courtsCountRes.count ?? 0,
+    totalUsers: usersCountRes.count ?? 0,
+    pendingApplications: applications.filter((app) => app.status === "pending")
+      .length,
   };
 
-  const revenueTrend = await getRevenueTrend();
-  const sportBreakdown = await getSportBreakdown();
-  const venueLeaders = await getVenueLeaders();
-  const partnerApplications = await getPartnerApplications();
+  const monthBuckets = new Map<
+    string,
+    {
+      label: string;
+      revenue: number;
+      bookings: number;
+    }
+  >();
+  for (let offset = 0; offset < 6; offset += 1) {
+    const bucketDate = new Date(rangeStart);
+    bucketDate.setUTCMonth(rangeStart.getUTCMonth() + offset);
+    const key = `${bucketDate.getUTCFullYear()}-${String(
+      bucketDate.getUTCMonth() + 1,
+    ).padStart(2, "0")}`;
+    monthBuckets.set(key, {
+      label: bucketDate.toLocaleDateString("id-ID", { month: "short" }),
+      revenue: 0,
+      bookings: 0,
+    });
+  }
+
+  const sportMap = new Map<string, { bookings: number; revenue: number }>();
+  const venueMap = new Map<
+    string,
+    {
+      venueName: string;
+      city: string | null;
+      revenue: number;
+      bookings: number;
+    }
+  >();
+
+  const bookingRangeRows = (bookingsRangeRes.data ?? []) as unknown as any[];
+  bookingRangeRows.forEach((booking) => {
+    const bookingDate = new Date(booking.start_time);
+    const monthKey = `${bookingDate.getUTCFullYear()}-${String(
+      bookingDate.getUTCMonth() + 1,
+    ).padStart(2, "0")}`;
+    const bucket = monthBuckets.get(monthKey);
+    if (bucket) {
+      bucket.revenue += Number(booking.price_total ?? 0);
+      bucket.bookings += 1;
+    }
+
+    const sport = booking.court?.sport ?? "Lainnya";
+    const sportEntry = sportMap.get(sport) ?? { bookings: 0, revenue: 0 };
+    sportEntry.bookings += 1;
+    sportEntry.revenue += Number(booking.price_total ?? 0);
+    sportMap.set(sport, sportEntry);
+
+    const venueId =
+      booking.court?.venue?.id ?? booking.court?.venue?.name ?? "unknown";
+    const venueEntry = venueMap.get(venueId) ?? {
+      venueName: booking.court?.venue?.name ?? "Venue",
+      city: booking.court?.venue?.city ?? null,
+      revenue: 0,
+      bookings: 0,
+    };
+    venueEntry.revenue += Number(booking.price_total ?? 0);
+    venueEntry.bookings += 1;
+    venueMap.set(venueId, venueEntry);
+  });
+
+  const revenueTrend = Array.from(monthBuckets.entries()).map(
+    ([month, value]) => ({
+      month,
+      label: value.label,
+      revenue: value.revenue,
+      bookings: value.bookings,
+    }),
+  );
+
+  const sportBreakdown = Array.from(sportMap.entries())
+    .map(([sport, value]) => ({
+      sport,
+      bookings: value.bookings,
+      revenue: value.revenue,
+    }))
+    .sort((a, b) => b.bookings - a.bookings)
+    .slice(0, 6);
+
+  const venueLeaders = Array.from(venueMap.entries())
+    .map(([venueId, value]) => ({
+      venueId,
+      venueName: value.venueName,
+      city: value.city,
+      revenue: value.revenue,
+      bookings: value.bookings,
+    }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
+
+  const pending = applications
+    .filter((row) => row.status === "pending")
+    .map((row) => mapPartnerApplicationRow(row));
+  const accepted = applications
+    .filter((row) => row.status === "accepted")
+    .map((row) => ({
+      ...mapPartnerApplicationRow(row),
+      partner_profile_id: row.credential?.partner_profile_id ?? null,
+      temporary_password: row.credential?.temporary_password ?? null,
+    }));
+  const rejected = applications
+    .filter((row) => row.status === "rejected")
+    .map((row) => mapPartnerApplicationRow(row));
 
   return {
     metrics,
     revenueTrend,
     sportBreakdown,
     venueLeaders,
-    partnerApplications,
+    partnerApplications: {
+      pending,
+      accepted,
+      rejected,
+    },
   };
 }
 
-export async function getUserDashboardData(
-  userId: string
-): Promise<UserDashboardData> {
+export async function fetchPartnerApplications(limit = 10): Promise<any[]> {
   const supabase = await createClient();
 
-  const [bookingsResult, recommendedResult] = await Promise.all([
-    supabase
-      .from("bookings")
-      .select(`
-        id,
-        start_time,
-        end_time,
-        status,
-        price_total,
-        court:courts(name, sport)
-      `)
-      .eq("profile_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("court_summaries")
-      .select("*")
-      .eq("is_active", true)
-      .order("average_rating", { ascending: false })
-      .limit(6),
-  ]);
-
-  const bookings = (bookingsResult.data ?? []).map((booking) => ({
-    id: booking.id,
-    courtName: (booking.court as any)?.name ?? "",
-    sport: (booking.court as any)?.sport ?? "",
-    startTime: booking.start_time,
-    endTime: booking.end_time,
-    status: normalizeBookingStatus(booking.status),
-    totalPrice: Number(booking.price_total ?? 0),
-  }));
-
-  const recommendedCourts = (recommendedResult.data ?? []).map((court) => ({
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface ?? null,
-    pricePerHour: court.price_per_hour,
-    capacity: court.capacity ?? null,
-    amenities: Array.isArray(court.amenities) ? court.amenities : [],
-    description: court.description ?? null,
-    venueName: court.venue_name,
-    venueCity: court.venue_city ?? null,
-    venueDistrict: court.venue_district ?? null,
-    venueLatitude: court.venue_latitude ?? null,
-    venueLongitude: court.venue_longitude ?? null,
-    primaryImageUrl: court.primary_image_url ?? null,
-    averageRating: court.average_rating ?? 0,
-    reviewCount: court.review_count ?? 0,
-  }));
-
-  return {
-    bookings,
-    recommendedCourts,
-  };
-}
-
-async function getRevenueTrend(): Promise<RevenueTrend[]> {
-  const supabase = await createClient();
-
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const { data } = await supabase
-    .from("bookings")
-    .select("price_total, created_at")
-    .gte("created_at", thirtyDaysAgo.toISOString())
-    .eq("status", "completed");
-
-  const revenueByDate = new Map<string, { revenue: number; bookings: number }>();
-
-  (data ?? []).forEach((booking) => {
-    const date = new Date(booking.created_at).toISOString().split("T")[0];
-    const current = revenueByDate.get(date) ?? { revenue: 0, bookings: 0 };
-    current.revenue += Number(booking.price_total ?? 0);
-    current.bookings += 1;
-    revenueByDate.set(date, current);
-  });
-
-  const trend: RevenueTrend[] = [];
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateStr = date.toISOString().split("T")[0];
-    const dayData = revenueByDate.get(dateStr) ?? { revenue: 0, bookings: 0 };
-    trend.push({
-      date: dateStr,
-      revenue: dayData.revenue,
-      bookings: dayData.bookings,
-    });
-  }
-
-  return trend;
-}
-
-async function getSportBreakdown(): Promise<SportBreakdown[]> {
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .from("courts")
-    .select("sport")
-    .eq("is_active", true);
-
-  const sportCounts = new Map<string, number>();
-  (data ?? []).forEach((court) => {
-    const current = sportCounts.get(court.sport) ?? 0;
-    sportCounts.set(court.sport, current + 1);
-  });
-
-  const total = (data ?? []).length;
-  return Array.from(sportCounts.entries())
-    .map(([sport, count]) => ({
-      sport,
-      count,
-      percentage: total > 0 ? Math.round((count / total) * 100) : 0,
-    }))
-    .sort((a, b) => b.count - a.count);
-}
-
-async function getVenueLeaders(): Promise<VenueLeader[]> {
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .from("venue_bookings_summary")
+  const { data, error } = await supabase
+    .from("venue_partner_applications")
     .select("*")
-    .order("booking_count", { ascending: false })
-    .limit(10);
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-  return (data ?? []).map((venue) => ({
-    id: venue.id,
-    slug: venue.slug,
-    name: venue.name,
-    city: venue.city,
-    bookingCount: venue.booking_count ?? 0,
-    revenue: Number(venue.total_revenue ?? 0),
-    averageRating: Number(venue.average_rating ?? 0),
-  }));
-}
-
-async function getPartnerApplications(): Promise<PartnerApplications> {
-  const supabase = await createClient();
-
-  const [totalResult, recentResult] = await Promise.all([
-    supabase
-      .from("venue_partner_applications")
-      .select("status")
-      .eq("status", "pending"),
-    supabase
-      .from("venue_partner_applications")
-      .select(
-        "id, status, created_at, reviewed_at, contact_name, contact_email, contact_phone, organization_name, decision_note, handled_by"
-      )
-      .order("created_at", { ascending: false })
-      .limit(5),
-  ]);
-
-  const pending = (totalResult.data ?? []).length;
-
-  return {
-    total: pending,
-    pending,
-    accepted: 0,
-    rejected: 0,
-    recent: (recentResult.data ?? []).map((app) => ({
-      id: app.id,
-      fullName: app.contact_name,
-      email: app.contact_email,
-      phone: app.contact_phone,
-      businessName: app.organization_name,
-      submittedAt: app.created_at,
-      status: app.status ?? "pending",
-    })),
-  };
-}
-
-function normalizeBookingStatus(status: string): "pending" | "confirmed" | "checked_in" | "completed" | "cancelled" {
-  switch (status) {
-    case "pending":
-    case "confirmed":
-    case "checked_in":
-    case "completed":
-    case "cancelled":
-      return status;
-    default:
-      return "pending";
+  if (error) {
+    console.error("Failed to fetch partner applications", error.message);
+    return [];
   }
+
+  return ((data ?? []) as PartnerApplicationRow[]).map(
+    mapPartnerApplicationRow,
+  );
 }

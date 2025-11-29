@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ProfileWithRole } from "@/lib/supabase/roles";
+import type { ProfileWithRole } from "./roles";
 
 export type VenueRevenueData = {
   totalRevenue: number;
@@ -34,7 +34,7 @@ export async function fetchVenueRevenueData(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1),
   );
 
-  // Fetch venues owned by the partner
+  // Fetch venues owned by partner
   const { data: venues, error: venuesError } = await supabase
     .from("venues")
     .select("id")

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 
 import { ThreadReplies } from "@/components/forum/thread-replies";
-import type { ForumThreadDetail } from "@/lib/supabase/queries";
+import type { ForumThreadDetail } from "@/lib/supabase/queries/forum";
 
 export function ThreadDiscussion({ thread }: { thread: ForumThreadDetail }) {
   const [liveReplyCount, setLiveReplyCount] = useState(

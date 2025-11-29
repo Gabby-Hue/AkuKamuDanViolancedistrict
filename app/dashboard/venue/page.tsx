@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
-import { fetchVenueDashboardData } from "@/lib/supabase/queries";
-import { fetchVenueRevenueData } from "@/lib/supabase/queries";
+import {
+  fetchVenueDashboardData,
+  fetchVenueRevenueData,
+} from "@/lib/supabase/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";

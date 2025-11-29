@@ -23,8 +23,8 @@ import {
   getVenueCourts,
   updateBookingStatus,
   type VenueBooking,
-  type VenueBookingMetrics
-} from "@/lib/supabase/queries/venue-bookings-fixed";
+  type VenueBookingMetrics,
+} from "@/lib/supabase/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
@@ -154,10 +154,8 @@ export default async function BookingsPage() {
     ]);
   }
 
-  const today = new Date().toISOString().split('T')[0];
-  const todayBookings = bookings.filter(
-    (booking) => booking.date === today,
-  );
+  const today = new Date().toISOString().split("T")[0];
+  const todayBookings = bookings.filter((booking) => booking.date === today);
   const upcomingBookings = bookings.filter(
     (booking) =>
       (booking.status === "confirmed" || booking.status === "checked_in") &&
@@ -240,8 +238,7 @@ export default async function BookingsPage() {
                     <p className="text-xs text-muted-foreground">
                       {metrics?.todayBookings
                         ? `${todayBookings.filter((b) => b.status === "confirmed").length} dikonfirmasi`
-                        : "Data tidak tersedia"
-                      }
+                        : "Data tidak tersedia"}
                     </p>
                   </CardContent>
                 </Card>
@@ -255,7 +252,8 @@ export default async function BookingsPage() {
                   <CardContent>
                     <div className="text-2xl font-bold">
                       Rp{" "}
-                      {(metrics?.todayRevenue ??
+                      {(
+                        metrics?.todayRevenue ??
                         todayBookings
                           .filter((b) => b.status === "confirmed")
                           .reduce((sum, b) => sum + b.totalPrice, 0)
@@ -263,7 +261,9 @@ export default async function BookingsPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Dari{" "}
-                      {metrics?.todayBookings ?? todayBookings.filter((b) => b.status === "confirmed").length}{" "}
+                      {metrics?.todayBookings ??
+                        todayBookings.filter((b) => b.status === "confirmed")
+                          .length}{" "}
                       booking
                     </p>
                   </CardContent>
@@ -298,8 +298,7 @@ export default async function BookingsPage() {
                     <p className="text-xs text-muted-foreground">
                       {metrics?.totalHours
                         ? `${metrics.totalHours - metrics.availableHours} dari ${metrics.totalHours} jam terisi`
-                        : "Data tidak tersedia"
-                      }
+                        : "Data tidak tersedia"}
                     </p>
                   </CardContent>
                 </Card>

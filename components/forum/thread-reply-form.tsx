@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import type { ForumReply } from "@/lib/supabase/queries";
+import type { ForumReply } from "@/lib/supabase/queries/forum";
 
 const textareaClassName =
   "min-h-[120px] w-full rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100";
@@ -16,7 +16,10 @@ type ThreadReplyFormProps = {
   onReplyCreated?: (reply: ForumReply) => void;
 };
 
-export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormProps) {
+export function ThreadReplyForm({
+  threadId,
+  onReplyCreated,
+}: ThreadReplyFormProps) {
   const [body, setBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -61,7 +64,7 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
       id: string;
       body: string;
       created_at: string;
-      author: { full_name: string | null; avatar_url: string | null } | null;
+      author: { full_name: string | null } | null;
     };
 
     const { data, error } = await supabase
@@ -71,7 +74,7 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
         author_profile_id: user.id,
         body: body.trim(),
       })
-      .select("id, body, created_at, author:profiles(full_name, avatar_url)")
+      .select("id, body, created_at, author:profiles(full_name)")
       .maybeSingle();
 
     const replyRow = (data ?? null) as ReplyRow | null;
@@ -91,7 +94,6 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
       body: replyRow.body,
       created_at: replyRow.created_at,
       author_name: replyRow.author?.full_name ?? null,
-      author_avatar_url: replyRow.author?.avatar_url ?? null,
     };
 
     setBody("");
@@ -105,8 +107,14 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
   if (isAuthenticated === null) {
     return (
       <div className="space-y-3">
-        <span className="block h-24 w-full animate-pulse rounded-2xl bg-slate-200/80 dark:bg-slate-800/60" aria-hidden="true" />
-        <span className="block h-10 w-40 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-800/60" aria-hidden="true" />
+        <span
+          className="block h-24 w-full animate-pulse rounded-2xl bg-slate-200/80 dark:bg-slate-800/60"
+          aria-hidden="true"
+        />
+        <span
+          className="block h-10 w-40 animate-pulse rounded-full bg-slate-200/80 dark:bg-slate-800/60"
+          aria-hidden="true"
+        />
       </div>
     );
   }
@@ -114,8 +122,12 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
   if (!isAuthenticated) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-200/80 bg-white/80 p-6 text-sm text-slate-600 dark:border-slate-700/80 dark:bg-slate-900/60 dark:text-slate-300">
-        <p className="font-semibold text-slate-800 dark:text-slate-100">Ingin ikut nimbrung?</p>
-        <p className="mt-1">Masuk terlebih dahulu untuk menambahkan balasan ke thread ini.</p>
+        <p className="font-semibold text-slate-800 dark:text-slate-100">
+          Ingin ikut nimbrung?
+        </p>
+        <p className="mt-1">
+          Masuk terlebih dahulu untuk menambahkan balasan ke thread ini.
+        </p>
         <Link
           href="/auth/login"
           className="mt-4 inline-flex items-center rounded-full bg-brand px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-brand"
@@ -127,9 +139,15 @@ export function ThreadReplyForm({ threadId, onReplyCreated }: ThreadReplyFormPro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/70">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/70"
+    >
       <div className="space-y-2">
-        <label htmlFor="reply" className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+        <label
+          htmlFor="reply"
+          className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400"
+        >
           Balas thread ini
         </label>
         <textarea

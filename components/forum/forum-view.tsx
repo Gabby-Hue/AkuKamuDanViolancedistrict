@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ForumThreadComposer } from "@/components/forum/forum-thread-composer";
 import { ForumThreadList } from "@/components/forum/forum-thread-list";
-import type { ForumCategory, ForumThreadSummary } from "@/lib/supabase/queries";
+import type { ForumCategory, ForumThreadSummary } from "@/lib/supabase/queries/forum";
 
 type ForumViewProps = {
   categories: ForumCategory[];

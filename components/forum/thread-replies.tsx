@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ThreadReplyForm } from "@/components/forum/thread-reply-form";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import type { ForumReply } from "@/lib/supabase/queries";
+import type { ForumReply } from "@/lib/supabase/queries/forum";
 
 function sortReplies(replies: ForumReply[]) {
   return [...replies].sort(
@@ -46,12 +46,12 @@ export function ThreadReplies({
       id: string;
       body: string;
       created_at: string;
-      author: { full_name: string | null; avatar_url: string | null } | null;
+      author: { full_name: string | null } | null;
     };
 
     const { data, error } = await supabase
       .from("forum_replies")
-      .select("id, body, created_at, author:profiles(full_name, avatar_url)")
+      .select("id, body, created_at, author:profiles(full_name)")
       .eq("thread_id", threadId)
       .order("created_at", { ascending: true });
 
@@ -63,7 +63,6 @@ export function ThreadReplies({
         body: reply.body,
         created_at: reply.created_at,
         author_name: reply.author?.full_name ?? null,
-        author_avatar_url: reply.author?.avatar_url ?? null,
       }));
       setReplies(mapped);
     }

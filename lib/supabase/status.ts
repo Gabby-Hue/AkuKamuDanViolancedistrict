@@ -1,36 +1,45 @@
-export const BOOKING_STATUS_VALUES = [
-  "pending",
-  "confirmed",
-  "checked_in",
-  "completed",
-  "cancelled",
-] as const;
+// @/lib/supabase/status.ts
 
-export type BookingStatus = (typeof BOOKING_STATUS_VALUES)[number];
+export type BookingStatus =
+  | "pending"
+  | "confirmed"
+  | "checked_in"
+  | "completed"
+  | "cancelled"
+  | "refunded";
 
-export function isBookingStatus(value: unknown): value is BookingStatus {
-  return BOOKING_STATUS_VALUES.includes(value as BookingStatus);
+export type PaymentStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | "refunded";
+
+export function normalizeBookingStatus(status: string): BookingStatus {
+  switch (status) {
+    case "pending":
+    case "confirmed":
+    case "checked_in":
+    case "completed":
+    case "cancelled":
+    case "refunded":
+      return status as BookingStatus;
+    default:
+      return "pending";
+  }
 }
 
-export function normalizeBookingStatus(value: unknown): BookingStatus {
-  return isBookingStatus(value) ? value : "pending";
-}
-
-export const PAYMENT_STATUS_VALUES = [
-  "pending",
-  "processing",
-  "completed",
-  "failed",
-  "cancelled",
-  "refunded",
-] as const;
-
-export type PaymentStatus = (typeof PAYMENT_STATUS_VALUES)[number];
-
-export function isPaymentStatus(value: unknown): value is PaymentStatus {
-  return PAYMENT_STATUS_VALUES.includes(value as PaymentStatus);
-}
-
-export function normalizePaymentStatus(value: unknown): PaymentStatus {
-  return isPaymentStatus(value) ? value : "pending";
+export function normalizePaymentStatus(status: string): PaymentStatus {
+  switch (status) {
+    case "pending":
+    case "processing":
+    case "completed":
+    case "failed":
+    case "cancelled":
+    case "refunded":
+      return status as PaymentStatus;
+    default:
+      return "pending";
+  }
 }

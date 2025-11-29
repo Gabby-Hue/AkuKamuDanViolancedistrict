@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import {
+  normalizeBookingStatus,
+  normalizePaymentStatus,
+  type BookingStatus,
+  type PaymentStatus,
+} from "../status";
 
 export type CourtSummary = {
   id: string;
@@ -55,232 +61,333 @@ export type VenueSummary = {
   courts: CourtSummary[];
 };
 
-export async function getCourtBySlug(slug: string): Promise<CourtDetail | null> {
-  const supabase = await createClient();
+type CourtSummaryRow = {
+  id: string;
+  slug: string;
+  name: string;
+  sport: string;
+  surface: string | null;
+  price_per_hour: number | null;
+  capacity: number | null;
+  amenities: string[] | null;
+  description: string | null;
+  venue_id: string;
+  venue_name: string;
+  venue_city: string | null;
+  venue_district: string | null;
+  venue_latitude?: number | null;
+  venue_longitude?: number | null;
+  primary_image_url: string | null;
+  average_rating: number | null;
+  review_count: number | null;
+};
 
-  const { data: court, error } = await supabase
-    .from("court_summaries")
-    .select(`
-      *,
-      venue:venues(
-        address,
-        contact_phone,
-        contact_email
-      )
-    `)
-    .eq("slug", slug)
-    .single();
+type CourtImageRow = {
+  image_url: string;
+  caption: string | null;
+  is_primary: boolean;
+  display_order: number | null;
+};
 
-  if (error || !court) {
-    console.error("Failed to fetch court:", error?.message);
-    return null;
-  }
+type CourtReviewRow = {
+  id: string;
+  rating: number | null;
+  comment: string | null;
+  created_at: string;
+  profile: {
+    full_name: string | null;
+  } | null;
+};
 
-  const { data: images } = await supabase
-    .from("court_images")
-    .select("*")
-    .eq("court_id", court.id)
-    .order("display_order", { ascending: true });
+type CourtDetailRow = {
+  id: string;
+  slug: string;
+  name: string;
+  sport: string;
+  surface: string | null;
+  price_per_hour: number | null;
+  capacity: number | null;
+  amenities: string[] | null;
+  description: string | null;
+  venue: {
+    id?: string | null;
+    name: string | null;
+    city: string | null;
+    district: string | null;
+    address: string | null;
+    contact_phone: string | null;
+    contact_email: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+  } | null;
+  images: CourtImageRow[] | null;
+  reviews: CourtReviewRow[] | null;
+};
 
-  const { data: reviews } = await supabase
-    .from("court_reviews")
-    .select(`
-      id,
-      rating,
-      comment,
-      created_at,
-      profile:profiles(full_name)
-    `)
-    .eq("court_id", court.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+type VenueSummaryRow = {
+  id: string;
+  slug: string;
+  name: string;
+  city: string | null;
+  district: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  description: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+};
 
+function mapCourtSummary(row: CourtSummaryRow): CourtSummary {
   return {
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface ?? null,
-    pricePerHour: court.price_per_hour,
-    capacity: court.capacity ?? null,
-    amenities: Array.isArray(court.amenities) ? court.amenities : [],
-    description: court.description ?? null,
-    venueName: court.venue_name,
-    venueCity: court.venue_city ?? null,
-    venueDistrict: court.venue_district ?? null,
-    venueLatitude: court.venue_latitude ?? null,
-    venueLongitude: court.venue_longitude ?? null,
-    primaryImageUrl: court.primary_image_url ?? null,
-    averageRating: court.average_rating ?? 0,
-    reviewCount: court.review_count ?? 0,
-    venueAddress: court.venue?.address ?? null,
-    venueContactPhone: court.venue?.contact_phone ?? null,
-    venueContactEmail: court.venue?.contact_email ?? null,
-    images: (images ?? []).map((img) => ({
-      image_url: img.image_url,
-      caption: img.caption ?? null,
-      is_primary: img.is_primary,
-      display_order: img.display_order,
-    })),
-    reviews: (reviews ?? []).map((review) => ({
-      id: review.id,
-      rating: review.rating,
-      comment: review.comment ?? null,
-      created_at: review.created_at,
-      author: (review.profile as any)?.full_name ?? null,
-    })),
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    sport: row.sport,
+    surface: row.surface,
+    pricePerHour: Number(row.price_per_hour ?? 0),
+    capacity: row.capacity ?? null,
+    amenities: Array.isArray(row.amenities) ? row.amenities : [],
+    description: row.description ?? null,
+    venueName: row.venue_name,
+    venueCity: row.venue_city ?? null,
+    venueDistrict: row.venue_district ?? null,
+    venueLatitude:
+      typeof row.venue_latitude === "number" ? row.venue_latitude : null,
+    venueLongitude:
+      typeof row.venue_longitude === "number" ? row.venue_longitude : null,
+    primaryImageUrl: row.primary_image_url ?? null,
+    averageRating: Number(row.average_rating ?? 0),
+    reviewCount: Number(row.review_count ?? 0),
   };
 }
 
-export async function getVenueBySlug(slug: string): Promise<VenueSummary | null> {
+export async function fetchCourtSummaries(): Promise<CourtSummary[]> {
   const supabase = await createClient();
-
-  const { data: venue, error } = await supabase
-    .from("venues")
-    .select(`
-      id,
-      slug,
-      name,
-      city,
-      district,
-      address,
-      latitude,
-      longitude,
-      description,
-      contact_phone,
-      contact_email,
-      courts (
-        id,
-        slug,
-        name,
-        sport,
-        surface,
-        price_per_hour,
-        capacity,
-        amenities,
-        description
-      )
-    `)
-    .eq("slug", slug)
-    .single();
-
-  if (error || !venue) {
-    console.error("Failed to fetch venue:", error?.message);
-    return null;
-  }
-
-  const courtIds = venue.courts?.map((court) => court.id) ?? [];
-
-  let primaryImageMap = new Map<string, string | null>();
-  if (courtIds.length > 0) {
-    const { data: courtSummaries } = await supabase
-      .from("court_summaries")
-      .select("id, primary_image_url")
-      .in("id", courtIds);
-
-    primaryImageMap = new Map(
-      (courtSummaries ?? []).map((court) => [
-        court.id,
-        court.primary_image_url ?? null,
-      ])
-    );
-  }
-
-  return {
-    id: venue.id,
-    slug: venue.slug,
-    name: venue.name,
-    city: venue.city ?? null,
-    district: venue.district ?? null,
-    address: venue.address ?? null,
-    latitude: venue.latitude ?? null,
-    longitude: venue.longitude ?? null,
-    description: venue.description ?? null,
-    contactPhone: venue.contact_phone ?? null,
-    contactEmail: venue.contact_email ?? null,
-    courts: (venue.courts ?? []).map((court) => ({
-      id: court.id,
-      slug: court.slug,
-      name: court.name,
-      sport: court.sport,
-      surface: court.surface ?? null,
-      pricePerHour: Number(court.price_per_hour ?? 0),
-      capacity: court.capacity ?? null,
-      amenities: Array.isArray(court.amenities) ? court.amenities : [],
-      description: court.description ?? null,
-      venueName: venue.name,
-      venueCity: venue.city ?? null,
-      venueDistrict: venue.district ?? null,
-      venueLatitude: venue.latitude ?? null,
-      venueLongitude: venue.longitude ?? null,
-      primaryImageUrl: primaryImageMap.get(court.id) ?? null,
-      averageRating: 0,
-      reviewCount: 0,
-    })),
-  };
-}
-
-export async function searchCourts(query: string, filters?: {
-  sport?: string;
-  city?: string;
-  minPrice?: number;
-  maxPrice?: number;
-}): Promise<CourtSummary[]> {
-  const supabase = await createClient();
-
-  let dbQuery = supabase
+  const { data, error } = await supabase
     .from("court_summaries")
     .select("*")
-    .eq("is_active", true);
-
-  if (query.trim()) {
-    dbQuery = dbQuery.or(
-      `name.ilike.%${query.trim()}%,venue_name.ilike.%${query.trim()}%,sport.ilike.%${query.trim()}%`
-    );
-  }
-
-  if (filters?.sport) {
-    dbQuery = dbQuery.eq("sport", filters.sport);
-  }
-
-  if (filters?.city) {
-    dbQuery = dbQuery.eq("venue_city", filters.city);
-  }
-
-  if (filters?.minPrice !== undefined) {
-    dbQuery = dbQuery.gte("price_per_hour", filters.minPrice);
-  }
-
-  if (filters?.maxPrice !== undefined) {
-    dbQuery = dbQuery.lte("price_per_hour", filters.maxPrice);
-  }
-
-  const { data, error } = await dbQuery
-    .order("average_rating", { ascending: false })
-    .limit(50);
+    .order("average_rating", { ascending: false });
 
   if (error) {
-    console.error("Failed to search courts:", error?.message);
+    console.error("Failed to fetch court summaries", error.message);
     return [];
   }
 
-  return (data ?? []).map((court) => ({
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface ?? null,
-    pricePerHour: court.price_per_hour,
-    capacity: court.capacity ?? null,
-    amenities: Array.isArray(court.amenities) ? court.amenities : [],
-    description: court.description ?? null,
-    venueName: court.venue_name,
-    venueCity: court.venue_city ?? null,
-    venueDistrict: court.venue_district ?? null,
-    venueLatitude: court.venue_latitude ?? null,
-    venueLongitude: court.venue_longitude ?? null,
-    primaryImageUrl: court.primary_image_url ?? null,
-    averageRating: court.average_rating ?? 0,
-    reviewCount: court.review_count ?? 0,
+  return ((data ?? []) as CourtSummaryRow[]).map(mapCourtSummary);
+}
+
+export async function fetchVenueSummaries(): Promise<VenueSummary[]> {
+  const supabase = await createClient();
+  const { data: venuesData, error: venuesError } = await supabase
+    .from("venues")
+    .select(
+      "id, slug, name, city, district, address, latitude, longitude, description, contact_phone, contact_email",
+    )
+    .order("name", { ascending: true });
+
+  if (venuesError) {
+    console.error("Failed to fetch venue summaries", venuesError.message);
+    return [];
+  }
+
+  const venues = ((venuesData ?? []) as VenueSummaryRow[]).map((venue) => ({
+    id: venue.id,
+    slug: venue.slug,
+    name: venue.name,
+    city: venue.city,
+    district: venue.district,
+    address: venue.address,
+    latitude: typeof venue.latitude === "number" ? venue.latitude : null,
+    longitude: typeof venue.longitude === "number" ? venue.longitude : null,
+    description: venue.description,
+    contactPhone: venue.contact_phone,
+    contactEmail: venue.contact_email,
   }));
+
+  if (!venues.length) {
+    return [];
+  }
+
+  const venueIds = venues.map((venue) => venue.id);
+  const { data: courtsData, error: courtsError } = await supabase
+    .from("court_summaries")
+    .select("*")
+    .in("venue_id", venueIds);
+
+  if (courtsError) {
+    console.error("Failed to fetch courts for venues", courtsError.message);
+  }
+
+  const courtsByVenue = new Map<string, CourtSummary[]>();
+  ((courtsData ?? []) as CourtSummaryRow[]).forEach((row) => {
+    const existing = courtsByVenue.get(row.venue_id) ?? [];
+    existing.push(mapCourtSummary(row));
+    courtsByVenue.set(row.venue_id, existing);
+  });
+
+  return venues.map((venue) => ({
+    ...venue,
+    courts: (courtsByVenue.get(venue.id) ?? []).sort(
+      (a, b) => b.averageRating - a.averageRating,
+    ),
+  }));
+}
+
+export async function fetchCourtDetail(
+  slug: string,
+): Promise<CourtDetail | null> {
+  const supabase = await createClient();
+
+  const { data: court, error } = await supabase
+    .from("courts")
+    .select(
+      `id, slug, name, sport, surface, price_per_hour, capacity, amenities, description,
+       venue:venues(id, name, city, district, address, latitude, longitude, contact_phone, contact_email),
+       images:court_images(image_url, caption, is_primary, display_order),
+       reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`,
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to fetch court detail", error.message);
+    return null;
+  }
+
+  const courtRow = (court ?? null) as CourtDetailRow | null;
+
+  if (!courtRow) {
+    return null;
+  }
+
+  const reviewSummaryResponse = await supabase
+    .from("court_review_summary")
+    .select("average_rating, review_count")
+    .eq("court_id", courtRow.id)
+    .maybeSingle();
+
+  const reviewSummaryRow = reviewSummaryResponse.data as {
+    average_rating: number | null;
+    review_count: number | null;
+  } | null;
+  const summary = reviewSummaryRow
+    ? {
+        average_rating: reviewSummaryRow.average_rating,
+        review_count: reviewSummaryRow.review_count,
+      }
+    : { average_rating: 0, review_count: 0 };
+
+  const images = (courtRow.images ?? []) as CourtImageRow[];
+  const baseRow: CourtSummaryRow = {
+    id: courtRow.id,
+    slug: courtRow.slug,
+    name: courtRow.name,
+    sport: courtRow.sport,
+    surface: courtRow.surface,
+    price_per_hour: courtRow.price_per_hour,
+    capacity: courtRow.capacity,
+    amenities: courtRow.amenities ?? [],
+    description: courtRow.description,
+    venue_id: courtRow.venue?.id ?? "",
+    venue_name: courtRow.venue?.name ?? "",
+    venue_city: courtRow.venue?.city ?? null,
+    venue_district: courtRow.venue?.district ?? null,
+    venue_latitude:
+      typeof courtRow.venue?.latitude === "number"
+        ? courtRow.venue.latitude
+        : null,
+    venue_longitude:
+      typeof courtRow.venue?.longitude === "number"
+        ? courtRow.venue.longitude
+        : null,
+    primary_image_url:
+      images.find((img) => img.is_primary)?.image_url ??
+      images[0]?.image_url ??
+      null,
+    average_rating: summary.average_rating,
+    review_count: summary.review_count,
+  };
+
+  const base = mapCourtSummary(baseRow);
+
+  return {
+    ...base,
+    venueAddress: courtRow.venue?.address ?? null,
+    venueContactPhone: courtRow.venue?.contact_phone ?? null,
+    venueContactEmail: courtRow.venue?.contact_email ?? null,
+    images: [...images]
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+      .map((image) => ({
+        image_url: image.image_url,
+        caption: image.caption ?? null,
+        is_primary: Boolean(image.is_primary),
+        display_order: image.display_order ?? 0,
+      })),
+    reviews: ((courtRow.reviews ?? []) as CourtReviewRow[]).map((review) => ({
+      id: review.id,
+      rating: Number(review.rating ?? 0),
+      comment: review.comment ?? null,
+      created_at: review.created_at,
+      author: review.profile?.full_name ?? null,
+    })),
+  };
+}
+
+export async function fetchExploreData(): Promise<{
+  courts: CourtSummary[];
+  threads: any[];
+  totalReplies: number;
+}> {
+  const supabase = await createClient();
+
+  const [courtsRes, threadsRes] = await Promise.all([
+    supabase
+      .from("court_summaries")
+      .select("*")
+      .order("average_rating", { ascending: false })
+      .limit(12),
+    supabase
+      .from("forum_threads")
+      .select(
+        `id, slug, title, excerpt, reply_count, created_at, tags,
+         category:forum_categories(id, slug, name),
+         author:profiles(full_name)`,
+      )
+      .order("created_at", { ascending: false })
+      .limit(8),
+  ]);
+
+  const courts = ((courtsRes.data ?? []) as CourtSummaryRow[]).map(
+    mapCourtSummary,
+  );
+
+  const threadRows = (threadsRes.data ?? []) as unknown as any[];
+  const threads = threadRows.map((thread) => ({
+    id: thread.id,
+    slug: thread.slug,
+    title: thread.title,
+    excerpt: thread.excerpt ?? null,
+    reply_count: Number(thread.reply_count ?? 0),
+    created_at: thread.created_at,
+    tags: Array.isArray(thread.tags) ? thread.tags : [],
+    category: thread.category
+      ? {
+          id: thread.category.id,
+          slug: thread.category.slug,
+          name: thread.category.name,
+        }
+      : null,
+    author_name: thread.author?.full_name ?? null,
+    latestReplyBody: null,
+    latestReplyAt: null,
+    reviewCourt: null,
+  }));
+
+  const totalReplies = threads.reduce(
+    (acc, thread) => acc + thread.reply_count,
+    0,
+  );
+
+  return { courts, threads, totalReplies };
 }

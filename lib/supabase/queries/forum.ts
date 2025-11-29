@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 export type ForumCategory = {
@@ -31,230 +30,259 @@ export type ForumReply = {
   body: string;
   created_at: string;
   author_name: string | null;
-  author_avatar_url: string | null;
 };
 
-export type ForumThreadDetail = {
+export type ForumThreadDetail = ForumThreadSummary & {
+  body: string | null;
+  replies: ForumReply[];
+};
+
+type ForumThreadRow = {
   id: string;
   slug: string;
   title: string;
-  body: string | null;
   excerpt: string | null;
+  reply_count: number | null;
   created_at: string;
-  updated_at: string;
-  tags: string[];
-  view_count: number;
-  like_count: number;
-  author: {
-    id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-  };
-  category: ForumCategory | null;
-  reviewCourt: {
+  tags: string[] | null;
+  body?: string | null;
+  category: {
     id: string;
     slug: string;
     name: string;
   } | null;
-  replies: ForumReply[];
+  author: {
+    full_name: string | null;
+  } | null;
 };
 
-export async function getForumThreads(options?: {
-  category?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<{ threads: ForumThreadSummary[]; hasMore: boolean }> {
-  const supabase = await createClient();
-  const limit = options?.limit ?? 20;
-  const offset = options?.offset ?? 0;
+type ForumReplyDetailRow = {
+  id: string;
+  body: string;
+  created_at: string;
+  author: { full_name: string | null } | null;
+};
 
-  let query = supabase
-    .from("forum_threads")
-    .select(`
-      id,
-      slug,
-      title,
-      excerpt,
-      reply_count,
-      created_at,
-      tags,
-      category:forum_categories(id, slug, name),
-      author:profiles(full_name, avatar_url),
-      latest_reply_body,
-      latest_reply_at,
-      review_court:courts(id, slug, name)
-    `)
-    .eq("is_pinned", false)
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+type LatestThreadReplyRow = {
+  thread_id: string;
+  latest_reply_body: string | null;
+  latest_reply_created_at: string | null;
+};
 
-  if (options?.category) {
-    query = query.eq("category_slug", options.category);
+type ReviewThreadLinkRow = {
+  forum_thread_id: string;
+  court:
+    | { id: string; slug: string; name: string }
+    | Array<{ id: string; slug: string; name: string }>
+    | null;
+};
+
+async function attachLatestReplyMetadata(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  threads: ForumThreadSummary[],
+): Promise<ForumThreadSummary[]> {
+  const threadIds = threads.map((thread) => thread.id);
+  if (!threadIds.length) {
+    return threads;
   }
 
-  const { data, error } = await query;
+  const { data, error } = await supabase
+    .from("forum_thread_latest_activity")
+    .select("thread_id, latest_reply_body, latest_reply_created_at")
+    .in("thread_id", threadIds);
 
   if (error) {
-    console.error("Failed to fetch forum threads:", error?.message);
-    return { threads: [], hasMore: false };
+    console.error("Failed to fetch latest forum replies", error.message);
+    return threads;
   }
 
-  const threads = (data ?? []).map((thread) => ({
+  const latestMap = new Map<string, LatestThreadReplyRow>();
+  ((data ?? []) as LatestThreadReplyRow[]).forEach((row) => {
+    latestMap.set(row.thread_id, row);
+  });
+
+  return threads.map((thread) => {
+    const latest = latestMap.get(thread.id);
+    return {
+      ...thread,
+      latestReplyBody: latest?.latest_reply_body ?? null,
+      latestReplyAt: latest?.latest_reply_created_at ?? null,
+    };
+  });
+}
+
+export async function fetchForumCategories(): Promise<ForumCategory[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("forum_categories")
+    .select("id, slug, name")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Failed to fetch forum categories", error.message);
+    return [];
+  }
+
+  return data ?? [];
+}
+
+export async function fetchForumThreads(): Promise<ForumThreadSummary[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("forum_threads")
+    .select(
+      `id, slug, title, excerpt, reply_count, created_at, tags,
+       category:forum_categories(id, slug, name),
+       author:profiles(full_name)`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error("Failed to fetch forum threads", error.message);
+    return [];
+  }
+
+  const threadRows = (data ?? []) as unknown as ForumThreadRow[];
+  const threadIds = threadRows.map((thread) => thread.id);
+  const reviewMap = new Map<
+    string,
+    { id: string; slug: string; name: string }
+  >();
+
+  if (threadIds.length) {
+    const { data: reviewRefs, error: reviewError } = await supabase
+      .from("court_reviews")
+      .select("forum_thread_id, court:courts(id, slug, name)")
+      .in("forum_thread_id", threadIds);
+
+    if (reviewError) {
+      console.error("Failed to fetch review thread links", reviewError.message);
+    } else {
+      ((reviewRefs ?? []) as ReviewThreadLinkRow[]).forEach((row) => {
+        const courtRecord = Array.isArray(row.court) ? row.court[0] : row.court;
+        if (courtRecord) {
+          reviewMap.set(row.forum_thread_id, {
+            id: courtRecord.id,
+            slug: courtRecord.slug,
+            name: courtRecord.name,
+          });
+        }
+      });
+    }
+  }
+
+  const threadSummaries = threadRows.map((thread) => ({
     id: thread.id,
     slug: thread.slug,
     title: thread.title,
     excerpt: thread.excerpt ?? null,
-    reply_count: thread.reply_count ?? 0,
+    reply_count: Number(thread.reply_count ?? 0),
     created_at: thread.created_at,
     tags: Array.isArray(thread.tags) ? thread.tags : [],
-    category: Array.isArray(thread.category) ? thread.category[0] : thread.category,
-    author_name: (thread.author as any)?.full_name ?? null,
-    latestReplyBody: thread.latest_reply_body ?? null,
-    latestReplyAt: thread.latest_reply_at ?? null,
-    reviewCourt: Array.isArray(thread.review_court) ? thread.review_court[0] : thread.review_court,
+    category: thread.category
+      ? {
+          id: thread.category.id,
+          slug: thread.category.slug,
+          name: thread.category.name,
+        }
+      : null,
+    author_name: thread.author?.full_name ?? null,
+    latestReplyBody: null,
+    latestReplyAt: null,
+    reviewCourt: reviewMap.get(thread.id) ?? null,
   }));
 
-  return {
-    threads,
-    hasMore: threads.length === limit,
-  };
+  return attachLatestReplyMetadata(supabase, threadSummaries);
 }
 
-export async function getForumThreadBySlug(
-  slug: string
+export async function fetchForumThreadDetail(
+  slug: string,
 ): Promise<ForumThreadDetail | null> {
   const supabase = await createClient();
 
-  const { data: thread, error } = await supabase
+  const { data: threadRowData, error } = await supabase
     .from("forum_threads")
-    .select(`
-      *,
-      category:forum_categories(id, slug, name),
-      author:profiles(id, full_name, avatar_url),
-      review_court:courts(id, slug, name)
-    `)
+    .select(
+      `id, slug, title, body, excerpt, reply_count, created_at, tags,
+       category:forum_categories(id, slug, name),
+       author:profiles(full_name)`,
+    )
     .eq("slug", slug)
-    .single();
+    .maybeSingle();
 
-  if (error || !thread) {
-    console.error("Failed to fetch forum thread:", error?.message);
+  if (error) {
+    console.error("Failed to fetch forum thread detail", error.message);
     return null;
   }
 
-  const { data: replies } = await supabase
+  const threadRow = (threadRowData ?? null) as ForumThreadRow | null;
+
+  if (!threadRow) {
+    return null;
+  }
+
+  let reviewCourt: { id: string; slug: string; name: string } | null = null;
+  const { data: reviewDetail, error: reviewDetailError } = await supabase
+    .from("court_reviews")
+    .select("court:courts(id, slug, name)")
+    .eq("forum_thread_id", threadRow.id)
+    .maybeSingle();
+
+  if (reviewDetailError) {
+    console.error("Failed to fetch review context", reviewDetailError.message);
+  } else if (reviewDetail) {
+    const row = reviewDetail as ReviewThreadLinkRow;
+    const courtRecord = Array.isArray(row.court) ? row.court[0] : row.court;
+    if (courtRecord) {
+      reviewCourt = {
+        id: courtRecord.id,
+        slug: courtRecord.slug,
+        name: courtRecord.name,
+      };
+    }
+  }
+
+  const { data: repliesData, error: repliesError } = await supabase
     .from("forum_replies")
-    .select(`
-      id,
-      body,
-      created_at,
-      author:profiles(full_name, avatar_url)
-    `)
-    .eq("thread_id", thread.id)
+    .select(`id, body, created_at, author:profiles(full_name)`)
+    .eq("thread_id", threadRow.id)
     .order("created_at", { ascending: true });
 
-  await supabase
-    .from("forum_threads")
-    .update({ view_count: (thread.view_count ?? 0) + 1 })
-    .eq("id", thread.id);
-
-  return {
-    id: thread.id,
-    slug: thread.slug,
-    title: thread.title,
-    body: thread.body,
-    excerpt: thread.excerpt,
-    created_at: thread.created_at,
-    updated_at: thread.updated_at,
-    tags: Array.isArray(thread.tags) ? thread.tags : [],
-    view_count: thread.view_count ?? 0,
-    like_count: thread.like_count ?? 0,
-    author: {
-      id: thread.author.id,
-      full_name: thread.author.full_name,
-      avatar_url: thread.author.avatar_url,
-    },
-    category: thread.category,
-    reviewCourt: thread.review_court,
-    replies: (replies ?? []).map((reply) => ({
-      id: reply.id,
-      body: reply.body,
-      created_at: reply.created_at,
-      author_name: (reply.author as any)?.full_name ?? null,
-      author_avatar_url: (reply.author as any)?.avatar_url ?? null,
-    })),
-  };
-}
-
-export async function createForumThread(data: {
-  title: string;
-  body: string;
-  excerpt?: string;
-  categoryId?: string;
-  tags?: string[];
-  reviewCourtId?: string;
-  authorId: string;
-}): Promise<ForumThreadDetail | null> {
-  const supabase = await createClient();
-
-  const slug = generateSlug(data.title);
-  const excerpt = data.excerpt ?? generateExcerpt(data.body);
-
-  const { data: thread, error } = await supabase
-    .from("forum_threads")
-    .insert({
-      slug,
-      title: data.title,
-      body: data.body,
-      excerpt,
-      category_id: data.categoryId ?? null,
-      tags: data.tags ?? [],
-      review_court_id: data.reviewCourtId ?? null,
-      author_id: data.authorId,
-    })
-    .select(`
-      *,
-      category:forum_categories(id, slug, name),
-      author:profiles(id, full_name, avatar_url),
-      review_court:courts(id, slug, name)
-    `)
-    .single();
-
-  if (error || !thread) {
-    console.error("Failed to create forum thread:", error?.message);
-    return null;
+  if (repliesError) {
+    console.error("Failed to fetch replies", repliesError.message);
   }
 
+  const replyRows = (repliesData ?? []) as unknown as ForumReplyDetailRow[];
+  const replies = replyRows.map((reply) => ({
+    id: reply.id,
+    body: reply.body,
+    created_at: reply.created_at,
+    author_name: reply.author?.full_name ?? null,
+  }));
+
+  const latestReply = replies.length ? replies[replies.length - 1] : null;
+
   return {
-    id: thread.id,
-    slug: thread.slug,
-    title: thread.title,
-    body: thread.body,
-    excerpt: thread.excerpt,
-    created_at: thread.created_at,
-    updated_at: thread.updated_at,
-    tags: Array.isArray(thread.tags) ? thread.tags : [],
-    view_count: thread.view_count ?? 0,
-    like_count: thread.like_count ?? 0,
-    author: {
-      id: thread.author.id,
-      full_name: thread.author.full_name,
-      avatar_url: thread.author.avatar_url,
-    },
-    category: thread.category,
-    reviewCourt: thread.review_court,
-    replies: [],
+    id: threadRow.id,
+    slug: threadRow.slug,
+    title: threadRow.title,
+    body: threadRow.body ?? null,
+    excerpt: threadRow.excerpt ?? null,
+    reply_count: Number(threadRow.reply_count ?? 0),
+    created_at: threadRow.created_at,
+    tags: Array.isArray(threadRow.tags) ? threadRow.tags : [],
+    category: threadRow.category
+      ? {
+          id: threadRow.category.id,
+          slug: threadRow.category.slug,
+          name: threadRow.category.name,
+        }
+      : null,
+    author_name: threadRow.author?.full_name ?? null,
+    latestReplyBody: latestReply?.body ?? null,
+    latestReplyAt: latestReply?.created_at ?? null,
+    replies,
+    reviewCourt,
   };
-}
-
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .substring(0, 100);
-}
-
-function generateExcerpt(body: string, length: number = 200): string {
-  const clean = body.replace(/[#*`\[\]]/g, "").trim();
-  return clean.length > length ? clean.substring(0, length) + "..." : clean;
 }

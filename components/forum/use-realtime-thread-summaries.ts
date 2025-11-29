@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
-import type { ForumThreadSummary } from "@/lib/supabase/queries";
+import type { ForumThreadSummary } from "@/lib/supabase/queries/forum";
 
 type ForumReplyPayload = {
   thread_id: string;
