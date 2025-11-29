@@ -50,11 +50,10 @@
 
 :root {
     --radius: 0.625rem;
-    /* Light theme brand: #fa6d0f */
     --brand: 24 96% 52%;
-    --brand-strong: 24 96% 44%;
-    --brand-soft: 24 94% 93%;
-    --brand-muted: 24 70% 50%;
+    --brand-strong: 24 100% 45%;
+    --brand-soft: 24 92% 90%;
+    --brand-muted: 24 70% 40%;
     --brand-contrast: 0 0% 100%;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -90,11 +89,10 @@
 }
 
 .dark {
-    /* Dark theme brand: #287a78 */
-    --brand: 178 51% 32%;
-    --brand-strong: 178 55% 26%;
-    --brand-soft: 178 42% 18%;
-    --brand-muted: 178 38% 65%;
+    --brand: 179 51% 32%;
+    --brand-strong: 179 55% 26%;
+    --brand-soft: 179 45% 18%;
+    --brand-muted: 179 40% 70%;
     --brand-contrast: 0 0% 100%;
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
