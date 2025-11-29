@@ -74,7 +74,7 @@ export default function NavbarNew() {
       >
         {/* Gradient line - hanya muncul saat scroll */}
         {scrolled && (
-          <div className="h-px bg-linear-to-r from-orange-500 via-teal-500 to-orange-500 dark:from-teal-400 dark:via-orange-400 dark:to-teal-400" />
+          <div className="h-px bg-gradient-to-r from-brand via-brand-strong to-brand" />
         )}
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
@@ -91,7 +91,7 @@ export default function NavbarNew() {
                 height={28}
                 className="rounded-lg"
               />
-              <span className="text-lg font-bold text-black dark:text-white">
+              <span className="text-lg font-bold text-brand dark:text-brand-contrast">
                 courtease
               </span>
             </Link>
@@ -106,10 +106,10 @@ export default function NavbarNew() {
               <button
                 type="button"
                 aria-label="Buka menu navigasi"
-                className="p-2 text-white hover:bg-white/10 transition-colors duration-200 rounded-lg"
+                className="rounded-lg p-2 text-brand transition-colors duration-200 hover:bg-brand/10 dark:text-brand-contrast dark:hover:bg-brand/20"
                 onClick={() => setMenuOpen(true)}
               >
-                <Menu className="h-5 w-5 text-black dark:text-white" />
+                <Menu className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function NavbarNew() {
                   height={32}
                   className="rounded-lg"
                 />
-                <span className="text-xl font-bold normal-case text-black dark:text-white">
+                <span className="text-xl font-bold normal-case text-brand dark:text-brand-contrast">
                   courtease
                 </span>
               </Link>
@@ -136,17 +136,32 @@ export default function NavbarNew() {
                 aria-label="Navigasi utama"
                 className="flex items-center gap-1"
               >
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className="relative px-4 py-2 text-sm font-medium text-black dark:text-white hover:text-orange-500 dark:hover:text-teal-500 transition-colors duration-200 group"
-                  >
-                    {link.label}
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-linear-to-r from-orange-500 to-teal-500 dark:from-teal-400 dark:to-orange-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-left" />
-                  </Link>
-                ))}
-              </nav>
+                  {navLinks.map((link) => {
+                    const isActive = pathname === link.href;
+
+                    return (
+                      <Link
+                        key={link.label}
+                        href={link.href}
+                        className={clsx(
+                          "relative px-4 py-2 text-sm font-medium transition-colors duration-200 group",
+                          isActive
+                            ? "text-brand dark:text-brand-contrast"
+                            : "text-slate-800 dark:text-slate-200",
+                          "hover:text-brand dark:hover:text-brand-contrast",
+                        )}
+                      >
+                        {link.label}
+                        <span
+                          className={clsx(
+                            "absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-brand to-brand-strong transform transition-transform duration-300 ease-out origin-left",
+                            isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                          )}
+                        />
+                      </Link>
+                    );
+                  })}
+                </nav>
             </div>
             <div className="flex items-center gap-3">
               <SearchBar />
@@ -182,23 +197,33 @@ export default function NavbarNew() {
         >
           {/* CTA Button at top - Like Twibbonize */}
           <div className="px-6 pt-6">
-            <button className="w-full bg-linear-to-r from-orange-500 to-teal-500 text-white font-semibold py-4 px-6 rounded-xl hover:from-orange-600 hover:to-teal-600 transition-colors duration-200">
+            <button className="w-full rounded-xl bg-brand px-6 py-4 font-semibold text-brand-contrast shadow-brand/30 transition-colors duration-200 hover:bg-brand-strong">
               Start to be a partner
             </button>
           </div>
 
           {/* Navigation links in the middle */}
           <nav className="flex-1 px-6 py-8" aria-label="Navigasi utama">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="block py-4 text-lg font-medium text-gray-900 dark:text-white hover:text-orange-500 dark:hover:text-teal-400 transition-colors duration-200"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={clsx(
+                    "block py-4 text-lg font-medium transition-colors duration-200",
+                    isActive
+                      ? "text-brand dark:text-brand-contrast"
+                      : "text-gray-900 dark:text-white",
+                    "hover:text-brand dark:hover:text-brand-contrast",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Authentication menu at bottom center */}
@@ -218,7 +243,7 @@ export default function NavbarNew() {
           <button
             type="button"
             aria-label="Tutup menu navigasi"
-            className="absolute top-6 right-6 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+            className="absolute top-6 right-6 rounded-lg p-2 text-brand transition-colors duration-200 hover:bg-brand/10 dark:text-brand-contrast dark:hover:bg-brand/20"
             onClick={() => setMenuOpen(false)}
           >
             <X className="h-6 w-6" />

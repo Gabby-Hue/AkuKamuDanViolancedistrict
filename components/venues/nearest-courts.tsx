@@ -101,7 +101,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
           <span className="text-slate-500 dark:text-slate-200">{message}</span>
         )}
       </div>
-      <div className="rounded-xl bg-slate-100 p-1 text-[11px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-200">
+      <div className="rounded-xl bg-brand/10 p-1 text-[11px] font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
         <div className="grid grid-cols-2 gap-1">
           <button
             type="button"
@@ -110,8 +110,8 @@ export function NearestCourtTiles({ courts, limit }: Props) {
             className={cn(
               "rounded-lg px-3 py-1.5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand/50 focus-visible:-outline-offset-2",
               mode === "manual"
-                ? "bg-white text-brand shadow-sm dark:bg-slate-900 dark:text-brand"
-                : "hover:text-brand dark:hover:text-brand",
+                ? "bg-white text-brand shadow-sm dark:bg-brand/30 dark:text-brand-contrast"
+                : "hover:text-brand dark:hover:text-brand-contrast",
             )}
           >
             Pilih dari peta
@@ -123,8 +123,8 @@ export function NearestCourtTiles({ courts, limit }: Props) {
             className={cn(
               "rounded-lg px-3 py-1.5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand/50 focus-visible:-outline-offset-2",
               mode === "gps"
-                ? "bg-white text-brand shadow-sm dark:bg-slate-900 dark:text-brand"
-                : "hover:text-brand dark:hover:text-brand",
+                ? "bg-white text-brand shadow-sm dark:bg-brand/30 dark:text-brand-contrast"
+                : "hover:text-brand dark:hover:text-brand-contrast",
             )}
           >
             Gunakan GPS
@@ -133,7 +133,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
       </div>
       {isShowingMap ? (
         <div className="space-y-3">
-          <div className="overflow-hidden rounded-2xl border border-slate-200/70 dark:border-brand/30">
+          <div className="overflow-hidden rounded-2xl border border-brand/30 shadow-sm shadow-brand/20 dark:border-brand/50">
             <LeafletMap
               value={manualCoords ?? SURABAYA_COORDS}
               onSelect={handleManualSelect}
@@ -142,7 +142,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
               className="h-60"
             />
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-200">
+          <p className="text-[11px] text-slate-600 dark:text-slate-100">
             Ketuk peta untuk memilih lokasi rekomendasi. Fokus awal berada di
             Surabaya.
           </p>
@@ -150,7 +150,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
       ) : (
         <div className="space-y-3">
           {mode === "manual" && manualCoords ? (
-            <div className="space-y-1 text-[11px] text-slate-500 dark:text-slate-200">
+            <div className="space-y-1 text-[11px] text-slate-600 dark:text-slate-100">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span>
                   Lokasi pilihan: {formatCoordinateLabel(manualCoords)}
@@ -166,7 +166,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
               <p>{message}</p>
             </div>
           ) : (
-            <div className="text-[11px] text-slate-500 dark:text-slate-200">
+            <div className="text-[11px] text-slate-600 dark:text-slate-100">
               {message}
             </div>
           )}
@@ -176,7 +176,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
               return (
                 <div
                   key={court.id}
-                  className="rounded-2xl border border-slate-200/70 bg-white/95 p-4 shadow-sm dark:border-brand/30 dark:bg-brand/20"
+                  className="rounded-2xl border border-brand/25 bg-white/95 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-brand/30 dark:border-brand/35 dark:bg-brand/20"
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand dark:text-brand">
                     {court.venueCity ?? "Lokasi fleksibel"}
@@ -193,7 +193,7 @@ export function NearestCourtTiles({ courts, limit }: Props) {
               );
             })}
             {!visible.length && (
-              <div className="rounded-2xl border border-dashed border-slate-200/70 bg-white/95 p-4 text-xs text-slate-500 dark:border-brand/30 dark:bg-brand/20 dark:text-slate-200">
+              <div className="rounded-2xl border border-dashed border-brand/30 bg-white/95 p-4 text-xs text-slate-600 dark:border-brand/50 dark:bg-brand/20 dark:text-brand-contrast">
                 Data venue akan tampil otomatis setelah kamu mengisi seed
                 Supabase.
               </div>
@@ -220,14 +220,14 @@ export function NearestCourtSpotlight({ courts, limit }: Props) {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-500 dark:text-slate-200">{message}</p>
+      <p className="text-xs text-slate-600 dark:text-slate-100">{message}</p>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {visible.map(({ item: court, distanceKm }) => {
           const distanceLabel = formatDistance(distanceKm);
           return (
             <article
               key={court.id}
-              className="group flex flex-col gap-4 rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-brand/30 dark:bg-brand/20"
+              className="group flex flex-col gap-4 rounded-3xl border border-brand/25 bg-white/90 p-6 shadow-sm shadow-brand/10 transition hover:-translate-y-1 hover:border-brand/60 hover:shadow-brand/30 dark:border-brand/35 dark:bg-brand/20"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -241,16 +241,16 @@ export function NearestCourtSpotlight({ courts, limit }: Props) {
                 {court.venueName}
               </p>
               <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-200">
-                <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-brand/20">
+                <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
                   {court.sport}
                 </span>
                 {court.venueCity && (
-                  <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-brand/20">
+                  <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
                     {court.venueCity}
                   </span>
                 )}
                 {distanceLabel && (
-                  <span className="rounded-full bg-slate-100 px-3 py-1 dark:bg-brand/20">
+                  <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
                     {distanceLabel}
                   </span>
                 )}
@@ -270,7 +270,7 @@ export function NearestCourtSpotlight({ courts, limit }: Props) {
           );
         })}
         {!visible.length && (
-          <div className="rounded-3xl border border-dashed border-slate-200/70 bg-white/90 p-8 text-center text-sm text-slate-500 dark:border-brand/30 dark:bg-brand/20 dark:text-slate-200">
+          <div className="rounded-3xl border border-dashed border-brand/30 bg-white/90 p-8 text-center text-sm text-slate-600 dark:border-brand/50 dark:bg-brand/20 dark:text-brand-contrast">
             Data venue akan tampil otomatis setelah kamu menambahkan venue di
             dashboard Supabase.
           </div>
