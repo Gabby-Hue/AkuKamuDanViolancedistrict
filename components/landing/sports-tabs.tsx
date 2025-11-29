@@ -68,14 +68,15 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-muted">
+        <div className="space-y-2">
+          <p className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand dark:bg-brand/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
             Pilihan cepat
           </p>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-semibold text-brand dark:text-brand-contrast">
             Popular sports
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
             Temukan lapangan favorit komunitas, lengkap dengan akses menuju
             kategori court yang relevan.
           </p>
@@ -92,11 +93,11 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             disabled={!canScrollLeft && isOverflowing}
             className={cn(
               "rounded-full border px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-200",
-              "border-slate-200 bg-white text-slate-700",
-              "hover:border-brand hover:text-brand hover:shadow-md",
-              "dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200",
-              "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:text-slate-700 disabled:hover:shadow-sm",
-              "dark:disabled:hover:border-slate-700 dark:disabled:hover:text-slate-200",
+              "border-brand/30 bg-brand/10 text-brand",
+              "hover:border-brand hover:bg-brand/20 hover:text-brand-strong hover:shadow-md",
+              "dark:border-brand/40 dark:bg-brand/20 dark:text-brand-contrast",
+              "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-brand/30 disabled:hover:bg-brand/10 disabled:hover:text-brand",
+              "dark:disabled:hover:border-brand/30 dark:disabled:hover:text-brand-contrast",
             )}
             aria-label="Lihat olahraga sebelumnya"
           >
@@ -108,11 +109,11 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             disabled={!canScrollRight && isOverflowing}
             className={cn(
               "rounded-full border px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-200",
-              "border-slate-200 bg-white text-slate-700",
-              "hover:border-brand hover:text-brand hover:shadow-md",
-              "dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200",
-              "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:text-slate-700 disabled:hover:shadow-sm",
-              "dark:disabled:hover:border-slate-700 dark:disabled:hover:text-slate-200",
+              "border-brand/30 bg-brand/10 text-brand",
+              "hover:border-brand hover:bg-brand/20 hover:text-brand-strong hover:shadow-md",
+              "dark:border-brand/40 dark:bg-brand/20 dark:text-brand-contrast",
+              "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-brand/30 disabled:hover:bg-brand/10 disabled:hover:text-brand",
+              "dark:disabled:hover:border-brand/30 dark:disabled:hover:text-brand-contrast",
             )}
             aria-label="Lihat olahraga selanjutnya"
           >
@@ -131,7 +132,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 canScrollLeft ? "opacity-0" : "opacity-100",
               )}
             >
-              <div className="h-full w-full bg-gradient-to-r from-white/90 via-white/50 to-transparent dark:from-slate-900/90 dark:via-slate-900/50" />
+              <div className="h-full w-full bg-gradient-to-r from-brand/10 via-white/60 to-transparent dark:from-brand/20 dark:via-slate-900/60" />
             </div>
             <div
               className={cn(
@@ -139,7 +140,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 canScrollRight ? "opacity-0" : "opacity-100",
               )}
             >
-              <div className="h-full w-full bg-gradient-to-l from-white/90 via-white/50 to-transparent dark:from-slate-900/90 dark:via-slate-900/50" />
+              <div className="h-full w-full bg-gradient-to-l from-brand/10 via-white/60 to-transparent dark:from-brand/20 dark:via-slate-900/60" />
             </div>
           </>
         )}
@@ -162,8 +163,8 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           ref={trackRef}
           className={cn(
             "flex gap-4 overflow-x-auto overflow-y-hidden rounded-3xl border p-4 shadow-sm backdrop-blur scrollbar-hide",
-            "border-slate-200/80 bg-white/90",
-            "dark:border-slate-800/70 dark:bg-slate-900/70",
+            "border-brand/20 bg-brand/5",
+            "dark:border-brand/40 dark:bg-brand/15",
             "scroll-smooth",
             isOverflowing ? "scrollbar-hide" : "overflow-x-hidden",
           )}
@@ -177,10 +178,10 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
               key={sport.name}
               href={sport.href}
               className={cn(
-                "group relative flex overflow-hidden rounded-2xl border bg-slate-50 shadow-sm transition-all duration-300",
+                "group relative flex overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300",
                 "hover:-translate-y-1 hover:border-brand hover:shadow-xl hover:scale-[1.02]",
-                "dark:border-slate-700/80 dark:bg-slate-800/70",
-                "border-slate-200/80",
+                "border-brand/25 bg-brand/5",
+                "dark:border-brand/40 dark:bg-brand/15",
                 // Add subtle animation delay for each card
                 `animate-in fade-in slide-in-from-bottom`,
                 `animation-delay-[${index * 50}ms]`,
@@ -210,13 +211,13 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
               <div className="relative flex w-full flex-col justify-end gap-3 p-4">
                 <span
                   className={cn(
-                    "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur transition-all duration-300",
-                    "bg-white/20 group-hover:bg-white/30",
+                    "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition-all duration-300",
+                    "bg-brand/80 text-brand-contrast group-hover:bg-brand",
                   )}
                 >
                   {sport.name}
                 </span>
-                <span className="text-xs font-medium text-white/80 transition-colors duration-300 group-hover:text-white">
+                <span className="text-xs font-medium text-white/90 transition-colors duration-300 group-hover:text-brand-contrast">
                   Klik untuk menuju court {sport.name}
                 </span>
               </div>
