@@ -98,7 +98,7 @@ export default function TicketModal({
       <Button
         variant="outline"
         onClick={() => setShowTicketModal(true)}
-        className="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+        className="border-brand text-brand hover:bg-brand/10 dark:hover:bg-brand/20"
       >
         <Eye className="mr-2 h-4 w-4" />
         Lihat Ticket
@@ -110,7 +110,7 @@ export default function TicketModal({
           className="fixed inset-0 w-screen h-screen z-501"
           style={{
             backdropFilter: "blur(10px)",
-            backgroundColor: "rgba(0, 0, 0, 0.25)",
+            backgroundColor: "rgba(40, 122, 120, 0.28)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -125,9 +125,9 @@ export default function TicketModal({
           {/* Close button */}
           <button
             onClick={() => setShowTicketModal(false)}
-            className="absolute top-6 right-6 z-50 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-200"
+            className="absolute top-6 right-6 z-50 rounded-full bg-brand-soft/90 p-3 text-brand-strong shadow-lg shadow-brand/30 transition-all duration-200 hover:bg-brand-soft"
           >
-            <X className="h-5 w-5 text-black" />
+            <X className="h-5 w-5 text-brand" />
           </button>
 
           {/* SVG Mask Ticket with Perfect Holes */}
@@ -142,7 +142,7 @@ export default function TicketModal({
               style={{
                 fontFamily: '"Yanone Kaffeesatz", sans-serif',
                 fontWeight: 600,
-                filter: "drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))",
+                filter: "drop-shadow(0 4px 6px rgba(250, 109, 15, 0.22))",
               }}
             >
               {/* Define mask for holes */}
@@ -177,7 +177,7 @@ export default function TicketModal({
                   x="140"
                   y="65"
                   textAnchor="middle"
-                  fill="#aaa"
+                  fill="hsl(var(--brand-muted))"
                   fontSize="13"
                 >
                   SPORTIVO ARENA PRESENTS
@@ -188,23 +188,23 @@ export default function TicketModal({
                   textAnchor="middle"
                   fontSize="24"
                   fontWeight="700"
-                  fill="#333"
+                  fill="hsl(var(--brand-strong))"
                 >
                   {(booking.court?.name || "").toUpperCase()}
                 </text>
 
                 {/* Info Table 1 */}
-                <text x="25" y="285" fontSize="19" fill="#666">
+                <text x="25" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
                   LAPANGAN
                 </text>
-                <text x="120" y="285" fontSize="19" fill="#666">
+                <text x="120" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
                   TANGGAL
                 </text>
-                <text x="233" y="285" fontSize="19" fill="#666">
+                <text x="233" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
                   JAM
                 </text>
 
-                <text x="25" y="310" fontSize="20" fontWeight="600" fill="#333">
+                <text x="25" y="310" fontSize="20" fontWeight="600" fill="hsl(var(--brand-strong))">
                   {"Futsal"}
                 </text>
                 <text
@@ -212,7 +212,7 @@ export default function TicketModal({
                   y="310"
                   fontSize="20"
                   fontWeight="600"
-                  fill="#333"
+                  fill="hsl(var(--brand-strong))"
                 >
                   {formatDate(startTime)}
                 </text>
@@ -221,7 +221,7 @@ export default function TicketModal({
                   y="310"
                   fontSize="20"
                   fontWeight="600"
-                  fill="#333"
+                  fill="hsl(var(--brand-strong))"
                 >
                   {startTime
                     .toLocaleTimeString("id-ID", {
@@ -232,23 +232,23 @@ export default function TicketModal({
                 </text>
 
                 {/* Info Table 2 */}
-                <text x="25" y="345" fontSize="19" fill="#666">
+                <text x="25" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
                   HARGA
                 </text>
-                <text x="120" y="345" fontSize="19" fill="#666">
+                <text x="120" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
                   DURASI
                 </text>
-                <text x="210" y="345" fontSize="19" fill="#666">
+                <text x="210" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
                   DIPESAN
                 </text>
 
-                <text x="27" y="360" fontSize="14" fill="#333">
+                <text x="27" y="360" fontSize="14" fill="hsl(var(--brand-strong))">
                   {formatPrice(booking.price_total)}
                 </text>
-                <text x="127" y="365" fontSize="14" fill="#333">
+                <text x="127" y="365" fontSize="14" fill="hsl(var(--brand-strong))">
                   {duration} Jam
                 </text>
-                <text x="223" y="365" fontSize="14" fill="#333">
+                <text x="223" y="365" fontSize="14" fill="hsl(var(--brand-strong))">
                   {booking.profile?.full_name || "User"}
                 </text>
 
@@ -258,7 +258,7 @@ export default function TicketModal({
                   y1="405"
                   x2="250"
                   y2="405"
-                  stroke="#aaa"
+                  stroke="hsl(var(--brand-muted))"
                   strokeWidth="1"
                   strokeDasharray="5,5"
                 />
@@ -270,7 +270,7 @@ export default function TicketModal({
                   textAnchor="middle"
                   fontSize="14"
                   fontWeight="700"
-                  fill="#333"
+                  fill="hsl(var(--brand-strong))"
                   letterSpacing="1"
                 >
                   {bookingCode}
@@ -280,7 +280,7 @@ export default function TicketModal({
                   y="510"
                   textAnchor="middle"
                   fontSize="10"
-                  fill="#aaa"
+                  fill="hsl(var(--brand-muted))"
                   letterSpacing="2"
                 >
                   BOOKING ID: #{booking.id.slice(-8).toUpperCase()}

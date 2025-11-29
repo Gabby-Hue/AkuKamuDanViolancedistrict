@@ -97,7 +97,7 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
   const activeSlide = slides[activeIndex];
 
   return (
-    <section className="relative isolate overflow-hidden rounded-none bg-black text-white">
+    <section className="relative isolate overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
           <div
@@ -115,7 +115,7 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
               sizes="100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
           </div>
         ))}
       </div>
@@ -136,7 +136,7 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
             <h1 className="text-4xl font-black leading-tight sm:text-5xl">
               {activeSlide.title}
             </h1>
-            <p className="max-w-2xl text-lg text-white/80">
+            <p className="max-w-2xl text-lg text-brand-contrast/80">
               {activeSlide.description}
             </p>
             <div className="flex flex-wrap gap-3">
@@ -179,13 +179,13 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
                 </button>
               </div>
             </div>
-            <div className="rounded-3xl border border-white/30 bg-white/10 p-4 shadow-2xl backdrop-blur">
+            <div className="rounded-3xl border border-brand/40 bg-brand/10 p-4 shadow-2xl shadow-brand/30 backdrop-blur">
               <NearestCourtTiles courts={courts} limit={3} />
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 text-xs text-white/80">
+        <div className="flex items-center justify-between gap-4 text-xs text-brand-contrast/80">
           <SlideIndicators activeIndex={activeIndex} onSelect={setActiveIndex} />
           <span className="hidden sm:inline">Slide berganti otomatis setiap 6 detik</span>
         </div>

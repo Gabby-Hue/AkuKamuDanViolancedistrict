@@ -50,10 +50,10 @@
 
 :root {
     --radius: 0.625rem;
-    --brand: 24 96% 52%;
-    --brand-strong: 24 100% 45%;
+    --brand: 24 94% 52%;
+    --brand-strong: 24 100% 46%;
     --brand-soft: 24 92% 90%;
-    --brand-muted: 24 70% 40%;
+    --brand-muted: 24 72% 40%;
     --brand-contrast: 0 0% 100%;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -89,28 +89,28 @@
 }
 
 .dark {
-    --brand: 179 51% 32%;
-    --brand-strong: 179 55% 26%;
-    --brand-soft: 179 45% 18%;
-    --brand-muted: 179 40% 70%;
+    --brand: 178 52% 32%;
+    --brand-strong: 178 55% 26%;
+    --brand-soft: 178 45% 20%;
+    --brand-muted: 178 42% 68%;
     --brand-contrast: 0 0% 100%;
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
+    --background: hsl(184 36% 9%);
+    --foreground: hsl(180 30% 93%);
+    --card: hsl(186 32% 14%);
+    --card-foreground: hsl(180 30% 93%);
+    --popover: hsl(186 32% 14%);
+    --popover-foreground: hsl(180 30% 93%);
     --primary: hsl(var(--brand));
     --primary-foreground: hsl(var(--brand-contrast));
     --secondary: hsl(var(--brand) / 0.25);
     --secondary-foreground: hsl(var(--brand-contrast));
-    --muted: hsl(var(--brand) / 0.18);
+    --muted: hsl(var(--brand) / 0.2);
     --muted-foreground: hsl(var(--brand-muted));
-    --accent: hsl(var(--brand) / 0.25);
+    --accent: hsl(var(--brand) / 0.28);
     --accent-foreground: hsl(var(--brand-contrast));
     --destructive: oklch(0.704 0.191 22.216);
-    --border: hsl(var(--brand) / 0.35);
-    --input: hsl(var(--brand) / 0.3);
+    --border: hsl(var(--brand) / 0.38);
+    --input: hsl(var(--brand) / 0.32);
     --ring: hsl(var(--brand-muted));
     --chart-1: oklch(0.65 0.17 152.4);
     --chart-2: oklch(0.58 0.12 171.3);

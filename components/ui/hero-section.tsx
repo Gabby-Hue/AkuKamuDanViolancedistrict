@@ -24,7 +24,7 @@ export function HeroSection({
   className,
 }: HeroSectionProps) {
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl bg-white", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl bg-brand/5", className)}>
       {/* Hero Image */}
       <div className="relative h-96 w-full overflow-hidden bg-gray-100">
         {heroImage ? (
@@ -45,13 +45,13 @@ export function HeroSection({
         )}
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-strong/70 via-brand-strong/30 to-transparent" />
 
         {/* Sport Badge - Top Left */}
         <div className="absolute left-6 top-6">
           <Badge
             variant="secondary"
-            className="bg-white/90 text-black backdrop-blur-sm hover:bg-white/95"
+            className="bg-brand-soft/90 text-brand-contrast backdrop-blur-sm hover:bg-brand-soft"
           >
             {sport}
           </Badge>
@@ -60,31 +60,31 @@ export function HeroSection({
 
       {/* Content Overlay */}
       <div className="relative -mt-24 mx-6 mb-6">
-        <div className="rounded-2xl bg-white/95 backdrop-blur-sm border border-gray-200/50 p-6 shadow-lg">
+        <div className="rounded-2xl border border-brand/25 bg-background/80 p-6 shadow-lg shadow-brand/15 backdrop-blur-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <h1 className="mb-2 text-2xl font-bold text-brand-strong">
                 {title}
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm text-foreground/80">
                 {subtitle}
               </p>
             </div>
 
             <div className="flex flex-col items-end gap-2 text-right">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <p className="text-xs uppercase tracking-wider text-brand-muted">
                 Mulai dari
               </p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-brand">
                 Rp{new Intl.NumberFormat("id-ID").format(price)}
-                <span className="text-sm font-medium text-gray-500 ml-1">
+                <span className="ml-1 text-sm font-medium text-foreground/70">
                   /jam
                 </span>
               </p>
-              <div className="flex items-center gap-1 text-sm text-gray-600">
-                <span className="text-amber-500">★</span>
+              <div className="flex items-center gap-1 text-sm text-foreground/80">
+                <span className="text-brand">★</span>
                 <span className="font-medium">{rating.toFixed(1)}</span>
-                <span className="text-gray-400">•</span>
+                <span className="text-brand-muted">•</span>
                 <span>{reviewCount} review</span>
               </div>
             </div>
