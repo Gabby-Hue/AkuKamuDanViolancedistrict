@@ -52,7 +52,7 @@ export function PhotoGallery({ images, title, className }: PhotoGalleryProps) {
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {/* Overlay on hover */}
-              <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
+              <div className="absolute inset-0 bg-brand/0 transition-colors group-hover:bg-brand/15" />
             </div>
           ))}
         </div>

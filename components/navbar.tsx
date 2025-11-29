@@ -183,7 +183,7 @@ export default function NavbarNew() {
       >
         <div
           className={clsx(
-            "absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300",
+            "absolute inset-0 bg-brand-strong/80 backdrop-blur-sm transition-opacity duration-300",
             menuOpen ? "opacity-100" : "opacity-0",
           )}
           aria-hidden="true"
