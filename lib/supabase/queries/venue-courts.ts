@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 import type { CourtSummary } from "./courts";
 import type {
   CourtRow,
@@ -14,7 +14,7 @@ export type VenueCourtDetail = {
   surface: string | null;
   pricePerHour: number;
   capacity: number | null;
-  amenities: string[];
+  facilities: string[];
   description: string | null;
   isActive: boolean;
   venueId: string;
@@ -63,11 +63,12 @@ export type VenueCourtMetrics = {
 
 export async function getVenueCourts(
   venueId: string,
-  includeStats: boolean = true
+  includeStats: boolean = true,
+  includeInactive: boolean = false
 ): Promise<VenueCourtDetail[]> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
-  const { data: courts, error: courtsError } = await supabase
+  let query = supabase
     .from("courts")
     .select(`
       id,
@@ -76,14 +77,22 @@ export async function getVenueCourts(
       surface,
       price_per_hour,
       capacity,
-      amenities,
+      facilities,
       description,
       is_active,
       venue_id
     `)
     .eq("venue_id", venueId)
-    .eq("is_active", true)
     .order("name", { ascending: true });
+
+  // Only filter out inactive courts if explicitly requested
+  // This allows us to show all courts in the main interface
+  // and use is_active for blackout/maintenance functionality
+  if (!includeInactive) {
+    query = query.eq("is_active", true);
+  }
+
+  const { data: courts, error: courtsError } = await query;
 
   if (courtsError || !courts) {
     console.error("Failed to fetch venue courts:", courtsError?.message);
@@ -221,7 +230,7 @@ export async function getVenueCourts(
       surface: court.surface,
       pricePerHour: Number(court.price_per_hour) || 0,
       capacity: court.capacity,
-      amenities: Array.isArray(court.amenities) ? court.amenities : [],
+      facilities: Array.isArray(court.facilities) ? court.facilities : [],
       description: court.description,
       isActive: court.is_active ?? true,
       venueId: court.venue_id,
@@ -240,7 +249,7 @@ export async function getVenueCourts(
 export async function getVenueCourtMetrics(
   venueId: string
 ): Promise<VenueCourtMetrics> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const [
     courtsResult,
@@ -324,11 +333,11 @@ export async function createCourt(
     surface?: string;
     pricePerHour: number;
     capacity?: number;
-    amenities?: string[];
+    facilities?: string[];
     description?: string;
   }
 ): Promise<{ success: boolean; courtId?: string; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("courts")
@@ -339,7 +348,7 @@ export async function createCourt(
       surface: courtData.surface || null,
       price_per_hour: courtData.pricePerHour,
       capacity: courtData.capacity || null,
-      amenities: courtData.amenities || [],
+      facilities: courtData.facilities || [],
       description: courtData.description || null,
       is_active: true,
     })
@@ -362,12 +371,12 @@ export async function updateCourt(
     surface?: string;
     pricePerHour?: number;
     capacity?: number;
-    amenities?: string[];
+    facilities?: string[];
     description?: string;
     isActive?: boolean;
   }
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const updateData: any = {
     updated_at: new Date().toISOString(),
@@ -378,7 +387,7 @@ export async function updateCourt(
   if (courtData.surface !== undefined) updateData.surface = courtData.surface;
   if (courtData.pricePerHour !== undefined) updateData.price_per_hour = courtData.pricePerHour;
   if (courtData.capacity !== undefined) updateData.capacity = courtData.capacity;
-  if (courtData.amenities !== undefined) updateData.amenities = courtData.amenities;
+  if (courtData.facilities !== undefined) updateData.facilities = courtData.facilities;
   if (courtData.description !== undefined) updateData.description = courtData.description;
   if (courtData.isActive !== undefined) updateData.is_active = courtData.isActive;
 
@@ -395,23 +404,113 @@ export async function updateCourt(
   return { success: true };
 }
 
-export async function deleteCourt(
-  courtId: string
+export async function toggleCourtAvailability(
+  courtId: string,
+  isActive: boolean,
+  reason?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { error } = await supabase
     .from("courts")
     .update({
-      is_active: false,
+      is_active: isActive,
       updated_at: new Date().toISOString(),
     })
     .eq("id", courtId);
 
   if (error) {
-    console.error("Failed to delete court:", error);
+    console.error("Failed to toggle court availability:", error);
     return { success: false, error: error.message };
   }
 
+  // If deactivating, could also create a blackout entry for maintenance
+  if (!isActive && reason) {
+    const { error: blackoutError } = await supabase
+      .from("court_blackouts")
+      .insert({
+        court_id: courtId,
+        title: "Maintenance",
+        notes: reason,
+        scope: "full_day",
+        frequency: "once",
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+        start_time: null,
+        end_time: null,
+        repeat_day_of_week: null,
+      });
+
+    if (blackoutError) {
+      console.warn("Failed to create maintenance blackout:", blackoutError);
+      // Don't fail the main operation if blackout creation fails
+    }
+  }
+
   return { success: true };
+}
+
+export async function deleteCourt(
+  courtId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = createClient();
+
+  // First, check if there are any active bookings for this court
+  const { data: activeBookings, error: bookingCheckError } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("court_id", courtId)
+    .in("status", ["pending", "confirmed"])
+    .gte("start_time", new Date().toISOString());
+
+  if (bookingCheckError) {
+    console.error("Failed to check bookings:", bookingCheckError);
+    return { success: false, error: "Gagal memeriksa booking aktif" };
+  }
+
+  if (activeBookings && activeBookings.length > 0) {
+    return {
+      success: false,
+      error: `Tidak dapat menghapus lapangan. Masih ada ${activeBookings.length} booking aktif.`
+    };
+  }
+
+  // Delete related data in proper order to avoid foreign key constraints
+  const deleteOperations = [
+    // Delete court images
+    supabase.from("court_images").delete().eq("court_id", courtId),
+    // Delete court blackouts
+    supabase.from("court_blackouts").delete().eq("court_id", courtId),
+    // Delete court summaries
+    // supabase.from("court_summaries").delete().eq("id", courtId),
+    // Delete old completed bookings (keep historical data for the venue)
+    // If you want to keep booking history, you might want to only set court_id to null
+    // For now, let's keep the bookings but remove the reference
+    supabase.from("bookings").update({ court_id: null }).eq("court_id", courtId),
+    // Finally delete the court
+    supabase.from("courts").delete().eq("id", courtId)
+  ];
+
+  try {
+    const results = await Promise.allSettled(deleteOperations);
+
+    // Check if any operation failed
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (result.status === 'rejected') {
+        console.error(`Delete operation ${i} failed:`, result.reason);
+        return { success: false, error: "Gagal menghapus data terkait lapangan" };
+      }
+
+      if (result.status === 'fulfilled' && result.value.error) {
+        console.error(`Delete operation ${i} failed:`, result.value.error);
+        return { success: false, error: "Gagal menghapus data terkait lapangan" };
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete court:", error);
+    return { success: false, error: "Terjadi kesalahan saat menghapus lapangan" };
+  }
 }

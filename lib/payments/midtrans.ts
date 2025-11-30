@@ -317,35 +317,35 @@ export function mapMidtransStatusToBooking(
 
   switch (transactionStatus) {
     case "settlement":
-      return { paymentStatus: "paid", bookingStatus: "confirmed" };
+      return { paymentStatus: "paid" as PaymentStatus, bookingStatus: "confirmed" as BookingStatus };
     case "capture":
       if (fraudStatus === "challenge") {
         return {
-          paymentStatus: "processing",
-          bookingStatus: "pending",
+          paymentStatus: "processing" as PaymentStatus,
+          bookingStatus: "pending" as BookingStatus,
         };
       }
 
-      return { paymentStatus: "paid", bookingStatus: "confirmed" };
+      return { paymentStatus: "paid" as PaymentStatus, bookingStatus: "confirmed" as BookingStatus };
     case "authorize":
       return {
-        paymentStatus: "processing",
-        bookingStatus: "pending",
+        paymentStatus: "processing" as PaymentStatus,
+        bookingStatus: "pending" as BookingStatus,
       };
     case "pending":
-      return { paymentStatus: "pending", bookingStatus: "pending" };
+      return { paymentStatus: "pending" as PaymentStatus, bookingStatus: "pending" as BookingStatus };
     case "expire":
     case "expired":
-      return { paymentStatus: "cancelled", bookingStatus: "cancelled" };
+      return { paymentStatus: "cancelled" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
     case "deny":
     case "cancel":
     case "failure":
-      return { paymentStatus: "cancelled", bookingStatus: "cancelled" };
+      return { paymentStatus: "cancelled" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
     case "refund":
     case "partial_refund":
     case "chargeback":
     case "partial_chargeback":
-      return { paymentStatus: "expired", bookingStatus: "cancelled" };
+      return { paymentStatus: "expired" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
     default:
       return null;
   }

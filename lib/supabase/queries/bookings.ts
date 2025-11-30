@@ -1,6 +1,6 @@
 // @/lib/supabase/queries/bookings.ts
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase";
 import type { CourtSummary } from "./courts";
 import type {
   CourtSummaryRow,
@@ -117,7 +117,7 @@ export type VenueDashboardData = {
       surface: string | null;
       price_per_hour: number;
       capacity: number | null;
-      amenities: string[];
+      facilities: string[];
       description: string | null;
       is_active: boolean;
       primary_image_url: string | null;
@@ -494,7 +494,7 @@ export async function fetchUserDashboardData(profile: {
     surface: court.surface,
     pricePerHour: Number(court.price_per_hour ?? 0),
     capacity: court.capacity ?? null,
-    amenities: Array.isArray(court.amenities) ? court.amenities : [],
+    facilities: Array.isArray(court.amenities) ? court.amenities : [],
     description: court.description ?? null,
     venueName: court.venue_name,
     venueCity: court.venue_city ?? null,
@@ -526,7 +526,7 @@ export async function fetchVenueDashboardData(profile: {
     .from("venues")
     .select(
       `id, name, city, district, address, latitude, longitude, contact_phone, contact_email, description,
-       courts:courts(id, name, sport, surface, price_per_hour, capacity, amenities, description, is_active)`,
+       courts:courts(id, name, sport, surface, price_per_hour, capacity, facilities, description, is_active)`,
     )
     .eq("owner_profile_id", profile.id);
 
@@ -559,7 +559,7 @@ export async function fetchVenueDashboardData(profile: {
       surface: court.surface ?? null,
       price_per_hour: Number(court.price_per_hour ?? 0),
       capacity: court.capacity ?? null,
-      amenities: Array.isArray(court.amenities) ? court.amenities : [],
+      facilities: Array.isArray(court.amenities) ? court.amenities : [],
       description: court.description ?? null,
       is_active: court.is_active ?? true,
       primary_image_url: null,
@@ -568,7 +568,7 @@ export async function fetchVenueDashboardData(profile: {
   }));
 
   const courtIds = managedVenues.flatMap((venue) =>
-    venue.courts.map((court: { id: string }) => court.id),
+    (venue.courts || []).map((court: { id: string }) => court.id),
   );
 
   if (courtIds.length === 0) {
@@ -606,7 +606,7 @@ export async function fetchVenueDashboardData(profile: {
       surface: court.surface,
       pricePerHour: Number(court.price_per_hour ?? 0),
       capacity: court.capacity ?? null,
-      amenities: Array.isArray(court.amenities) ? court.amenities : [],
+      facilities: Array.isArray(court.amenities) ? court.amenities : [],
       description: court.description ?? null,
       venueName: court.venue_name,
       venueCity: court.venue_city ?? null,

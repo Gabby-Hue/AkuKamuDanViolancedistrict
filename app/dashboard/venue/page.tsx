@@ -15,7 +15,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
-import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import {
   fetchVenueDashboardData,
   fetchVenueRevenueData,
@@ -27,6 +26,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -35,12 +35,11 @@ import { BookingLineChart } from "@/components/booking-line-chart";
 
 export default async function Page() {
   const profile = await requireRole("venue_partner");
-  const identity = await getAuthenticatedProfile();
   const dashboardData = await fetchVenueDashboardData(profile);
   const revenueData = await fetchVenueRevenueData(profile);
 
-  const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
-  const email = identity?.email ?? "partner@courtease.id";
+  const displayName = profile.full_name ?? "Partner";
+  const email = "partner@courtease.id";
   const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
@@ -178,10 +177,14 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.venues.length}
+                    {
+                      dashboardData.ownedCourts.filter(
+                        (court) => court.pricePerHour > 0,
+                      ).length
+                    }
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    +1 dari bulan lalu
+                    Total {dashboardData.ownedCourts.length} lapangan
                   </p>
                 </CardContent>
               </Card>
@@ -196,7 +199,7 @@ export default async function Page() {
                     {revenueData.bookingStats.averageOccupancy}%
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    6 bulan terakhir
+                    30 hari terakhir
                   </p>
                 </CardContent>
               </Card>
@@ -204,7 +207,7 @@ export default async function Page() {
 
             {/* Charts Section */}
             <div className="grid gap-4 md:grid-cols-2">
-              {/* Bar Chart - Pendapatan Bulanan */}
+              {/* Chart Pendapatan Bulanan */}
               <RevenueBarChart
                 data={revenueData.monthlyRevenue.map((item) => ({
                   month: item.month,
@@ -251,17 +254,12 @@ export default async function Page() {
               </Card>
             </div>
 
-            {/* Line Chart - Full Width */}
+            {/* Line Chart - 7 hari terakhir */}
             <BookingLineChart
-              data={[
-                { date: "Senin", bookings: 24 },
-                { date: "Selasa", bookings: 18 },
-                { date: "Rabu", bookings: 22 },
-                { date: "Kamis", bookings: 16 },
-                { date: "Jumat", bookings: 28 },
-                { date: "Sabtu", bookings: 32 },
-                { date: "Minggu", bookings: 15 },
-              ]}
+              data={revenueData.bookingTrends.slice(-7).map((item) => ({
+                date: item.date,
+                bookings: item.bookings,
+              }))}
             />
 
             {/* Metrics Cards */}

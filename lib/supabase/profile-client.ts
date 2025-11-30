@@ -1,16 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
+import type { AuthenticatedProfile } from "./profile";
 
-export type AuthenticatedProfile = {
-  id: string;
-  email: string;
-  phone: string | null;
-  fullName: string | null;
-};
-
-// Note: This function should only be used in Server Components
-// For Client Components, use getAuthenticatedProfileClient from profile-client.ts instead
-export async function getAuthenticatedProfile(): Promise<AuthenticatedProfile | null> {
-  const supabase = await createClient();
+export async function getAuthenticatedProfileClient(): Promise<AuthenticatedProfile | null> {
+  const supabase = createClient();
 
   const {
     data: { user },

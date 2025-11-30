@@ -21,6 +21,10 @@ export type VenueRevenueData = {
     bookingCount: number;
     revenue: number;
   }>;
+  bookingTrends: Array<{
+    date: string;
+    bookings: number;
+  }>;
 };
 
 export async function fetchVenueRevenueData(
@@ -52,6 +56,7 @@ export async function fetchVenueRevenueData(
         peakDay: "N/A",
       },
       topCourts: [],
+      bookingTrends: [],
     };
   }
 
@@ -87,6 +92,7 @@ export async function fetchVenueRevenueData(
         peakDay: "N/A",
       },
       topCourts: [],
+      bookingTrends: [],
     };
   }
 
@@ -214,9 +220,62 @@ export async function fetchVenueRevenueData(
   )[0];
   const peakDay = peakDayEntry ? dayNames[peakDayEntry[0]] : "N/A";
 
-  // Calculate average occupancy (simplified - based on completed bookings)
+  // Calculate average occupancy based on actual bookings vs available slots
   const totalBookings = bookingsData.length;
-  const averageOccupancy = totalBookings > 0 ? 73 : 0; // Placeholder calculation
+
+  // Get total courts owned by the partner
+  const { data: courtsData } = await supabase
+    .from("courts")
+    .select("id")
+    .in("venue_id", venueIds)
+    .eq("is_active", true);
+
+  const totalActiveCourts = courtsData?.length || 0;
+
+  // Calculate occupancy: (booked hours / total available hours) * 100
+  // Assuming 30 days in month, 16 operating hours per day per court
+  const totalAvailableHours = totalActiveCourts * 30 * 16;
+  const totalBookedHours = bookingsData.reduce((total, booking) => {
+    const duration = (new Date(booking.end_time).getTime() - new Date(booking.start_time).getTime()) / (1000 * 60 * 60);
+    return total + duration;
+  }, 0);
+
+  const averageOccupancy = totalAvailableHours > 0 ? Math.round((totalBookedHours / totalAvailableHours) * 100) : 0;
+
+  // Get daily booking trends for the last 30 days
+  const thirtyDaysAgo = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 29, 0, 0, 0),
+  );
+
+  const { data: dailyBookings } = await supabase
+    .from("bookings")
+    .select("start_time, court_id")
+    .in("court_id", venueIds)
+    .gte("start_time", thirtyDaysAgo.toISOString())
+    .eq("status", "completed");
+
+  // Process daily data for line chart
+  const dailyData = new Map<string, number>();
+  dailyBookings?.forEach((booking: any) => {
+    if (booking.start_time) {
+      const date = new Date(booking.start_time).toISOString().split('T')[0];
+      dailyData.set(date, (dailyData.get(date) || 0) + 1);
+    }
+  });
+
+  // Generate last 30 days with booking counts
+  const bookingTrends = [];
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i, 0, 0, 0)
+    ).toISOString().split('T')[0];
+
+    const dayName = new Date(date).toLocaleDateString('id-ID', { weekday: 'short' });
+    bookingTrends.push({
+      date: dayName.charAt(0).toUpperCase() + dayName.slice(1),
+      bookings: dailyData.get(date) || 0,
+    });
+  }
 
   return {
     totalRevenue,
@@ -228,5 +287,6 @@ export async function fetchVenueRevenueData(
       peakDay,
     },
     topCourts,
+    bookingTrends,
   };
 }

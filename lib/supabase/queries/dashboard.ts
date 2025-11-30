@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase";
 import type { CourtSummary } from "./courts";
 import type { ProfileWithRole } from "../roles";
 

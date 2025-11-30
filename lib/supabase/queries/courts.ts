@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase";
 import {
   normalizeBookingStatus,
   normalizePaymentStatus,
@@ -15,7 +15,7 @@ export type CourtSummary = {
   surface: string | null;
   pricePerHour: number;
   capacity: number | null;
-  amenities: string[];
+  facilities: string[];
   description: string | null;
   venueName: string;
   venueCity: string | null;
@@ -69,7 +69,7 @@ type CourtSummaryRow = {
   surface: string | null;
   price_per_hour: number | null;
   capacity: number | null;
-  amenities: string[] | null;
+  facilities: string[] | null;
   description: string | null;
   venue_id: string;
   venue_name: string;
@@ -107,7 +107,7 @@ type CourtDetailRow = {
   surface: string | null;
   price_per_hour: number | null;
   capacity: number | null;
-  amenities: string[] | null;
+  facilities: string[] | null;
   description: string | null;
   venue: {
     id?: string | null;
@@ -147,7 +147,7 @@ function mapCourtSummary(row: CourtSummaryRow): CourtSummary {
     surface: row.surface,
     pricePerHour: Number(row.price_per_hour ?? 0),
     capacity: row.capacity ?? null,
-    amenities: Array.isArray(row.amenities) ? row.amenities : [],
+    facilities: Array.isArray(row.facilities) ? row.facilities : [],
     description: row.description ?? null,
     venueName: row.venue_name,
     venueCity: row.venue_city ?? null,
@@ -242,7 +242,7 @@ export async function fetchCourtDetail(
   const { data: court, error } = await supabase
     .from("courts")
     .select(
-      `id, slug, name, sport, surface, price_per_hour, capacity, amenities, description,
+      `id, slug, name, sport, surface, price_per_hour, capacity, facilities, description,
        venue:venues(id, name, city, district, address, latitude, longitude, contact_phone, contact_email),
        images:court_images(image_url, caption, is_primary, display_order),
        reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`,
@@ -287,7 +287,7 @@ export async function fetchCourtDetail(
     surface: courtRow.surface,
     price_per_hour: courtRow.price_per_hour,
     capacity: courtRow.capacity,
-    amenities: courtRow.amenities ?? [],
+    facilities: courtRow.facilities ?? [],
     description: courtRow.description,
     venue_id: courtRow.venue?.id ?? "",
     venue_name: courtRow.venue?.name ?? "",

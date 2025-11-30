@@ -145,3 +145,24 @@ export type BookingWithCourt = BookingRow & {
     sport: string;
   } | null;
 };
+
+export type SportType =
+  | "futsal"
+  | "basketball"
+  | "soccer"
+  | "volleyball"
+  | "badminton"
+  | "tennis"
+  | "padel";
+
+export type SurfaceType =
+  | "vinyl"
+  | "rubber"
+  | "parquet"
+  | "wood"
+  | "synthetic"
+  | "cement"
+  | "turf"
+  | "grass"
+  | "hard_court"
+  | "clay";

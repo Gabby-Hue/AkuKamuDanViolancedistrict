@@ -397,9 +397,9 @@ function CourtCard({ court, viewMode }: CourtCardProps) {
             <p>{court.reviewCount} review</p>
           </div>
         </div>
-        {court.amenities.length > 0 && (
+        {court.facilities.length > 0 && (
           <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-            {court.amenities
+            {court.facilities
               .slice(0, viewMode === "grid" ? 4 : 6)
               .map((amenity) => (
                 <span
@@ -409,9 +409,9 @@ function CourtCard({ court, viewMode }: CourtCardProps) {
                   {amenity}
                 </span>
               ))}
-            {court.amenities.length > (viewMode === "grid" ? 4 : 6) && (
+            {court.facilities.length > (viewMode === "grid" ? 4 : 6) && (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-500 dark:bg-slate-800/80">
-                +{court.amenities.length - (viewMode === "grid" ? 4 : 6)}{" "}
+                +{court.facilities.length - (viewMode === "grid" ? 4 : 6)}{" "}
                 lainnya
               </span>
             )}

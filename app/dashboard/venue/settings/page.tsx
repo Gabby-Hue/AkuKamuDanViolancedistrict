@@ -15,7 +15,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
-import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { fetchVenueDashboardData } from "@/lib/supabase/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
@@ -44,11 +43,10 @@ import { Settings, Building2 } from "lucide-react";
 
 export default async function SettingsPage() {
   const profile = await requireRole("venue_partner");
-  const identity = await getAuthenticatedProfile();
   const dashboardData = await fetchVenueDashboardData(profile);
 
-  const displayName = identity?.fullName ?? profile.full_name ?? "Partner";
-  const email = identity?.email ?? "partner@courtease.id";
+  const displayName = profile.full_name ?? "Partner";
+  const email = "partner@courtease.id";
   const avatarUrl = null;
 
   const navMain: NavMainItem[] = [

@@ -39,6 +39,29 @@ CREATE TYPE public.blackout_frequency AS ENUM (
   'monthly'
 );
 
+CREATE TYPE public.sport_type AS ENUM (
+  'futsal',
+  'basketball',
+  'soccer',
+  'volleyball',
+  'badminton',
+  'tennis',
+  'padel'
+);
+
+CREATE TYPE public.surface_type AS ENUM (
+  'vinyl',
+  'rubber',
+  'parquet',
+  'wood',
+  'synthetic',
+  'cement',
+  'turf',
+  'grass',
+  'hard_court',
+  'clay'
+);
+
 -- bookings
 create table public.bookings (
   id uuid not null default gen_random_uuid (),
@@ -233,11 +256,11 @@ create table public.courts (
       ) || substr((id)::text, 1, 6)
     )
   ) STORED null,
-  sport text not null,
-  surface text null,
+  sport public.sport_type not null,
+  surface public.surface_type null,
   price_per_hour integer not null,
   capacity integer null,
-  amenities text[] null default array[]::text[],
+  facilities text[] null default array[]::text[],
   description text null,
   is_active boolean not null default true,
   created_at timestamp with time zone not null default timezone ('utc'::text, now()),
@@ -257,7 +280,7 @@ create unique INDEX IF not exists courts_slug_key on public.courts using btree (
 
 create index IF not exists courts_venue_id_idx on public.courts using btree (venue_id) TABLESPACE pg_default;
 
-create index IF not exists courts_sport_idx on public.courts using btree (sport) TABLESPACE pg_default;
+-- No need for sport index since it's now an enum with limited values
 
 create trigger set_courts_updated_at BEFORE
 update on courts for EACH row

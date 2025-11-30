@@ -35,8 +35,8 @@ export function BookingLineChart({ data }: BookingLineChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Laporan Booking Harian</CardTitle>
-        <CardDescription>7 hari terakhir</CardDescription>
+        <CardTitle>Tren Booking Harian</CardTitle>
+        <CardDescription>30 hari terakhir</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -96,10 +96,10 @@ export function BookingLineChart({ data }: BookingLineChartProps) {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 leading-none font-medium">
-          Rata-rata 18 booking per hari <TrendingUp className="h-4 w-4" />
+          Trending up <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
-          Menampilkan total booking harian untuk 7 hari terakhir
+          Menampilkan total booking harian dalam 30 hari terakhir
         </div>
       </CardFooter>
     </Card>

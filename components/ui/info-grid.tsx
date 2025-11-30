@@ -8,7 +8,7 @@ interface InfoGridProps {
   contactPhone?: string | null;
   contactEmail?: string | null;
   location?: string | null;
-  amenities?: string[] | null;
+  facilities?: string[] | null;
   className?: string;
 }
 
@@ -18,7 +18,7 @@ export function InfoGrid({
   contactPhone,
   contactEmail,
   location,
-  amenities,
+  facilities,
   className,
 }: InfoGridProps) {
   const infoItems = [
@@ -73,13 +73,13 @@ export function InfoGrid({
           </div>
 
           {/* Amenities */}
-          {amenities && amenities.length > 0 && (
+          {facilities && facilities.length > 0 && (
             <div className="mt-6 pt-6 border-t border-gray-100">
               <h4 className="text-sm font-semibold text-gray-900 mb-3">
                 Fasilitas Tersedia
               </h4>
               <div className="flex flex-wrap gap-2">
-                {amenities.map((amenity) => (
+                {facilities.map((amenity) => (
                   <span
                     key={amenity}
                     className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"

@@ -93,7 +93,7 @@ export default async function CourtDetailPage({
             contactPhone={court.venueContactPhone}
             contactEmail={court.venueContactEmail}
             location={court.venueAddress}
-            amenities={court.amenities}
+            facilities={court.facilities}
           />
 
           {/* Photo Gallery */}

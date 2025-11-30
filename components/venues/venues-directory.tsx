@@ -262,9 +262,9 @@ export function VenuesDirectory({
                               <p>{court.reviewCount} review</p>
                             </div>
                           </div>
-                          {court.amenities.length > 0 && (
+                          {court.facilities.length > 0 && (
                             <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                              {court.amenities.slice(0, 4).map((amenity) => (
+                              {court.facilities.slice(0, 4).map((amenity) => (
                                 <span
                                   key={amenity}
                                   className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800/70"
@@ -272,9 +272,9 @@ export function VenuesDirectory({
                                   {amenity}
                                 </span>
                               ))}
-                              {court.amenities.length > 4 && (
+                              {court.facilities.length > 4 && (
                                 <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-500 dark:bg-slate-800/70">
-                                  +{court.amenities.length - 4} lainnya
+                                  +{court.facilities.length - 4} lainnya
                                 </span>
                               )}
                             </div>

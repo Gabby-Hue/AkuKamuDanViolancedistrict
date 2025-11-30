@@ -36,7 +36,7 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>Pendapatan Bulanan</CardTitle>
-        <CardDescription>Januari - Juni 2024</CardDescription>
+        <CardDescription>6 bulan terakhir</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
