@@ -64,8 +64,8 @@ function SlideIndicators({
           onClick={() => onSelect(index)}
           aria-label={`Tampilkan slide ${index + 1}`}
           className={cn(
-            "h-2 w-8 rounded-full bg-white/40 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-            index === activeIndex && "w-12 bg-white",
+            "h-2 w-8 rounded-full bg-brand/30 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+            index === activeIndex && "w-12 bg-brand",
           )}
         />
       ))}
@@ -97,7 +97,7 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
   const activeSlide = slides[activeIndex];
 
   return (
-    <section className="relative isolate overflow-hidden rounded-none bg-black text-white">
+    <section className="relative isolate overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
           <div
@@ -115,46 +115,57 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
               sizes="100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
           </div>
         ))}
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
-          <span>Seperti Nike: headline besar, foto penuh</span>
-          <span className="h-px w-10 bg-white/40" aria-hidden />
-          <span>Autoplay slider</span>
+        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-brand-contrast">
+          <span className="rounded-full bg-brand/30 px-3 py-1 text-[10px]">Seperti Nike: headline besar, foto penuh</span>
+          <span className="h-px w-10 bg-brand/60" aria-hidden />
+          <span className="rounded-full bg-brand/20 px-3 py-1 text-[10px]">Autoplay slider</span>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div className="space-y-6">
-            <p className="text-sm font-semibold text-white/80">{activeSlide.kicker}</p>
+            <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-brand-contrast">
+              <span className="h-2 w-2 rounded-full bg-brand" />
+              {activeSlide.kicker}
+            </p>
             <h1 className="text-4xl font-black leading-tight sm:text-5xl">
               {activeSlide.title}
             </h1>
-            <p className="max-w-2xl text-lg text-white/80">
+            <p className="max-w-2xl text-lg text-brand-contrast/80">
               {activeSlide.description}
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild variant="secondary" className="bg-white text-slate-900">
+              <Button
+                asChild
+                variant="secondary"
+                className="bg-brand text-brand-contrast shadow-lg shadow-brand/30 transition hover:bg-brand-strong hover:shadow-brand/40"
+              >
                 <Link href="/explore">Mulai jelajahi</Link>
               </Button>
-              <Button asChild variant="outline" className="border-white/40 text-white hover:bg-white/10">
+              <Button
+                asChild
+                variant="outline"
+                className="border-brand/60 text-brand-contrast hover:bg-brand/20 hover:text-brand-contrast"
+              >
                 <Link href="/venue-partner">Daftar sebagai venue partner</Link>
               </Button>
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between gap-3 text-sm text-white/80">
+            <div className="flex items-center justify-between gap-3 text-sm text-brand-contrast">
               <span className="font-semibold">Temukan lapangan paling dekat</span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handlePrev}
                   aria-label="Slide sebelumnya"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-brand/60 bg-brand/20 text-brand-contrast transition hover:bg-brand/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -162,19 +173,19 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
                   type="button"
                   onClick={handleNext}
                   aria-label="Slide selanjutnya"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/10 transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-brand/60 bg-brand/20 text-brand-contrast transition hover:bg-brand/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
             </div>
-            <div className="rounded-3xl border border-white/30 bg-white/10 p-4 shadow-2xl backdrop-blur">
+            <div className="rounded-3xl border border-brand/40 bg-brand/10 p-4 shadow-2xl shadow-brand/30 backdrop-blur">
               <NearestCourtTiles courts={courts} limit={3} />
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 text-xs text-white/80">
+        <div className="flex items-center justify-between gap-4 text-xs text-brand-contrast/80">
           <SlideIndicators activeIndex={activeIndex} onSelect={setActiveIndex} />
           <span className="hidden sm:inline">Slide berganti otomatis setiap 6 detik</span>
         </div>

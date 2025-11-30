@@ -22,7 +22,7 @@ export function RealtimeThreadHighlights({
   if (!visible.length) {
     return (
       <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-        <li className="rounded-2xl border border-dashed border-slate-200/70 bg-white/80 p-6 text-center text-xs text-slate-500 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-400">
+        <li className="rounded-2xl border border-dashed border-brand/30 bg-white/90 p-6 text-center text-xs text-slate-600 dark:border-brand/40 dark:bg-brand/20 dark:text-brand-contrast/80">
           Diskusi komunitas akan muncul otomatis setelah data forum tersedia di
           Supabase.
         </li>
@@ -35,10 +35,10 @@ export function RealtimeThreadHighlights({
       {visible.map((thread) => (
         <li
           key={thread.id}
-          className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm transition hover:border-brand/60 hover:shadow-md dark:border-slate-700/60 dark:bg-slate-900/60"
+          className="rounded-2xl border border-brand/25 bg-white/90 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-brand/30 dark:border-brand/40 dark:bg-brand/20"
         >
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-brand">
+            <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
               {thread.category?.name ?? "Umum"}
             </span>
             <span>
@@ -50,7 +50,7 @@ export function RealtimeThreadHighlights({
           </div>
           <Link
             href={`/forum/${thread.slug}`}
-            className="mt-2 block text-sm font-semibold text-slate-900 transition hover:text-brand dark:text-white"
+            className="mt-2 block text-sm font-semibold text-slate-900 transition hover:text-brand-strong dark:text-white dark:hover:text-brand-contrast"
           >
             {thread.title}
           </Link>

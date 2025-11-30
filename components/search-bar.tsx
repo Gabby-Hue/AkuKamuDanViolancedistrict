@@ -179,7 +179,7 @@ export default function SearchBar() {
         type="button"
         aria-label="Search"
         onClick={() => setOpen(true)}
-        className="md:hidden rounded-lg p-2 text-black dark:text-white"
+        className="md:hidden rounded-lg p-2 text-brand dark:text-brand-contrast"
       >
         <Search className="h-5 w-5" />
       </button>

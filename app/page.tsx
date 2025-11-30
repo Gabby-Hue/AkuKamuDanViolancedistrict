@@ -125,7 +125,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl space-y-12 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-semibold text-brand dark:text-brand-contrast">
               Venue pilihan
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -144,9 +144,9 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl space-y-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-6 rounded-3xl border border-slate-200/70 bg-white/95 p-6 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)]">
+        <div className="grid gap-6 rounded-3xl border border-brand/20 bg-white/95 p-6 shadow-sm shadow-brand/10 dark:border-brand/40 dark:bg-brand/15 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)]">
           <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-semibold text-brand dark:text-brand-contrast">
               Jadi venue partner CourtEase
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
@@ -161,20 +161,20 @@ export default async function Home() {
                 return (
                   <li
                     key={benefit.label}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-900/60"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand-strong dark:bg-brand-soft/20 dark:text-brand-soft">
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <div className="space-y-1">
-                        <p className="font-semibold text-slate-900 dark:text-white">
-                          {benefit.label}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {benefit.detail}
-                        </p>
-                      </div>
+                  className="rounded-2xl border border-brand/25 bg-white/90 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 dark:border-brand/35 dark:bg-brand/20"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand/15 text-brand-strong shadow-brand/10 dark:bg-brand/30 dark:text-brand-contrast">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="space-y-1">
+                      <p className="font-semibold text-brand dark:text-brand-contrast">
+                        {benefit.label}
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-200">
+                        {benefit.detail}
+                      </p>
+                    </div>
                     </div>
                   </li>
                 );
@@ -187,15 +187,15 @@ export default async function Home() {
               Ajukan kemitraan sekarang
             </Link>
           </div>
-          <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-slate-50/80 p-6 dark:border-slate-800/70 dark:bg-slate-900/70">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <div className="space-y-4 rounded-3xl border border-brand/20 bg-brand/5 p-6 dark:border-brand/35 dark:bg-brand/20">
+            <h3 className="text-lg font-semibold text-brand dark:text-brand-contrast">
               Diskusi terbaru komunitas
             </h3>
             <RealtimeThreadHighlights threads={threads} limit={4} />
             <div className="flex justify-center">
               <Link
                 href="/forum"
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand hover:text-brand dark:border-slate-700 dark:text-slate-200"
+                className="inline-flex items-center gap-2 rounded-full border border-brand/40 px-5 py-2 text-sm font-semibold text-brand transition hover:border-brand hover:bg-brand/10 hover:text-brand-strong dark:border-brand/50 dark:text-brand-contrast dark:hover:bg-brand/20"
               >
                 Masuk ke forum komunitas
               </Link>

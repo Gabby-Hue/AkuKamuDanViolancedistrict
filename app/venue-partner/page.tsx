@@ -320,7 +320,7 @@ export default function VenuePartnerPage() {
       {/* Hero Section - Didesain Ulang Total */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-teal-600 text-white">
         {/* Dekorasi Abstrak */}
-        <div className="absolute inset-0 bg-black/10">
+        <div className="absolute inset-0 bg-brand-soft/20">
           <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
           <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
         </div>
