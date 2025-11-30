@@ -13,15 +13,34 @@ export type Profile = {
   full_name: string | null;
   email: string | null;
   phone: string | null;
-  role: 'user' | 'venue_partner' | 'admin';
+  role: "user" | "venue_partner" | "admin";
 };
 
 export type Court = {
   id: string;
   slug: string;
   name: string;
-  sport: 'futsal' | 'basket' | 'basketball' | 'soccer' | 'volleyball' | 'badminton' | 'tennis' | 'padel';
-  surface: 'vinyl' | 'rubber' | 'parquet' | 'wood' | 'synthetic' | 'cement' | 'turf' | 'grass' | 'hard_court' | 'clay' | null;
+  sport:
+    | "futsal"
+    | "basket"
+    | "basketball"
+    | "soccer"
+    | "volleyball"
+    | "badminton"
+    | "tennis"
+    | "padel";
+  surface:
+    | "vinyl"
+    | "rubber"
+    | "parquet"
+    | "wood"
+    | "synthetic"
+    | "cement"
+    | "turf"
+    | "grass"
+    | "hard_court"
+    | "clay"
+    | null;
   price_per_hour: number;
   capacity: number | null;
   facilities: string[];
@@ -44,7 +63,7 @@ export type Venue = {
   contact_email: string | null;
   facility_types: string[];
   facility_count: number | null;
-  venue_status: 'inactive' | 'active' | 'suspended';
+  venue_status: "inactive" | "active" | "suspended";
   verified_at: string | null;
 };
 
@@ -54,8 +73,13 @@ export type Booking = {
   profile_id: string;
   start_time: string;
   end_time: string;
-  status: 'pending' | 'confirmed' | 'checked_in' | 'completed' | 'cancelled';
-  payment_status: 'pending' | 'waiting_confirmation' | 'paid' | 'expired' | 'cancelled';
+  status: "pending" | "confirmed" | "checked_in" | "completed" | "cancelled";
+  payment_status:
+    | "pending"
+    | "waiting_confirmation"
+    | "paid"
+    | "expired"
+    | "cancelled";
   payment_reference: string | null;
   payment_redirect_url: string | null;
   payment_token: string | null;
@@ -66,6 +90,7 @@ export type Booking = {
   updated_at: string;
   checked_in_at: string | null;
   completed_at: string | null;
+  review_submitted_at: string | null;
 };
 
 export type BookingDetail = Booking & {
@@ -90,20 +115,24 @@ export type CreateBookingData = {
 };
 
 export type UpdateBookingStatusData = {
-  status: Booking['status'];
-  payment_status?: Booking['payment_status'];
+  status: Booking["status"];
+  payment_status?: Booking["payment_status"];
   notes?: string | null;
   checked_in_at?: string | null;
   completed_at?: string | null;
 };
 
 // Service method untuk get booking detail - COMPLEX business logic
-export async function getBookingDetail(bookingId: string, profileId: string): Promise<BookingDetail | null> {
+export async function getBookingDetail(
+  bookingId: string,
+  profileId: string,
+): Promise<BookingDetail | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id,
       court_id,
       profile_id,
@@ -121,6 +150,7 @@ export async function getBookingDetail(bookingId: string, profileId: string): Pr
       updated_at,
       checked_in_at,
       completed_at,
+      review_submitted_at,
       court:courts(
         id, slug, name, sport, surface, price_per_hour, capacity,
         facilities, description, venue_id, is_active,
@@ -131,10 +161,37 @@ export async function getBookingDetail(bookingId: string, profileId: string): Pr
         )
       ),
       profile:profiles(id, full_name, email, phone, role)
-    `)
+    `,
+    )
     .eq("id", bookingId)
     .eq("profile_id", profileId)
     .single();
+
+  // Debug logging
+  // console.log("Raw booking query result:", {
+  //   data,
+  //   error,
+  //   bookingId,
+  //   profileId,
+  // });
+
+  if (error) {
+    console.error("Failed to fetch booking detail", error.message);
+    return null;
+  }
+
+  // Fetch review data separately
+  const { data: reviewData, error: reviewError } = await supabase
+    .from("court_reviews")
+    .select("id, rating, comment, forum_thread_id")
+    .eq("booking_id", bookingId)
+    .maybeSingle();
+
+  console.log("Review query result:", { reviewData, reviewError });
+
+  if (reviewError) {
+    console.error("Failed to fetch review data", reviewError.message);
+  }
 
   if (error) {
     console.error("Failed to fetch booking detail", error.message);
@@ -164,6 +221,7 @@ export async function getBookingDetail(bookingId: string, profileId: string): Pr
     updated_at: booking.updated_at,
     checked_in_at: booking.checked_in_at,
     completed_at: booking.completed_at,
+    review_submitted_at: booking.review_submitted_at,
     court: {
       id: booking.court.id,
       slug: booking.court.slug,
@@ -172,31 +230,44 @@ export async function getBookingDetail(bookingId: string, profileId: string): Pr
       surface: booking.court.surface,
       price_per_hour: Number(booking.court.price_per_hour),
       capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities) ? booking.court.facilities : [],
+      facilities: Array.isArray(booking.court.facilities)
+        ? booking.court.facilities
+        : [],
       description: booking.court.description,
       venue_id: booking.court.venue_id,
       is_active: booking.court.is_active,
       venue: booking.court.venue || null,
     },
     profile: booking.profile,
-    review: null, // Can be fetched separately
+    review: reviewData
+      ? {
+          id: reviewData.id,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+          forum_thread_id: reviewData.forum_thread_id,
+        }
+      : null,
   };
 }
 
 // Service method untuk get user bookings - COMPLEX aggregation
-export async function getUserBookings(profileId: string, filters: {
-  status?: string[];
-  limit?: number;
-  offset?: number;
-  upcoming?: boolean;
-  courtId?: string;
-} = {}): Promise<{ bookings: BookingDetail[]; total: number }> {
+export async function getUserBookings(
+  profileId: string,
+  filters: {
+    status?: string[];
+    limit?: number;
+    offset?: number;
+    upcoming?: boolean;
+    courtId?: string;
+  } = {},
+): Promise<{ bookings: BookingDetail[]; total: number }> {
   const supabase = await createClient();
   const { status, limit = 10, offset = 0, upcoming, courtId } = filters;
 
   let query = supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id,
       court_id,
       profile_id,
@@ -221,8 +292,12 @@ export async function getUserBookings(profileId: string, filters: {
           description, contact_phone, contact_email, facility_types,
           facility_count, venue_status, verified_at
         )
-      )
-    `, { count: "exact" })
+      ),
+      review_submitted_at,
+      court_reviews:court_reviews(id, rating, comment, forum_thread_id)
+    `,
+      { count: "exact" },
+    )
     .eq("profile_id", profileId)
     .order("start_time", { ascending: !!upcoming });
 
@@ -269,6 +344,7 @@ export async function getUserBookings(profileId: string, filters: {
     updated_at: booking.updated_at,
     checked_in_at: booking.checked_in_at,
     completed_at: booking.completed_at,
+    review_submitted_at: booking.review_submitted_at,
     court: {
       id: booking.court.id,
       slug: booking.court.slug,
@@ -277,14 +353,26 @@ export async function getUserBookings(profileId: string, filters: {
       surface: booking.court.surface,
       price_per_hour: Number(booking.court.price_per_hour),
       capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities) ? booking.court.facilities : [],
+      facilities: Array.isArray(booking.court.facilities)
+        ? booking.court.facilities
+        : [],
       description: booking.court.description,
       venue_id: booking.court.venue_id,
       is_active: booking.court.is_active,
       venue: booking.court.venue || null,
     },
     profile: null, // Not fetched in this query
-    review: null, // Not fetched in this query
+    review:
+      booking.court_reviews &&
+      Array.isArray(booking.court_reviews) &&
+      booking.court_reviews.length > 0
+        ? {
+            id: booking.court_reviews[0].id,
+            rating: booking.court_reviews[0].rating,
+            comment: booking.court_reviews[0].comment,
+            forum_thread_id: booking.court_reviews[0].forum_thread_id,
+          }
+        : null,
   }));
 
   return {
@@ -294,7 +382,9 @@ export async function getUserBookings(profileId: string, filters: {
 }
 
 // Service method untuk create booking - MEDIUM complexity (includes validation)
-export async function createBooking(data: CreateBookingData): Promise<{ success: boolean; booking?: BookingDetail; error?: string }> {
+export async function createBooking(
+  data: CreateBookingData,
+): Promise<{ success: boolean; booking?: BookingDetail; error?: string }> {
   const supabase = await createClient();
 
   // Validation
@@ -338,11 +428,16 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
   }
 
   if (existingBookings && existingBookings.length > 0) {
-    return { success: false, error: "Court is already booked for this time slot" };
+    return {
+      success: false,
+      error: "Court is already booked for this time slot",
+    };
   }
 
   // Calculate duration and price
-  const duration = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
+  const duration = Math.round(
+    (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60),
+  );
   const price_total = duration * Number(court.price_per_hour);
 
   // Create booking
@@ -358,10 +453,11 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
       status: "pending",
       payment_status: "pending",
     })
-    .select(`
+    .select(
+      `
       id, court_id, profile_id, start_time, end_time, status,
       payment_status, price_total, notes, created_at, updated_at,
-      checked_in_at, completed_at,
+      checked_in_at, completed_at, review_submitted_at,
       court:courts(
         id, slug, name, sport, surface, price_per_hour, capacity,
         facilities, description, venue_id, is_active,
@@ -371,11 +467,15 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
           facility_count, venue_status, verified_at
         )
       )
-    `)
+    `,
+    )
     .single();
 
   if (bookingError || !booking) {
-    return { success: false, error: bookingError?.message || "Failed to create booking" };
+    return {
+      success: false,
+      error: bookingError?.message || "Failed to create booking",
+    };
   }
 
   const bookingDetail = {
@@ -384,8 +484,8 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
     profile_id: booking.profile_id,
     start_time: booking.start_time,
     end_time: booking.end_time,
-    status: "pending" as Booking['status'],
-    payment_status: "pending" as Booking['payment_status'],
+    status: "pending" as Booking["status"],
+    payment_status: "pending" as Booking["payment_status"],
     payment_reference: null,
     payment_redirect_url: null,
     payment_token: null,
@@ -396,6 +496,7 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
     updated_at: booking.updated_at,
     checked_in_at: booking.checked_in_at,
     completed_at: booking.completed_at,
+    review_submitted_at: booking.review_submitted_at,
     court: {
       id: booking.court.id,
       slug: booking.court.slug,
@@ -404,7 +505,9 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
       surface: booking.court.surface,
       price_per_hour: Number(booking.court.price_per_hour),
       capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities) ? booking.court.facilities : [],
+      facilities: Array.isArray(booking.court.facilities)
+        ? booking.court.facilities
+        : [],
       description: booking.court.description,
       venue_id: booking.court.venue_id,
       is_active: booking.court.is_active,
@@ -418,7 +521,11 @@ export async function createBooking(data: CreateBookingData): Promise<{ success:
 }
 
 // Service method untuk update booking status - SIMPLE business logic
-export async function updateBookingStatus(bookingId: string, profileId: string, data: UpdateBookingStatusData): Promise<{ success: boolean; error?: string }> {
+export async function updateBookingStatus(
+  bookingId: string,
+  profileId: string,
+  data: UpdateBookingStatusData,
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -436,7 +543,11 @@ export async function updateBookingStatus(bookingId: string, profileId: string, 
 }
 
 // Service method untuk check booking availability - SIMPLE logic
-export async function checkBookingAvailability(courtId: string, startTime: string, endTime: string): Promise<boolean> {
+export async function checkBookingAvailability(
+  courtId: string,
+  startTime: string,
+  endTime: string,
+): Promise<boolean> {
   const supabase = await createClient();
 
   const { data, error } = await supabase

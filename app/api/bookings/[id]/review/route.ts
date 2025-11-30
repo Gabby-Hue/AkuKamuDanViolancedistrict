@@ -146,6 +146,25 @@ export async function POST(request: Request, { params }: Params) {
     }
 
     reviewId = inserted.id;
+
+    // Update booking to mark review as submitted
+    const { error: bookingUpdateError } = await supabase
+      .from("bookings")
+      .update({
+        review_submitted_at: new Date().toISOString(),
+      })
+      .eq("id", booking.id);
+
+    if (bookingUpdateError) {
+      console.error("Failed to update booking review status", bookingUpdateError.message);
+      // Don't fail the whole operation if this fails
+    } else {
+      console.log("Review inserted and booking updated successfully:", {
+        reviewId: inserted.id,
+        bookingId: booking.id,
+        review_submitted_at: new Date().toISOString()
+      });
+    }
   }
 
   const courtRecord = Array.isArray(booking.court)

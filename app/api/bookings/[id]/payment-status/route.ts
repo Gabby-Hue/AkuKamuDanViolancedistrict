@@ -77,13 +77,13 @@ export async function GET(
           let statusMapping = null;
           switch (transactionStatus) {
             case "settlement":
-              statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "confirmed" as BookingStatus };
+              statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "pending" as BookingStatus };
               break;
             case "capture":
               if (fraudStatus === "challenge") {
                 statusMapping = { payment_status: "waiting_confirmation" as PaymentStatus, booking_status: "pending" as BookingStatus };
               } else {
-                statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "confirmed" as BookingStatus };
+                statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "pending" as BookingStatus };
               }
               break;
             case "authorize":

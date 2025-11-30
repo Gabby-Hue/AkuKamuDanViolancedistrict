@@ -35,6 +35,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import TicketModal from "./ticket-modal";
+import ReviewSection from "./review-section";
 
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
@@ -103,7 +104,8 @@ export default async function BookingDetailPage({
     notFound();
   }
 
-  const shouldCheckPayment = check_payment === "true" && booking.payment_status === "pending";
+  const shouldCheckPayment =
+    check_payment === "true" && booking.payment_status === "pending";
 
   const court = await fetchCourtDetail(booking.court.slug);
 
@@ -163,14 +165,17 @@ export default async function BookingDetailPage({
                 startTime={startTime}
                 endTime={endTime}
               />
-              {booking.payment_status === "pending" && booking.payment_token && (
-                <ContinuePaymentButton
-                  snapToken={booking.payment_token}
-                  redirectUrl={booking.payment_redirect_url}
-                  clientKey={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null}
-                  snapScriptUrl="https://app.sandbox.midtrans.com/snap/snap.js"
-                />
-              )}
+              {booking.payment_status === "pending" &&
+                booking.payment_token && (
+                  <ContinuePaymentButton
+                    snapToken={booking.payment_token}
+                    redirectUrl={booking.payment_redirect_url}
+                    clientKey={
+                      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null
+                    }
+                    snapScriptUrl="https://app.sandbox.midtrans.com/snap/snap.js"
+                  />
+                )}
             </div>
           </div>
         </div>
@@ -272,6 +277,12 @@ export default async function BookingDetailPage({
                 )}
               </CardContent>
             </Card>
+
+            {/* Review Section */}
+            <ReviewSection
+              booking={booking}
+              hasExistingReview={!!booking.review}
+            />
 
             {/* Venue Information */}
             <Card>
@@ -543,15 +554,10 @@ export default async function BookingDetailPage({
       </div>
 
       {/* Auto Payment Status Checker */}
-      <PaymentStatusChecker
-        bookingId={id}
-        enabled={shouldCheckPayment}
-      />
+      <PaymentStatusChecker bookingId={id} enabled={shouldCheckPayment} />
 
       {/* Booking Expiry Monitor - auto-cancel after 30 minutes */}
-      <BookingExpiryMonitor
-        createdAt={booking.created_at}
-      />
+      <BookingExpiryMonitor createdAt={booking.created_at} />
     </div>
   );
 }
