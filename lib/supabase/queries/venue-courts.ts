@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/client";
 import type { CourtSummary } from "./courts";
 import type {
   CourtRow,
-  CourtImageRow,
   VenueRow,
   CourtBlackoutRow
 } from "@/lib/api/types";
@@ -20,20 +19,12 @@ export type VenueCourtDetail = {
   venueId: string;
   venueName: string;
   primaryImageUrl: string | null;
-  images: CourtImage[];
+  images: [];
   blackouts: CourtBlackout[];
   bookingsToday: number;
   monthlyRevenue: number;
   averageRating: number;
   reviewCount: number;
-};
-
-export type CourtImage = {
-  id: string;
-  imageUrl: string;
-  caption: string | null;
-  isPrimary: boolean;
-  displayOrder: number;
 };
 
 export type CourtBlackout = {
@@ -103,19 +94,10 @@ export async function getVenueCourts(
 
   // Fetch related data for all courts
   const [
-    imagesResult,
     blackoutsResult,
     summariesResult,
     bookingsResult
   ] = await Promise.all([
-    // Court images
-    courtIds.length > 0
-      ? supabase
-          .from("court_images")
-          .select("id, court_id, image_url, caption, is_primary, display_order")
-          .in("court_id", courtIds)
-          .order("display_order", { ascending: true })
-      : { data: [], error: null },
 
     // Court blackouts
     courtIds.length > 0
@@ -158,20 +140,6 @@ export async function getVenueCourts(
           .eq("status", "confirmed")
       : { data: [], error: null },
   ]);
-
-  // Map images by court ID
-  const imagesByCourt = new Map<string, CourtImage[]>();
-  (imagesResult.data ?? []).forEach((image: any) => {
-    const current = imagesByCourt.get(image.court_id) ?? [];
-    current.push({
-      id: image.id,
-      imageUrl: image.image_url,
-      caption: image.caption,
-      isPrimary: image.is_primary,
-      displayOrder: image.display_order,
-    });
-    imagesByCourt.set(image.court_id, current);
-  });
 
   // Map blackouts by court ID
   const blackoutsByCourt = new Map<string, CourtBlackout[]>();
@@ -220,7 +188,6 @@ export async function getVenueCourts(
 
   return courts.map((court: any) => {
     const summary = summariesByCourt.get(court.id);
-    const images = imagesByCourt.get(court.id) ?? [];
     const blackouts = blackoutsByCourt.get(court.id) ?? [];
 
     return {
@@ -236,7 +203,7 @@ export async function getVenueCourts(
       venueId: court.venue_id,
       venueName: venue?.name || "Unknown Venue",
       primaryImageUrl: summary?.primary_image_url || null,
-      images: images,
+      images: [],
       blackouts: blackouts,
       bookingsToday: todayBookingsByCourt.get(court.id) || 0,
       monthlyRevenue: 0, // TODO: Calculate from bookings data
@@ -477,8 +444,6 @@ export async function deleteCourt(
 
   // Delete related data in proper order to avoid foreign key constraints
   const deleteOperations = [
-    // Delete court images
-    supabase.from("court_images").delete().eq("court_id", courtId),
     // Delete court blackouts
     supabase.from("court_blackouts").delete().eq("court_id", courtId),
     // Delete court summaries

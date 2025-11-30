@@ -82,13 +82,6 @@ type CourtSummaryRow = {
   review_count: number | null;
 };
 
-type CourtImageRow = {
-  image_url: string;
-  caption: string | null;
-  is_primary: boolean;
-  display_order: number | null;
-};
-
 type CourtReviewRow = {
   id: string;
   rating: number | null;
@@ -120,7 +113,6 @@ type CourtDetailRow = {
     latitude?: number | null;
     longitude?: number | null;
   } | null;
-  images: CourtImageRow[] | null;
   reviews: CourtReviewRow[] | null;
 };
 
@@ -244,7 +236,6 @@ export async function fetchCourtDetail(
     .select(
       `id, slug, name, sport, surface, price_per_hour, capacity, facilities, description,
        venue:venues(id, name, city, district, address, latitude, longitude, contact_phone, contact_email),
-       images:court_images(image_url, caption, is_primary, display_order),
        reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`,
     )
     .eq("slug", slug)
@@ -278,7 +269,6 @@ export async function fetchCourtDetail(
       }
     : { average_rating: 0, review_count: 0 };
 
-  const images = (courtRow.images ?? []) as CourtImageRow[];
   const baseRow: CourtSummaryRow = {
     id: courtRow.id,
     slug: courtRow.slug,
@@ -301,10 +291,7 @@ export async function fetchCourtDetail(
       typeof courtRow.venue?.longitude === "number"
         ? courtRow.venue.longitude
         : null,
-    primary_image_url:
-      images.find((img) => img.is_primary)?.image_url ??
-      images[0]?.image_url ??
-      null,
+    primary_image_url: null,
     average_rating: summary.average_rating,
     review_count: summary.review_count,
   };
@@ -316,14 +303,7 @@ export async function fetchCourtDetail(
     venueAddress: courtRow.venue?.address ?? null,
     venueContactPhone: courtRow.venue?.contact_phone ?? null,
     venueContactEmail: courtRow.venue?.contact_email ?? null,
-    images: [...images]
-      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-      .map((image) => ({
-        image_url: image.image_url,
-        caption: image.caption ?? null,
-        is_primary: Boolean(image.is_primary),
-        display_order: image.display_order ?? 0,
-      })),
+    images: [],
     reviews: ((courtRow.reviews ?? []) as CourtReviewRow[]).map((review) => ({
       id: review.id,
       rating: Number(review.rating ?? 0),

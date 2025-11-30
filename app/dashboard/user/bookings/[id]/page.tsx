@@ -1,10 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/supabase/roles";
-import {
-  fetchUserBookingDetail,
-  fetchCourtDetail,
-} from "@/lib/supabase/queries";
+import { bookingService } from "@/lib/services/booking.service";
+import { fetchCourtDetail } from "@/lib/supabase/queries";
 import type { BookingStatus, PaymentStatus } from "@/lib/supabase/status";
 import {
   Card,
@@ -16,6 +14,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ContinuePaymentButton } from "@/components/bookings/continue-payment-button";
+import { PaymentStatusChecker } from "@/components/bookings/payment-status-checker";
+import { BookingExpiryMonitor } from "@/components/bookings/booking-expiry-monitor";
 import {
   CalendarClock,
   MapPin,
@@ -87,38 +88,34 @@ const getPaymentStatusVariant = (status: PaymentStatus) => {
 
 export default async function BookingDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const profile = await requireRole(["user", "admin"]);
   const { id } = await params;
+  const { check_payment } = await searchParams;
 
-  // Extract only the properties needed for fetchUserBookingDetail
-  const userProfile = {
-    id: profile.id,
-    full_name: profile.full_name,
-    email: profile.email,
-    phone: profile.phone,
-    role: profile.role,
-  };
-
-  const booking = await fetchUserBookingDetail(id, userProfile);
+  const booking = await bookingService.getBookingDetail(id, profile.id);
 
   if (!booking) {
     notFound();
   }
 
+  const shouldCheckPayment = check_payment === "true" && booking.payment_status === "pending";
+
   const court = await fetchCourtDetail(booking.court.slug);
 
   const heroImage =
-    court?.images.find((image) => image.is_primary)?.image_url ??
-    court?.images[0]?.image_url ??
+    court?.images?.find((image) => image.is_primary)?.image_url ??
+    court?.images?.[0]?.image_url ??
     null;
 
   const startTime = new Date(booking.start_time);
   const endTime = new Date(booking.end_time);
-  const paymentExpiresAt = booking.payment_expires_at
-    ? new Date(booking.payment_expires_at)
+  const paymentExpiresAt = booking.payment_expired_at
+    ? new Date(booking.payment_expired_at)
     : null;
 
   return (
@@ -151,8 +148,8 @@ export default async function BookingDetailPage({
                 {booking.court.name}
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
-                {booking.court.venue_name || booking.court.name}
-                {booking.court.venue_city && ` • ${booking.court.venue_city}`}
+                {booking.court.venue?.name || booking.court.name}
+                {booking.court.venue?.city && ` • ${booking.court.venue.city}`}
               </p>
             </div>
 
@@ -166,11 +163,13 @@ export default async function BookingDetailPage({
                 startTime={startTime}
                 endTime={endTime}
               />
-              {booking.payment_status === "pending" && (
-                <Button className="bg-green-600 hover:bg-green-700">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Lanjutkan Pembayaran
-                </Button>
+              {booking.payment_status === "pending" && booking.payment_token && (
+                <ContinuePaymentButton
+                  snapToken={booking.payment_token}
+                  redirectUrl={booking.payment_redirect_url}
+                  clientKey={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null}
+                  snapScriptUrl="https://app.sandbox.midtrans.com/snap/snap.js"
+                />
               )}
             </div>
           </div>
@@ -285,12 +284,12 @@ export default async function BookingDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {booking.court.venue_name || booking.court.name}
+                    {booking.court.venue?.name || booking.court.name}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-300">
-                    {booking.court.venue_address || "Alamat venue"}
-                    {booking.court.venue_city &&
-                      `, ${booking.court.venue_city}`}
+                    {booking.court.venue?.address || "Alamat venue"}
+                    {booking.court.venue?.city &&
+                      `, ${booking.court.venue.city}`}
                   </p>
                 </div>
 
@@ -426,12 +425,12 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "processing" && (
+                  {booking.payment_status === "waiting_confirmation" && (
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-blue-800 dark:text-blue-200">
                         <Clock className="h-4 w-4 mr-2" />
                         <span className="text-sm font-medium">
-                          Sedang Diproses
+                          Menunggu Konfirmasi
                         </span>
                       </div>
                       <p className="text-xs text-blue-700 dark:text-blue-300">
@@ -542,6 +541,17 @@ export default async function BookingDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Auto Payment Status Checker */}
+      <PaymentStatusChecker
+        bookingId={id}
+        enabled={shouldCheckPayment}
+      />
+
+      {/* Booking Expiry Monitor - auto-cancel after 30 minutes */}
+      <BookingExpiryMonitor
+        createdAt={booking.created_at}
+      />
     </div>
   );
 }

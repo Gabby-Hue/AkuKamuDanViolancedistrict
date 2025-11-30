@@ -303,7 +303,7 @@ function normalizeMidtransValue(value: unknown) {
 
 export function mapMidtransStatusToBooking(
   status: MidtransStatusResponse | null,
-): { paymentStatus: PaymentStatus; bookingStatus: BookingStatus } | null {
+): { payment_status: PaymentStatus; booking_status: BookingStatus } | null {
   if (!status) {
     return null;
   }
@@ -317,35 +317,35 @@ export function mapMidtransStatusToBooking(
 
   switch (transactionStatus) {
     case "settlement":
-      return { paymentStatus: "paid" as PaymentStatus, bookingStatus: "confirmed" as BookingStatus };
+      return { payment_status: "paid" as PaymentStatus, booking_status: "confirmed" as BookingStatus };
     case "capture":
       if (fraudStatus === "challenge") {
         return {
-          paymentStatus: "processing" as PaymentStatus,
-          bookingStatus: "pending" as BookingStatus,
+          payment_status: "waiting_confirmation" as PaymentStatus,
+          booking_status: "pending" as BookingStatus,
         };
       }
 
-      return { paymentStatus: "paid" as PaymentStatus, bookingStatus: "confirmed" as BookingStatus };
+      return { payment_status: "paid" as PaymentStatus, booking_status: "confirmed" as BookingStatus };
     case "authorize":
       return {
-        paymentStatus: "processing" as PaymentStatus,
-        bookingStatus: "pending" as BookingStatus,
+        payment_status: "waiting_confirmation" as PaymentStatus,
+        booking_status: "pending" as BookingStatus,
       };
     case "pending":
-      return { paymentStatus: "pending" as PaymentStatus, bookingStatus: "pending" as BookingStatus };
+      return { payment_status: "pending" as PaymentStatus, booking_status: "pending" as BookingStatus };
     case "expire":
     case "expired":
-      return { paymentStatus: "cancelled" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
+      return { payment_status: "cancelled" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
     case "deny":
     case "cancel":
     case "failure":
-      return { paymentStatus: "cancelled" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
+      return { payment_status: "cancelled" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
     case "refund":
     case "partial_refund":
     case "chargeback":
     case "partial_chargeback":
-      return { paymentStatus: "expired" as PaymentStatus, bookingStatus: "cancelled" as BookingStatus };
+      return { payment_status: "expired" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
     default:
       return null;
   }

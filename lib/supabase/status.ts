@@ -9,7 +9,7 @@ export type BookingStatus =
 
 export type PaymentStatus =
   | "pending"
-  | "processing"
+  | "waiting_confirmation"
   | "paid"
   | "expired"
   | "cancelled";
@@ -30,7 +30,7 @@ export function normalizeBookingStatus(status: string): BookingStatus {
 export function normalizePaymentStatus(status: string): PaymentStatus {
   switch (status) {
     case "pending":
-    case "processing":
+    case "waiting_confirmation":
     case "paid":
     case "expired":
     case "cancelled":

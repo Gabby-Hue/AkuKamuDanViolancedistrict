@@ -1,68 +1,14 @@
--- Enums
-CREATE TYPE public.app_role AS ENUM (
-  'user',
-  'venue_partner',
-  'admin'
-);
+-- ENUM
+app_role	user, venue_partner, admin
+booking_status	pending, confirmed, checked_in, completed, cancelled
+payment_status	pending, waiting_confirmation, paid, expired, cancelled
+partner_application_status	pending, accepted, rejected
+blackout_scope	time_range, full_day
+blackout_frequency	once, weekly, monthly, yearly
+sport_types	futsal, basket, basketball, soccer, volleyball, badminton, tennis, padel
+surface_types	vinyl, rubber, parquet, wood, synthetic, cement, turf, grass, hard_court, clay
 
-CREATE TYPE public.partner_application_status AS ENUM (
-  'pending',
-  'accepted',
-  'rejected'
-);
-
-CREATE TYPE public.booking_status AS ENUM (
-  'pending',
-  'confirmed',
-  'checked_in',
-  'completed',
-  'cancelled'
-);
-
-CREATE TYPE public.payment_status AS ENUM (
-  'pending',
-  'processing',
-  'paid',
-  'expired',
-  'cancelled'
-);
-
-CREATE TYPE public.blackout_scope AS ENUM (
-  'time_range',
-  'full_day'
-);
-
-CREATE TYPE public.blackout_frequency AS ENUM (
-  'once',
-  'daily',
-  'weekly',
-  'monthly'
-);
-
-CREATE TYPE public.sport_type AS ENUM (
-  'futsal',
-  'basketball',
-  'soccer',
-  'volleyball',
-  'badminton',
-  'tennis',
-  'padel'
-);
-
-CREATE TYPE public.surface_type AS ENUM (
-  'vinyl',
-  'rubber',
-  'parquet',
-  'wood',
-  'synthetic',
-  'cement',
-  'turf',
-  'grass',
-  'hard_court',
-  'clay'
-);
-
--- bookings
+-- TABLE bookings
 create table public.bookings (
   id uuid not null default gen_random_uuid (),
   court_id uuid not null,
@@ -98,7 +44,7 @@ create trigger set_bookings_updated_at BEFORE
 update on bookings for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- court_blackouts
+-- TABLE court_blackout
 create table public.court_blackouts (
   id uuid not null default gen_random_uuid (),
   court_id uuid not null,
@@ -144,7 +90,7 @@ create trigger set_court_blackouts_updated_at BEFORE
 update on court_blackouts for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- court_booking_slots
+-- VIEW court_booking_slot
 create view public.court_booking_slots as
 select
   id,
@@ -158,8 +104,9 @@ from
 where
   status <> 'cancelled'::booking_status
   and payment_status <> 'cancelled'::payment_status;
+-- STORAGE court_image at supabase storage
 
--- court_review_summary
+-- VIEW court_review_summary
 create view public.court_review_summary as
 select
   c.id as court_id,
@@ -171,7 +118,7 @@ from
 group by
   c.id;
 
--- court_reviews
+-- TABLE courts_review
 create table public.court_reviews (
   id uuid not null default gen_random_uuid (),
   court_id uuid not null,
@@ -204,47 +151,7 @@ create index IF not exists court_reviews_booking_id_idx on public.court_reviews 
 
 create index IF not exists court_reviews_forum_thread_id_idx on public.court_reviews using btree (forum_thread_id) TABLESPACE pg_default;
 
--- court_summaries
-create view public.court_summaries as
-select
-  c.id,
-  c.slug,
-  c.name,
-  c.sport,
-  c.surface,
-  c.price_per_hour,
-  c.capacity,
-  c.amenities,
-  c.description,
-  c.venue_id,
-  v.name as venue_name,
-  v.city as venue_city,
-  v.district as venue_district,
-  v.latitude as venue_latitude,
-  v.longitude as venue_longitude,
-  COALESCE(r.average_rating, 0::numeric) as average_rating,
-  COALESCE(r.review_count, 0) as review_count,
-  (
-    select
-      ci.image_url
-    from
-      court_images ci
-    where
-      ci.court_id = c.id
-      and ci.is_primary = true
-    order by
-      ci.display_order
-    limit
-      1
-  ) as primary_image_url
-from
-  courts c
-  join venues v on v.id = c.venue_id
-  left join court_review_summary r on r.court_id = c.id
-where
-  c.is_active = true;
-
--- court
+-- TABLE courts
 create table public.courts (
   id uuid not null default gen_random_uuid (),
   venue_id uuid not null,
@@ -256,8 +163,8 @@ create table public.courts (
       ) || substr((id)::text, 1, 6)
     )
   ) STORED null,
-  sport public.sport_type not null,
-  surface public.surface_type null,
+  sport public.sport_types not null,
+  surface public.surface_types null,
   price_per_hour integer not null,
   capacity integer null,
   facilities text[] null default array[]::text[],
@@ -276,17 +183,17 @@ create table public.courts (
   constraint courts_price_per_hour_nonneg check ((price_per_hour >= 0))
 ) TABLESPACE pg_default;
 
+create index IF not exists courts_sport_idx on public.courts using btree (sport) TABLESPACE pg_default;
+
 create unique INDEX IF not exists courts_slug_key on public.courts using btree (slug) TABLESPACE pg_default;
 
 create index IF not exists courts_venue_id_idx on public.courts using btree (venue_id) TABLESPACE pg_default;
-
--- No need for sport index since it's now an enum with limited values
 
 create trigger set_courts_updated_at BEFORE
 update on courts for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- forum_categories
+-- TABLE forum_categories
 create table public.forum_categories (
   id uuid not null default gen_random_uuid (),
   slug text not null,
@@ -296,7 +203,7 @@ create table public.forum_categories (
   constraint forum_categories_slug_key unique (slug)
 ) TABLESPACE pg_default;
 
--- forum_replies
+-- TABLE forum_replies
 create table public.forum_replies (
   id uuid not null default gen_random_uuid (),
   thread_id uuid not null,
@@ -310,7 +217,7 @@ create table public.forum_replies (
 
 create index IF not exists forum_replies_thread_idx on public.forum_replies using btree (thread_id) TABLESPACE pg_default;
 
--- forum_thread_latest_activity
+-- VIEW forum_thread_latest_activity
 create view public.forum_thread_latest_activity as
 select distinct
   on (thread_id) thread_id,
@@ -322,7 +229,7 @@ order by
   thread_id,
   created_at desc;
 
--- forum_threads
+-- TABLE forum_thread
 create table public.forum_threads (
   id uuid not null default gen_random_uuid (),
   slug text not null,
@@ -348,24 +255,31 @@ create trigger set_forum_threads_updated_at BEFORE
 update on forum_threads for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- profiles
+-- TABLE profiles
 create table public.profiles (
   id uuid not null,
-  email text null,
   full_name text null,
-  phone text unique null,
+  avatar_url text null,
   role public.app_role not null default 'user'::app_role,
   created_at timestamp with time zone not null default timezone ('utc'::text, now()),
   updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  email character varying null,
+  phone text null,
   constraint profiles_pkey primary key (id),
+  constraint profiles_email_key unique (email),
+  constraint profiles_phone_key unique (phone),
   constraint profiles_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE
 ) TABLESPACE pg_default;
+
+create unique INDEX IF not exists profiles_email_idx on public.profiles using btree (email) TABLESPACE pg_default
+where
+  (email is not null);
 
 create trigger set_profiles_updated_at BEFORE
 update on profiles for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- venue_partner_applications
+-- TABLE venue_partner_application
 create table public.venue_partner_applications (
   id uuid not null default gen_random_uuid (),
   organization_name text not null,
@@ -388,22 +302,7 @@ create table public.venue_partner_applications (
 
 create index IF not exists venue_partner_applications_status_idx on public.venue_partner_applications using btree (status, created_at desc) TABLESPACE pg_default;
 
--- venue_partner_credentials
-create table public.venue_partner_credentials (
-  id uuid not null default gen_random_uuid (),
-  application_id uuid null,
-  partner_profile_id uuid null,
-  temporary_password text null,
-  created_at timestamp with time zone not null default timezone ('utc'::text, now()),
-  constraint venue_partner_credentials_pkey primary key (id),
-  constraint venue_partner_credentials_application_id_fkey foreign KEY (application_id) references venue_partner_applications (id) on delete set null,
-  constraint venue_partner_credentials_partner_profile_id_fkey foreign KEY (partner_profile_id) references profiles (id) on delete CASCADE
-) TABLESPACE pg_default;
-
-create unique INDEX IF not exists venue_partner_credentials_profile_idx on public.venue_partner_credentials using btree (partner_profile_id) TABLESPACE pg_default;
-
-
--- venues
+-- TABLE venues
 create table public.venues (
   id uuid not null default gen_random_uuid (),
   name text not null,
@@ -423,15 +322,15 @@ create table public.venues (
   owner_profile_id uuid null,
   contact_phone text null,
   contact_email text null,
+  created_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
   facility_types text[] null default array[]::text[],
   facility_count integer null,
   existing_system text null,
   website text null,
   business_license_url text null,
-  venue_status text not null default 'inactive', -- 'inactive', 'active', 'suspended'
+  venue_status text not null default 'inactive'::text,
   verified_at timestamp with time zone null,
-  created_at timestamp with time zone not null default timezone('utc'::text, now()),
-  updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
   constraint venues_pkey primary key (id),
   constraint venues_owner_profile_id_fkey foreign KEY (owner_profile_id) references profiles (id) on delete set null
 ) TABLESPACE pg_default;
@@ -441,102 +340,3 @@ create unique INDEX IF not exists venues_slug_key on public.venues using btree (
 create trigger set_venues_updated_at BEFORE
 update on venues for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
-
--- RLS Policies for venue_partner_applications
--- Enable RLS on venue_partner_applications table
-ALTER TABLE public.venue_partner_applications ENABLE ROW LEVEL SECURITY;
-
--- Policy to allow authenticated users to insert venue partner applications
-CREATE POLICY "Users can submit venue partner applications"
-ON public.venue_partner_applications
-FOR INSERT
-WITH CHECK (
-  auth.role() = 'authenticated'
-);
-
--- Policy to allow authenticated admins to view venue partner applications
-CREATE POLICY "Admins can view venue partner applications"
-ON public.venue_partner_applications
-FOR SELECT
-USING (
-  auth.role() = 'authenticated'
-  AND (
-    auth.jwt() ->> 'role' = 'admin'
-    OR exists (
-      select 1 from public.profiles
-      where id = auth.uid()
-      and role = 'admin'
-    )
-  )
-);
-
--- Policy to allow authenticated admins to update venue partner applications
-CREATE POLICY "Admins can update venue partner applications"
-ON public.venue_partner_applications
-FOR UPDATE
-USING (
-  auth.role() = 'authenticated'
-  AND (
-    auth.jwt() ->> 'role' = 'admin'
-    OR exists (
-      select 1 from public.profiles
-      where id = auth.uid()
-      and role = 'admin'
-    )
-  )
-);
-
--- Policy to allow authenticated admins to delete venue partner applications
-CREATE POLICY "Admins can delete venue partner applications"
-ON public.venue_partner_applications
-FOR DELETE
-USING (
-  auth.role() = 'authenticated'
-  AND (
-    auth.jwt() ->> 'role' = 'admin'
-    OR exists (
-      select 1 from public.profiles
-      where id = auth.uid()
-      and role = 'admin'
-    )
-  )
-);
-
--- RLS Policies for venues (updated for venue partner integration)
-ALTER TABLE public.venues ENABLE ROW LEVEL SECURITY;
-
--- Policy to allow users to view public venues
-CREATE POLICY "Anyone can view active venues"
-ON public.venues
-FOR SELECT
-USING (venue_status = 'active');
-
--- Policy to allow venue partners to manage their own venues
-CREATE POLICY "Venue partners can manage own venues"
-ON public.venues
-FOR ALL
-USING (
-  auth.role() = 'authenticated'
-  AND auth.uid() = owner_profile_id
-  AND exists (
-    select 1 from public.profiles
-    where id = auth.uid()
-    and role = 'venue_partner'
-  )
-);
-
--- Policy to allow admins to manage all venues
-CREATE POLICY "Admins can manage all venues"
-ON public.venues
-FOR ALL
-USING (
-  auth.role() = 'authenticated'
-  AND (
-    auth.jwt() ->> 'role' = 'admin'
-    OR exists (
-      select 1 from public.profiles
-      where id = auth.uid()
-      and role = 'admin'
-    )
-  )
-);

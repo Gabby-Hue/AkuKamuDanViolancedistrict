@@ -1,5 +1,6 @@
 import { requireRole } from "@/lib/supabase/roles";
-import { fetchUserDashboardData } from "@/lib/supabase/queries";
+import { bookingService } from "@/lib/services/booking.service";
+import { fetchCourtSummaries } from "@/lib/supabase/queries";
 import {
   Card,
   CardContent,
@@ -28,13 +29,25 @@ import Link from "next/link";
 
 export default async function UserDashboardPage() {
   const profile = await requireRole(["user", "admin"]);
-  const data = await fetchUserDashboardData(profile);
 
-  const activeBookings = data.bookings.length;
-  const pendingPayments = data.bookings.filter(
+  // Get user bookings menggunakan service layer
+  const { bookings: userBookings } = await bookingService.getUserBookings(profile.id, {
+    limit: 10,
+    upcoming: true,
+  });
+
+  // Get recommended courts
+  const recommendedCourts = await fetchCourtSummaries();
+
+  const activeBookings = userBookings.filter(
+    (booking) => ["pending", "confirmed", "checked_in"].includes(booking.status)
+  ).length;
+
+  const pendingPayments = userBookings.filter(
     (booking) => booking.payment_status === "pending",
   ).length;
-  const recommendations = data.recommendedCourts.length;
+
+  const recommendations = recommendedCourts.slice(0, 6);
   const firstName = profile.full_name?.split(" ")[0] ?? "Pemain";
 
   const stats = [
@@ -66,9 +79,9 @@ export default async function UserDashboardPage() {
     },
     {
       title: "Rekomendasi Personal",
-      value: recommendations,
+      value: recommendations.length,
       description:
-        recommendations > 0
+        recommendations.length > 0
           ? "Disesuaikan dengan histori tim"
           : "Tambah review untuk ide baru",
       icon: Sparkles,
@@ -199,8 +212,8 @@ export default async function UserDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {data.bookings.length > 0 ? (
-                    data.bookings.map((booking) => (
+                  {userBookings.length > 0 ? (
+                    userBookings.map((booking) => (
                       <div
                         key={booking.id}
                         className="rounded-lg border p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -208,11 +221,11 @@ export default async function UserDashboardPage() {
                         <div className="flex items-start justify-between mb-3">
                           <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white">
-                              {booking.court_name}
+                              {booking.court?.name || "Unknown Court"}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {booking.venue_name}
-                              {booking.venue_city && ` • ${booking.venue_city}`}
+                              {booking.court?.venue?.name || "Unknown Venue"}
+                              {booking.court?.venue?.city && ` • ${booking.court.venue.city}`}
                             </p>
                           </div>
                           <div className="flex flex-col gap-1 text-right">
@@ -239,7 +252,7 @@ export default async function UserDashboardPage() {
                                     ? "destructive"
                                     : booking.payment_status === "cancelled"
                                       ? "outline"
-                                      : booking.payment_status === "processing"
+                                      : booking.payment_status === "waiting_confirmation"
                                         ? "secondary"
                                         : "secondary"
                               }
@@ -250,8 +263,8 @@ export default async function UserDashboardPage() {
                                   ? "Berhasil"
                                   : booking.payment_status === "cancelled"
                                     ? "Dibatalkan"
-                                    : booking.payment_status === "processing"
-                                      ? "Diproses"
+                                    : booking.payment_status === "waiting_confirmation"
+                                      ? "Menunggu Konfirmasi"
                                       : booking.payment_status}
                             </Badge>
                           </div>
@@ -305,7 +318,7 @@ export default async function UserDashboardPage() {
 
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-400 dark:text-gray-500">
-                            {booking.sport}
+                            {booking.court?.sport || "Unknown"}
                           </span>
                           <Button size="sm" variant="outline" asChild>
                             <Link
@@ -317,19 +330,19 @@ export default async function UserDashboardPage() {
                         </div>
 
                         {booking.payment_status === "pending" &&
-                          booking.payment_expires_at && (
+                          booking.payment_expired_at && (
                             <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-orange-400">
                               <Timer className="h-3 w-3 mr-1" />
                               Batas Bayar:{" "}
                               {new Date(
-                                booking.payment_expires_at,
+                                booking.payment_expired_at,
                               ).toLocaleDateString("id-ID", {
                                 day: "numeric",
                                 month: "short",
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
-                              {new Date(booking.payment_expires_at) <
+                              {new Date(booking.payment_expired_at) <
                                 new Date() && (
                                 <span className="ml-1 text-red-600 dark:text-red-400 font-semibold">
                                   (Kadaluarsa)
@@ -339,13 +352,13 @@ export default async function UserDashboardPage() {
                           )}
 
                         {booking.payment_status === "cancelled" &&
-                          booking.payment_expires_at &&
-                          new Date(booking.payment_expires_at) < new Date() && (
+                          booking.payment_expired_at &&
+                          new Date(booking.payment_expired_at) < new Date() && (
                             <div className="mt-2 flex items-center text-xs text-red-600 dark:text-red-400">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Kadaluarsa:{" "}
                               {new Date(
-                                booking.payment_expires_at,
+                                booking.payment_expired_at,
                               ).toLocaleDateString("id-ID", {
                                 day: "numeric",
                                 month: "short",
@@ -403,7 +416,7 @@ export default async function UserDashboardPage() {
                       Rekomendasi Venue
                     </span>
                     <span className="font-semibold text-gray-900 dark:text-white">
-                      {recommendations}
+                      {recommendations.length}
                     </span>
                   </div>
 
@@ -414,7 +427,7 @@ export default async function UserDashboardPage() {
                         Perlu Tindakan
                       </div>
                       <div className="space-y-2 text-xs text-orange-700 dark:text-orange-300">
-                        {data.bookings
+                        {userBookings
                           .filter(
                             (booking) => booking.payment_status === "pending",
                           )
@@ -425,7 +438,7 @@ export default async function UserDashboardPage() {
                               className="flex items-center justify-between"
                             >
                               <span className="font-medium">
-                                {booking.court_name}
+                                {booking.court?.name || "Unknown Court"}
                               </span>
                               <Button
                                 size="sm"
@@ -523,7 +536,7 @@ export default async function UserDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {data.recommendedCourts.map((court) => (
+                  {recommendedCourts.map((court) => (
                     <div
                       key={court.id}
                       className="rounded-lg border p-4 hover:shadow-md transition-shadow"

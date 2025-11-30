@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_APP_URL ??
       "http://localhost:3000";
 
-    const successRedirectUrl = `${origin}/dashboard/user/bookings/${booking.id}`;
+    const successRedirectUrl = `${origin}/dashboard/user/bookings/${booking.id}?check_payment=true`;
 
     try {
       const paymentResult = await createMidtransTransaction({
