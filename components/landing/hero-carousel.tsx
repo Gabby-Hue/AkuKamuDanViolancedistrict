@@ -96,35 +96,33 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
 
   return (
     <section className="relative isolate overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-brand-strong">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={cn(
-              "absolute inset-0 transition-opacity duration-700",
+              "absolute inset-0 flex items-center justify-center transition-opacity duration-700",
               index === activeIndex ? "opacity-100" : "opacity-0",
             )}
           >
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
+            <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
+              <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[320px] lg:aspect-auto lg:h-[960px]">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={index === 0}
+                  sizes="(min-width: 1024px) 1200px, 100vw"
+                  className="object-cover opacity-70"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-brand-contrast">
-          <span className="rounded-full bg-brand/30 px-3 py-1 text-[10px]">Seperti Nike: headline besar, foto penuh</span>
-          <span className="h-px w-10 bg-brand/60" aria-hidden />
-          <span className="rounded-full bg-brand/20 px-3 py-1 text-[10px]">Autoplay slider</span>
-        </div>
-
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div className="space-y-6">
             <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-brand-contrast">
