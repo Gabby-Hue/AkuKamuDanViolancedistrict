@@ -105,8 +105,8 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
               index === activeIndex ? "opacity-100" : "opacity-0",
             )}
           >
-            <div className="relative w-full max-w-6xl overflow-hidden rounded-3xl min-[480px]:px-4 lg:aspect-[4/1] lg:px-0">
-              <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-3xl lg:min-h-[420px]">
+            <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
+              <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[320px] lg:aspect-auto lg:h-[960px]">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -123,12 +123,6 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
       </div>
 
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-brand-contrast">
-          <span className="rounded-full bg-brand/30 px-3 py-1 text-[10px]">Seperti Nike: headline besar, foto penuh</span>
-          <span className="h-px w-10 bg-brand/60" aria-hidden />
-          <span className="rounded-full bg-brand/20 px-3 py-1 text-[10px]">Autoplay slider</span>
-        </div>
-
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div className="space-y-6">
             <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-brand-contrast">
