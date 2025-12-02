@@ -96,24 +96,28 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
 
   return (
     <section className="relative isolate overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-brand-strong">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={cn(
-              "absolute inset-0 transition-opacity duration-700",
+              "absolute inset-0 flex items-center justify-center transition-opacity duration-700",
               index === activeIndex ? "opacity-100" : "opacity-0",
             )}
           >
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
+            <div className="relative w-full max-w-6xl overflow-hidden rounded-3xl min-[480px]:px-4 lg:aspect-[4/1] lg:px-0">
+              <div className="relative h-full min-h-[320px] w-full overflow-hidden rounded-3xl lg:min-h-[420px]">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={index === 0}
+                  sizes="(min-width: 1024px) 1200px, 100vw"
+                  className="object-cover opacity-70"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
+              </div>
+            </div>
           </div>
         ))}
       </div>
