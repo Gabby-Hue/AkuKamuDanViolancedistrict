@@ -26,8 +26,7 @@ const slides: Slide[] = [
     description:
       "Booking lapangan terasa seperti menggulir feed. Pilih jadwal, bayar, dan bagikan ke tim tanpa DM berulang.",
     image:
-      "https://images.unsplash.com/photo-1518604666860-9ed391f183e1?auto=format&fit=crop&w=1600&q=80",
-  },
+      "/landing/easy-day.png",},
   {
     id: "focus",
     kicker: "Venue fokus ke pengalaman",
@@ -35,8 +34,7 @@ const slides: Slide[] = [
     description:
       "Dari Midtrans hingga laporan okupansi, dashboard CourtEase membuat pemilik venue tenang sambil pemain terus datang.",
     image:
-      "https://images.unsplash.com/photo-1521417531039-56b0b33c5d68?auto=format&fit=crop&w=1600&q=80",
-  },
+      "/landing/chase-progress.png",},
   {
     id: "future",
     kicker: "Masa depan olahraga lokal",
