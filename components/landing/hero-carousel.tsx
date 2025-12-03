@@ -102,7 +102,7 @@ export function HeroCarousel() {
                   sizes="(min-width: 1024px) 1200px, 100vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-strong/85 via-brand-strong/80 to-brand-soft/60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/65 to-black/45" />
               </div>
             </div>
           </div>
