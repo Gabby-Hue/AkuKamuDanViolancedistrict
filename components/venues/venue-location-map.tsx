@@ -2,8 +2,6 @@
 
 import type { Coordinates } from "@/lib/geo";
 
-import { LeafletMap } from "@/components/location/leaflet-map";
-
 type VenueLocationMapProps = {
   venueName: string;
   latitude: number | null | undefined;
@@ -42,14 +40,22 @@ export function VenueLocationMap({
     <div className="overflow-hidden rounded-3xl border border-slate-200/70 bg-white/90 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70">
       <div className="border-b border-slate-200/60 bg-slate-50/80 px-6 py-4 dark:border-slate-800/60 dark:bg-slate-900/60">
         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-          Peta lokasi
+          Lokasi venue
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Pin lokasi {venueName}
+          {venueName}
           {address ? ` • ${address}` : ""}
         </p>
       </div>
-      <LeafletMap value={coords} interactive={false} className="h-72" />
+      <div className="space-y-2 px-6 py-5 text-sm text-slate-600 dark:text-slate-200">
+        <p>
+          Koordinat: {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Tampilan peta dinonaktifkan. Silakan gunakan koordinat di atas sebagai
+          referensi.
+        </p>
+      </div>
     </div>
   );
 }
