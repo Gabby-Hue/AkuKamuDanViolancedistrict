@@ -73,14 +73,19 @@ export function HeroCarousel() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveIndex((current) => current + 1);
+      // Jangan paksa berpindah slide ketika sedang berada di slide duplikat
+      // (index terakhir) untuk menghindari lompatan mundur yang terlihat
+      // seperti meloncat kembali ke slide ke-2 lalu ke-1.
+      setActiveIndex((current) =>
+        current === slides.length ? current : current + 1,
+      );
     }, 6000);
 
     return () => window.clearInterval(interval);
   }, []);
 
   const handleTransitionEnd = () => {
-    if (activeIndex === slides.length) {
+    if (activeIndex >= slides.length) {
       setIsTransitioning(false);
       setActiveIndex(0);
       requestAnimationFrame(() => setIsTransitioning(true));
