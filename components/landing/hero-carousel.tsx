@@ -100,9 +100,9 @@ export function HeroCarousel() {
                   fill
                   priority={index === 0}
                   sizes="(min-width: 1024px) 1200px, 100vw"
-                  className="object-cover opacity-70"
+                  className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-strong via-brand-strong/75 to-brand-soft/60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-strong/85 via-brand-strong/80 to-brand-soft/60" />
               </div>
             </div>
           </div>
