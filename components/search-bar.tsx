@@ -28,25 +28,24 @@ export default function SearchBar() {
   const [open, setOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<SearchCategory>("courts");
   const categorizedResults = useMemo<Record<SearchCategory, SearchResult[]>>(() => {
-    return results.reduce(
-      (acc, item) => {
-        if (item.type === "court") {
-          acc.courts.push(item);
-        }
-        if (item.type === "venue") {
-          acc.venues.push(item);
-        }
-        if (item.type === "forum") {
-          acc.forums.push(item);
-        }
-        return acc;
-      },
-      {
-        courts: [],
-        venues: [],
-        forums: [],
-      },
-    );
+    const initial: Record<SearchCategory, SearchResult[]> = {
+      courts: [],
+      venues: [],
+      forums: [],
+    };
+
+    return results.reduce<Record<SearchCategory, SearchResult[]>>((acc, item) => {
+      if (item.type === "court") {
+        acc.courts.push(item);
+      }
+      if (item.type === "venue") {
+        acc.venues.push(item);
+      }
+      if (item.type === "forum") {
+        acc.forums.push(item);
+      }
+      return acc;
+    }, initial);
   }, [results]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
