@@ -75,159 +75,157 @@ export function ExploreView({
   }, [courts, sportFilter, priceFilter, ratingFilter]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-14 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-      <header className="rounded-3xl border border-brand-soft/40 bg-gradient-to-br from-[hsl(var(--brand-soft))] via-white to-[hsl(var(--brand))] p-10 text-[hsl(var(--brand-contrast))] shadow-lg dark:border-brand-soft/30 dark:from-[hsl(var(--brand-strong))] dark:via-[hsl(var(--brand))] dark:to-[hsl(var(--brand-soft))]">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-muted">
-              Explore
-            </p>
-            <h1 className="text-3xl font-semibold sm:text-4xl">
-              Temukan lapangan & komunitas favoritmu
+    <div className="mx-auto max-w-6xl space-y-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
+      <header className="grid gap-8 rounded-4xl border border-brand-soft/40 bg-gradient-to-br from-brand/10 via-white to-brand-soft/50 p-10 shadow-xl shadow-brand/10 backdrop-blur dark:border-brand-soft/30 dark:from-brand/20 dark:via-slate-900 dark:to-brand-soft/30 lg:grid-cols-[1.1fr,0.9fr]">
+        <div className="space-y-6">
+          <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-muted">
+            <span className="rounded-full bg-white/60 px-3 py-1 text-brand shadow-sm dark:bg-slate-900/60">Explore 2.0</span>
+            <span className="rounded-full bg-brand/15 px-3 py-1 text-brand-strong dark:bg-brand/25 dark:text-brand-contrast">
+              UI shadcn baru
+            </span>
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-3xl font-semibold text-slate-900 dark:text-white sm:text-4xl">
+              Jelajahi lapangan dengan tampilan yang lebih editorial
             </h1>
-            <p className="max-w-2xl text-sm text-brand-soft/90">
-              Filter berdasarkan olahraga, budget, dan rating untuk menemukan
-              lapangan yang paling cocok. Aktivitas komunitas forum terbaru juga
-              kami kurasi real-time dari Supabase.
+            <p className="max-w-2xl text-base text-slate-700 dark:text-slate-200">
+              Kombinasi kartu imersif, filter instan, dan mode tampilan baru memudahkanmu mencari lapangan sesuai gaya bermain.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-left text-xs font-semibold uppercase tracking-wider text-brand-soft sm:grid-cols-3">
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Lapangan terdaftar
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {courts.length}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Rata-rata rating
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {courts.length
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Stat label="Lapangan terdaftar" value={courts.length} />
+            <Stat
+              label="Rata-rata rating"
+              value={
+                courts.length
                   ? (
-                      courts.reduce(
-                        (acc, court) => acc + court.averageRating,
-                        0,
-                      ) / courts.length
+                      courts.reduce((acc, court) => acc + court.averageRating, 0) /
+                      courts.length
                     ).toFixed(1)
-                  : "0"}
+                  : "0"
+              }
+            />
+            <Stat label="Balasan komunitas" value={totalReplies} />
+          </div>
+        </div>
+
+        <div className="space-y-4 rounded-3xl border border-white/70 bg-white/80 p-6 shadow-inner shadow-brand/10 backdrop-blur dark:border-slate-800/70 dark:bg-slate-900/70">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-muted">
+                Mode tampilan
               </p>
+              <p>Pilih layout favorit untuk membaca detail venue.</p>
             </div>
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Balasan komunitas
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {totalReplies}
-              </p>
+            <div className="flex items-center gap-2 rounded-full border border-brand-soft/60 bg-white/70 px-2 py-1 text-xs font-semibold text-brand shadow-sm dark:border-brand-soft/30 dark:bg-slate-900/70">
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "rounded-full px-3 py-1 transition",
+                  viewMode === "grid"
+                    ? "bg-brand text-white shadow"
+                    : "text-brand hover:text-brand-strong",
+                )}
+              >
+                Grid
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "rounded-full px-3 py-1 transition",
+                  viewMode === "list"
+                    ? "bg-brand text-white shadow"
+                    : "text-brand hover:text-brand-strong",
+                )}
+              >
+                List
+              </button>
             </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <FilterGroup
+              label="Olahraga"
+              options={sports.map((sport) => ({
+                id: sport,
+                label: sport === "all" ? "Semua" : sport,
+              }))}
+              value={sportFilter}
+              onChange={setSportFilter}
+            />
+            <FilterGroup
+              label="Budget per jam"
+              options={priceOptions.map((option) => ({
+                id: option.id,
+                label: option.label,
+              }))}
+              value={priceFilter}
+              onChange={setPriceFilter}
+            />
+            <FilterGroup
+              label="Rating"
+              options={ratingOptions.map((option) => ({
+                id: option.id,
+                label: option.label,
+              }))}
+              value={ratingFilter}
+              onChange={setRatingFilter}
+            />
+          </div>
+          <div className="rounded-2xl border border-dashed border-brand-soft/60 bg-brand/5 p-4 text-xs text-slate-500 dark:border-brand-soft/30 dark:bg-brand/10 dark:text-slate-300">
+            Tip: simpan filter favorit lalu bagikan tautan Explore ke tim untuk
+            mempercepat koordinasi pertandingan.
           </div>
         </div>
       </header>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-brand-soft/60 bg-white/95 p-6 shadow-sm backdrop-blur dark:border-brand-soft/20 dark:bg-slate-900/70">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Lapangan pilihan Supabase
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Menampilkan {filteredCourts.length} dari {courts.length}{" "}
-                  lapangan aktif.
-                </p>
-              </div>
-              <div className="flex items-center gap-2 self-start rounded-full border border-white/70 bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white shadow-sm dark:border-brand-soft/20">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "rounded-full px-3 py-1 transition",
-                    viewMode === "grid"
-                      ? "bg-brand/90 text-white shadow"
-                      : "text-slate-300 hover:text-white",
-                  )}
-                >
-                  Grid
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "rounded-full px-3 py-1 transition",
-                    viewMode === "list"
-                      ? "bg-brand/90 text-white shadow"
-                      : "text-slate-300 hover:text-white",
-                  )}
-                >
-                  List
-                </button>
-              </div>
+      <section
+        className={cn(
+          "grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]",
+          viewMode === "list" ? "lg:grid-cols-1" : "",
+        )}
+      >
+        <div
+          className={cn(
+            "grid gap-5",
+            viewMode === "grid" ? "md:grid-cols-2" : "md:grid-cols-1",
+          )}
+        >
+          {filteredCourts.map((court) => (
+            <CourtCard key={court.id} court={court} viewMode={viewMode} />
+          ))}
+          {!filteredCourts.length && (
+            <div className="rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-8 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
+              Kombinasi filter saat ini belum menemukan lapangan yang cocok.
+              Coba ubah filter untuk melihat opsi lainnya.
             </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <FilterGroup
-                label="Olahraga"
-                options={sports.map((sport) => ({
-                  id: sport,
-                  label: sport === "all" ? "Semua" : sport,
-                }))}
-                value={sportFilter}
-                onChange={setSportFilter}
-              />
-              <FilterGroup
-                label="Budget per jam"
-                options={priceOptions.map((option) => ({
-                  id: option.id,
-                  label: option.label,
-                }))}
-                value={priceFilter}
-                onChange={setPriceFilter}
-              />
-              <FilterGroup
-                label="Rating"
-                options={ratingOptions.map((option) => ({
-                  id: option.id,
-                  label: option.label,
-                }))}
-                value={ratingFilter}
-                onChange={setRatingFilter}
-              />
-            </div>
-          </div>
-
-          <div
-            className={cn(
-              "grid gap-5",
-              viewMode === "grid" ? "md:grid-cols-2" : "md:grid-cols-1",
-            )}
-          >
-            {filteredCourts.map((court) => (
-              <CourtCard key={court.id} court={court} viewMode={viewMode} />
-            ))}
-            {!filteredCourts.length && (
-              <div className="rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-8 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
-                Kombinasi filter saat ini belum menemukan lapangan yang cocok.
-                Coba ubah filter untuk melihat opsi lainnya.
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
-        <aside className="space-y-6">
-          <div className="space-y-4 rounded-3xl border border-brand-soft/60 bg-white/95 p-6 shadow-sm backdrop-blur dark:border-brand-soft/20 dark:bg-slate-900/70">
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-brand-muted">
-              Forum terbaru
-            </h3>
+        <aside className="space-y-6 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-lg shadow-brand/5 dark:border-slate-800/70 dark:bg-slate-900/70">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-widest text-brand-muted">
+                Forum terbaru
+              </h3>
+              <Link
+                href="/forum"
+                className="text-xs font-semibold text-brand hover:text-brand-strong"
+              >
+                Buka forum →
+              </Link>
+            </div>
             <ul className="space-y-4 text-sm">
               {threads.map((thread) => (
-                <li key={thread.id} className="space-y-1">
+                <li
+                  key={thread.id}
+                  className="space-y-1 rounded-2xl border border-slate-200/70 bg-white/80 p-4 transition hover:border-brand/60 hover:shadow-sm dark:border-slate-800/60 dark:bg-slate-900/60"
+                >
                   <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-brand-muted">
                     <span>{thread.category?.name ?? "Forum"}</span>
-                    <span className="text-slate-400">•</span>
+                    <span className="text-slate-300">•</span>
                     <span>
                       {new Date(thread.created_at).toLocaleDateString("id-ID", {
                         month: "short",
@@ -266,31 +264,33 @@ export function ExploreView({
                 </li>
               )}
             </ul>
-            <Link
-              href="/forum"
-              className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-brand"
-            >
-              Buka forum lengkap
-            </Link>
           </div>
 
-          <div className="space-y-3 rounded-3xl border border-brand-soft/60 bg-gradient-to-br from-[hsl(var(--brand-soft))] via-[hsl(var(--brand))] to-[hsl(var(--brand-strong))] p-6 text-[hsl(var(--brand-contrast))] shadow-sm dark:border-brand-soft/30 dark:from-[hsl(var(--brand-strong))] dark:via-[hsl(var(--brand))] dark:to-[hsl(var(--brand-muted))]">
-            <h3 className="text-base font-semibold">
-              Tips: tarik traffic komunitas
-            </h3>
-            <p className="text-sm text-brand-soft/90">
-              Simpan highlight event atau promo venue di dashboard. Data
-              tersebut otomatis tampil di halaman Explore ketika sudah siap.
+          <div className="space-y-3 rounded-2xl border border-brand-soft/60 bg-gradient-to-br from-brand/15 via-brand/5 to-brand-strong/20 p-5 text-brand-strong shadow-sm dark:border-brand-soft/30 dark:from-brand/25 dark:via-slate-900 dark:to-brand-soft/30">
+            <h3 className="text-base font-semibold">Tarik traffic komunitas</h3>
+            <p className="text-sm text-brand-muted/90 dark:text-brand-soft">
+              Tampilkan event, promo, atau highlight venue di dashboard. Sorotanmu otomatis muncul di tab Explore.
             </p>
             <Link
               href="/dashboard/venue"
-              className="inline-flex items-center justify-center rounded-full bg-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white/30"
+              className="inline-flex items-center justify-center rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-brand shadow-sm transition hover:bg-white dark:bg-slate-900/70 dark:text-brand-contrast dark:hover:bg-slate-900"
             >
               Kelola venue sekarang
             </Link>
           </div>
         </aside>
       </section>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-left shadow-sm backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/70">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{value}</p>
     </div>
   );
 }
@@ -390,9 +390,7 @@ function CourtCard({ court, viewMode }: CourtCardProps) {
             </p>
           </div>
           <div className="text-right text-xs text-slate-500 dark:text-slate-400">
-            <p className="font-semibold text-brand dark:text-brand">
-              Rp{price}/jam
-            </p>
+            <p className="font-semibold text-brand dark:text-brand">Rp{price}/jam</p>
             <p>{court.averageRating.toFixed(1)} ★</p>
             <p>{court.reviewCount} review</p>
           </div>
@@ -411,8 +409,7 @@ function CourtCard({ court, viewMode }: CourtCardProps) {
               ))}
             {court.amenities.length > (viewMode === "grid" ? 4 : 6) && (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-500 dark:bg-slate-800/80">
-                +{court.amenities.length - (viewMode === "grid" ? 4 : 6)}{" "}
-                lainnya
+                +{court.amenities.length - (viewMode === "grid" ? 4 : 6)} lainnya
               </span>
             )}
           </div>

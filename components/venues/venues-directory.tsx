@@ -125,7 +125,7 @@ export function VenuesDirectory({
     return (
       <div className="space-y-5">
         <p className="text-xs text-slate-500 dark:text-slate-400">{message}</p>
-        <div className="rounded-3xl border border-dashed border-slate-200/70 bg-white/80 p-8 text-center text-sm text-slate-500 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-400">
+        <div className="rounded-3xl border border-dashed border-brand/40 bg-white/90 p-8 text-center text-sm text-slate-500 shadow-sm shadow-brand/10 dark:border-brand/30 dark:bg-slate-900/70 dark:text-slate-300">
           Data venue akan tampil otomatis setelah kamu menambahkan venue di
           dashboard Supabase.
         </div>
@@ -135,7 +135,12 @@ export function VenuesDirectory({
 
   return (
     <div className="space-y-5">
-      <p className="text-xs text-slate-500 dark:text-slate-400">{message}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-soft/50 bg-brand/5 px-4 py-3 text-xs text-slate-700 shadow-sm dark:border-brand-soft/30 dark:bg-brand/15 dark:text-slate-200">
+        <span>{message}</span>
+        <span className="rounded-full bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-brand shadow-sm dark:bg-slate-900/70">
+          Lokasi-aware
+        </span>
+      </div>
       {orderedVenues.map(({ item: venue, distanceKm }) => {
         const open = activeSlug === venue.slug;
         const distanceLabel = formatDistance(distanceKm);
@@ -148,15 +153,15 @@ export function VenuesDirectory({
           <section
             key={venue.id}
             id={sectionId}
-            className={`rounded-3xl border border-slate-200/70 bg-white/90 shadow-sm transition dark:border-slate-800/70 dark:bg-slate-900/70 ${
+            className={`rounded-4xl border border-brand-soft/50 bg-white/95 shadow-md transition dark:border-brand-soft/30 dark:bg-slate-900/70 ${
               open
-                ? "ring-1 ring-brand/25"
-                : "hover:border-brand/40 hover:shadow-lg"
+                ? "ring-1 ring-brand/40 shadow-xl"
+                : "hover:-translate-y-0.5 hover:border-brand hover:shadow-xl"
             }`}
           >
             <button
               type="button"
-              className="flex w-full cursor-pointer items-start justify-between gap-4 rounded-3xl bg-white/60 px-6 py-5 text-left transition dark:bg-slate-900/60"
+              className="flex w-full cursor-pointer items-start justify-between gap-4 rounded-4xl bg-gradient-to-r from-white via-white to-brand/10 px-6 py-5 text-left transition dark:from-slate-900 dark:via-slate-900 dark:to-brand/20"
               aria-expanded={open}
               aria-controls={panelId}
               id={triggerId}
@@ -177,6 +182,9 @@ export function VenuesDirectory({
                       {distanceLabel}
                     </span>
                   )}
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold tracking-normal text-slate-600 dark:bg-slate-800 dark:text-slate-200">
+                    {venue.courts.length} lapangan
+                  </span>
                 </div>
                 <h2 className="text-xl font-semibold text-slate-900 transition dark:text-white">
                   {venue.name}
@@ -204,7 +212,7 @@ export function VenuesDirectory({
                 id={panelId}
                 role="region"
                 aria-labelledby={triggerId}
-                className="space-y-6 border-t border-slate-200/70 px-6 pb-6 pt-5 dark:border-slate-800/70"
+                className="space-y-6 border-t border-brand-soft/60 bg-gradient-to-b from-white via-white to-brand/10 px-6 pb-6 pt-5 dark:border-brand-soft/40 dark:from-slate-900 dark:via-slate-900 dark:to-brand/15"
               >
                 {venue.description && (
                   <p className="text-sm text-slate-600 dark:text-slate-300">
@@ -215,7 +223,7 @@ export function VenuesDirectory({
                   {courts.map(({ court, distanceKm: courtDistance }) => (
                     <article
                       key={court.id}
-                      className="group overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 transition hover:border-brand/70 hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/60"
+                      className="group overflow-hidden rounded-2xl border border-brand-soft/60 bg-white/90 shadow-sm transition hover:-translate-y-1 hover:border-brand hover:shadow-lg dark:border-brand-soft/30 dark:bg-slate-900/70"
                     >
                       <Link
                         href={`/court/${court.slug}`}
@@ -234,8 +242,15 @@ export function VenuesDirectory({
                               Preview coming soon
                             </div>
                           )}
-                          <div className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-brand shadow-sm dark:bg-slate-900/80">
-                            {court.sport}
+                          <div className="absolute left-3 top-3 flex flex-col gap-2">
+                            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-brand shadow-sm dark:bg-slate-900/80">
+                              {court.sport}
+                            </span>
+                            {formatDistance(courtDistance) && (
+                              <span className="w-fit rounded-full bg-slate-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-sm">
+                                {formatDistance(courtDistance)}
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-1 flex-col gap-3 p-4">
