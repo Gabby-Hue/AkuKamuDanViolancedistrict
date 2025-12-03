@@ -19,6 +19,7 @@ import {
   SportsTabs,
   type SportCategory,
 } from "@/components/landing/sports-tabs";
+import { HeroCarousel } from "@/components/landing/hero-carousel";
 
 export const dynamic = "force-dynamic";
 
@@ -100,6 +101,8 @@ export default async function Home() {
 
   return (
     <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24">
+      <HeroCarousel courts={courts} />
+
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
