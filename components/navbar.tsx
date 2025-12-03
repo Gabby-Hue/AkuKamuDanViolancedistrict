@@ -24,7 +24,7 @@ export default function NavbarNew() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      setScrolled(window.scrollY > 160);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -62,18 +62,20 @@ export default function NavbarNew() {
     return null;
   }
 
+  const shouldShowBackground = scrolled || pathname !== "/";
+
   return (
     <>
       <header
         className={clsx(
           "fixed top-0 z-500 w-full transition-all duration-300 backdrop-blur",
-          scrolled
+          shouldShowBackground
             ? "bg-slate-950/95 border-b border-brand/25 shadow-[0_10px_50px_rgba(0,0,0,0.35)]"
-            : "bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-950/70 border-b border-transparent",
+            : "bg-transparent border-b border-transparent",
         )}
       >
         {/* Gradient line - hanya muncul saat scroll */}
-        {scrolled && (
+        {shouldShowBackground && (
           <div className="h-px bg-gradient-to-r from-brand-strong via-brand to-brand-strong" />
         )}
 
