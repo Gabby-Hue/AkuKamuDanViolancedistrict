@@ -23,7 +23,7 @@ const slides: Slide[] = [
     description:
       "Booking lapangan terasa seperti menggulir feed. Pilih jadwal, bayar, dan bagikan ke tim tanpa DM berulang.",
     image:
-      "/landing/easy-day.png",},
+      "/landing/ball.jpg",},
   {
     id: "focus",
     kicker: "Venue fokus ke pengalaman",
@@ -31,7 +31,7 @@ const slides: Slide[] = [
     description:
       "Dari Midtrans hingga laporan okupansi, dashboard CourtEase membuat pemilik venue tenang sambil pemain terus datang.",
     image:
-      "/landing/chase-progress.png",},
+      "/landing/padel.jpg",},
   {
     id: "future",
     kicker: "Masa depan olahraga lokal",
