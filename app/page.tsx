@@ -2,11 +2,9 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowUpRight,
-  Gauge,
   MapPin,
   ShieldCheck,
   Sparkles,
-  Waves,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,31 +22,6 @@ import {
 } from "@/components/landing/sports-tabs";
 
 export const dynamic = "force-dynamic";
-
-const automationHighlights: {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}[] = [
-  {
-    title: "Pembayaran Midtrans otomatis",
-    description:
-      "Link pembayaran terbit instan, statusnya sinkron ke dashboard operator dan pemain tanpa perlu rekonsiliasi manual.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Laporan realtime",
-    description:
-      "Metrik pendapatan, okupansi, dan jam sibuk disusun otomatis sehingga tim bisa melihat progres layaknya live dashboard.",
-    icon: Gauge,
-  },
-  {
-    title: "Koordinasi tim praktis",
-    description:
-      "Bagikan jadwal, catatan latihan, dan broadcast komunitas dalam sekali klik. Semua pemain langsung mendapat konteks.",
-    icon: Waves,
-  },
-];
 
 const partnerBenefits: {
   label: string;
@@ -154,41 +127,10 @@ export default async function Home() {
                 </Link>
               </Button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {["Booking realtime", "Forum aktif", "Pembayaran aman"].map((label) => (
-                <Card key={label} className="border-brand-soft/60 bg-gradient-to-br from-white via-white to-brand-soft/40 text-left dark:from-slate-900 dark:via-slate-900 dark:to-brand-soft/20">
-                  <CardContent className="flex items-center gap-3 p-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    <span className="h-2 w-2 rounded-full bg-brand shadow shadow-brand/40" />
-                    {label}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           </div>
           <div className="space-y-4 rounded-4xl border border-brand/30 bg-gradient-to-b from-brand/10 via-white to-brand-soft/40 p-4 shadow-lg shadow-brand/10 dark:border-brand/40 dark:from-brand/25 dark:via-slate-900 dark:to-brand-soft/30">
             <HeroCarousel courts={courts} />
           </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          {automationHighlights.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title} className="h-full border-slate-200/80 bg-white/90 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800/70 dark:bg-slate-900/70">
-                <CardHeader className="flex flex-row items-start gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand-strong shadow-sm dark:bg-brand/25 dark:text-brand-contrast">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                      {item.title}
-                    </CardTitle>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{item.description}</p>
-                  </div>
-                </CardHeader>
-              </Card>
-            );
-          })}
         </div>
       </section>
 
