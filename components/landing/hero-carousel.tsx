@@ -183,7 +183,6 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
 
         <div className="flex items-center justify-between gap-4 text-xs text-brand-contrast/80">
           <SlideIndicators activeIndex={activeIndex} onSelect={setActiveIndex} />
-          <span className="hidden sm:inline">Slide berganti otomatis setiap 6 detik</span>
         </div>
       </div>
     </section>
