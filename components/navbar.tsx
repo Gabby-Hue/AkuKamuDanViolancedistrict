@@ -66,15 +66,15 @@ export default function NavbarNew() {
     <>
       <header
         className={clsx(
-          "fixed w-full transition-all duration-300 top-0 z-500",
+          "fixed top-0 z-500 w-full transition-all duration-300 backdrop-blur",
           scrolled
-            ? "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
-            : "bg-transparent",
+            ? "bg-slate-950/95 border-b border-brand/25 shadow-[0_10px_50px_rgba(0,0,0,0.35)]"
+            : "bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-950/70 border-b border-transparent",
         )}
       >
         {/* Gradient line - hanya muncul saat scroll */}
         {scrolled && (
-          <div className="h-px bg-gradient-to-r from-brand via-brand-strong to-brand" />
+          <div className="h-px bg-gradient-to-r from-brand-strong via-brand to-brand-strong" />
         )}
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
@@ -144,17 +144,17 @@ export default function NavbarNew() {
                         key={link.label}
                         href={link.href}
                         className={clsx(
-                          "relative px-4 py-2 text-sm font-medium transition-colors duration-200 group",
+                          "relative rounded-full px-4 py-2 text-sm font-semibold tracking-wide transition-all duration-200 group",
                           isActive
-                            ? "text-brand dark:text-brand-contrast"
-                            : "text-slate-800 dark:text-slate-200",
-                          "hover:text-brand dark:hover:text-brand-contrast",
+                            ? "bg-white/5 text-brand-strong shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                            : "text-slate-200/80",
+                          "hover:bg-white/5 hover:text-brand",
                         )}
                       >
                         {link.label}
                         <span
                           className={clsx(
-                            "absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-brand to-brand-strong transform transition-transform duration-300 ease-out origin-left",
+                            "absolute -bottom-1 left-0 h-0.5 w-full bg-gradient-to-r from-brand-strong to-brand transform transition-transform duration-300 ease-out origin-left",
                             isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
                           )}
                         />
@@ -197,7 +197,7 @@ export default function NavbarNew() {
         >
           {/* CTA Button at top - Like Twibbonize */}
           <div className="px-6 pt-6">
-            <button className="w-full rounded-xl bg-brand px-6 py-4 font-semibold text-brand-contrast shadow-brand/30 transition-colors duration-200 hover:bg-brand-strong">
+            <button className="w-full rounded-xl bg-gradient-to-r from-brand-strong to-brand px-6 py-4 font-semibold text-white shadow-[0_20px_40px_rgba(0,0,0,0.25)] transition-all duration-200 hover:shadow-[0_25px_50px_rgba(0,0,0,0.35)]">
               Start to be a partner
             </button>
           </div>

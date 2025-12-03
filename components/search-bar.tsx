@@ -154,21 +154,24 @@ export default function SearchBar() {
   return (
     <div className="relative">
       {/* Desktop search input */}
-      <div className="relative hidden md:block">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <div className="group relative hidden md:block">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-brand group-focus-within:text-brand" />
         <input
           type="text"
           value={query}
           onChange={handleInputChange}
           onFocus={() => setOpen(query.trim().length > 0)}
           placeholder="Search courts, venues, or forum…"
-          className="h-10 w-64 rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-10 text-sm text-gray-900 placeholder-gray-500 transition-colors focus:border-gray-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:border-gray-600 dark:focus:bg-gray-900"
+          className="h-11 w-[22rem] lg:w-[28rem] rounded-full border border-white/10 bg-white/5 px-12 pr-28 text-sm text-slate-100 placeholder:text-slate-400 shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-200 focus:border-brand-strong focus:ring-2 focus:ring-brand/50 focus:outline-none focus:bg-slate-900/60 group-hover:border-brand group-hover:bg-slate-900/60 dark:border-white/10 dark:bg-slate-900/70 dark:text-white"
         />
         <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center space-x-1">
-          <kbd className="hidden xs:inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+          <span className="hidden sm:inline-flex items-center rounded-full border border-white/10 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-strong shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+            Book a court
+          </span>
+          <kbd className="hidden xs:inline-flex items-center rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             ⌘
           </kbd>
-          <kbd className="hidden xs:inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
+          <kbd className="hidden xs:inline-flex items-center rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             K
           </kbd>
         </div>
@@ -179,7 +182,7 @@ export default function SearchBar() {
         type="button"
         aria-label="Search"
         onClick={() => setOpen(true)}
-        className="md:hidden rounded-lg p-2 text-brand dark:text-brand-contrast"
+        className="md:hidden rounded-full border border-white/10 bg-white/5 p-2 text-brand-strong shadow-[0_6px_20px_rgba(0,0,0,0.2)] backdrop-blur"
       >
         <Search className="h-5 w-5" />
       </button>
@@ -187,17 +190,17 @@ export default function SearchBar() {
       {/* Desktop dropdown */}
       {open && (
         <div className="hidden md:block absolute left-0 right-0 mt-2 z-40">
-          <div className="rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/90 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur">
             {/* Tabs */}
-            <div className="flex border-b border-gray-200 dark:border-gray-800">
+            <div className="flex border-b border-white/5">
               {(["courts", "venues", "forums"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                     activeTab === tab
-                      ? "border-b-2 border-gray-900 text-gray-900 dark:border-white dark:text-white"
-                      : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                      ? "border-b-2 border-brand-strong text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -208,11 +211,11 @@ export default function SearchBar() {
             {/* Results */}
             <div className="max-h-80 overflow-y-auto">
               {loading ? (
-                <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="px-4 py-8 text-center text-sm text-slate-400">
                   Searching...
                 </div>
               ) : results[activeTab].length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="px-4 py-8 text-center text-sm text-slate-400">
                   No results found.
                 </div>
               ) : (
@@ -221,12 +224,12 @@ export default function SearchBar() {
                     <Link
                       href={item.href}
                       key={`${item.type}-${index}`}
-                      className="block px-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="block px-4 py-3 transition-colors hover:bg-white/5"
                     >
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-white">
                         {item.title}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="mt-1 text-xs text-slate-400">
                         {item.description}
                       </p>
                     </Link>
@@ -240,37 +243,37 @@ export default function SearchBar() {
 
       {/* Mobile full-screen overlay */}
       {open && (
-        <div className="md:hidden fixed inset-0 z-50 flex flex-col bg-white dark:bg-gray-900">
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col bg-slate-950 text-white">
           {/* Search header */}
-          <div className="flex items-center gap-3 p-4 border-b border-gray-200 dark:border-gray-800">
-            <Search className="h-5 w-5 text-gray-400" />
+          <div className="flex items-center gap-3 p-4 border-b border-white/10">
+            <Search className="h-5 w-5 text-brand" />
             <input
               type="text"
               autoFocus
               value={query}
               onChange={handleInputChange}
               placeholder="Search courts, venues, or forum…"
-              className="flex-1 bg-transparent text-gray-900 placeholder-gray-500 outline-none dark:text-white dark:placeholder-gray-400"
+              className="flex-1 bg-transparent text-white placeholder:text-slate-400 outline-none"
             />
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              className="text-sm font-medium text-slate-300 transition-colors hover:text-brand-strong"
             >
               Cancel
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-gray-800">
+          <div className="flex border-b border-white/10">
             {(["courts", "venues", "forums"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab
-                    ? "border-b-2 border-gray-900 text-gray-900 dark:border-white dark:text-white"
-                    : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    ? "border-b-2 border-brand-strong text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -281,11 +284,11 @@ export default function SearchBar() {
           {/* Results */}
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-8 text-center text-sm text-slate-400">
                 Searching...
               </div>
             ) : results[activeTab].length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-4 py-8 text-center text-sm text-slate-400">
                 No results found.
               </div>
             ) : (
@@ -294,12 +297,12 @@ export default function SearchBar() {
                   <Link
                     href={item.href}
                     key={`${item.type}-${index}`}
-                    className="block px-4 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="block px-4 py-4 transition-colors hover:bg-white/5"
                   >
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    <p className="text-sm font-medium text-white">
                       {item.title}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="mt-1 text-xs text-slate-400">
                       {item.description}
                     </p>
                   </Link>
