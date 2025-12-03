@@ -14,125 +14,53 @@
  * remove the old search logic from there.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 
-// Database search result type
-type SearchResult = {
-  type: "court" | "venue" | "forum";
-  title: string;
-  description: string;
-  href: string;
-};
+import { useSearch, type SearchResult } from "@/hooks";
 
 // Search categories for organizing results
 type SearchCategory = "courts" | "venues" | "forums";
 
-// Search results organized by category
-type SearchResults = {
-  courts: SearchResult[];
-  venues: SearchResult[];
-  forums: SearchResult[];
-};
-
-// Function to fetch search results from the database API
-async function fetchSearchResults(query: string): Promise<SearchResults> {
-  try {
-    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch search results");
-    }
-
-    const { data } = await response.json();
-
-    // Organize results by category
-    const organizedResults: SearchResults = {
-      courts: [],
-      venues: [],
-      forums: [],
-    };
-
-    (data || []).forEach((item: SearchResult) => {
-      switch (item.type) {
-        case "court":
-          organizedResults.courts.push(item);
-          break;
-        case "venue":
-          organizedResults.venues.push(item);
-          break;
-        case "forum":
-          organizedResults.forums.push(item);
-          break;
-      }
-    });
-
-    return organizedResults;
-  } catch (error) {
-    console.error("Search error:", error);
-    return {
-      courts: [],
-      venues: [],
-      forums: [],
-    };
-  }
-}
-
 export default function SearchBar() {
-  // Current search text
-  const [query, setQuery] = useState<string>("");
-  // Whether the overlay/dropdown is currently visible
+  const { query, setQuery, results, searching } = useSearch();
   const [open, setOpen] = useState<boolean>(false);
-  // Active tab for categorized results
   const [activeTab, setActiveTab] = useState<SearchCategory>("courts");
-  // Search results from database
-  const [results, setResults] = useState<SearchResults>({
-    courts: [],
-    venues: [],
-    forums: [],
-  });
-  // Loading state for search
-  const [loading, setLoading] = useState<boolean>(false);
+  const categorizedResults = useMemo<Record<SearchCategory, SearchResult[]>>(() => {
+    return results.reduce(
+      (acc, item) => {
+        if (item.type === "court") {
+          acc.courts.push(item);
+        }
+        if (item.type === "venue") {
+          acc.venues.push(item);
+        }
+        if (item.type === "forum") {
+          acc.forums.push(item);
+        }
+        return acc;
+      },
+      {
+        courts: [],
+        venues: [],
+        forums: [],
+      },
+    );
+  }, [results]);
 
-  // Fetch search results from database when query changes
-  const performSearch = useCallback(async (searchQuery: string) => {
-    if (searchQuery.trim().length === 0) {
-      setResults({ courts: [], venues: [], forums: [] });
-      return;
-    }
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setQuery(value);
+    setOpen(value.trim().length > 0);
+  };
 
-    setLoading(true);
-    try {
-      const searchResults = await fetchSearchResults(searchQuery);
-      setResults(searchResults);
-    } catch (error) {
-      console.error("Search failed:", error);
-      setResults({ courts: [], venues: [], forums: [] });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Debounced search effect
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (query.trim().length > 0) {
-        performSearch(query);
-      }
-    }, 300); // 300ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [query, performSearch]);
-
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
-      // Open search with Cmd/Ctrl + K
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault();
         setOpen(true);
       }
-      // Close with Escape
       if (event.key === "Escape") {
         setOpen(false);
       }
@@ -141,15 +69,6 @@ export default function SearchBar() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
-
-  // Handle changes in the search input
-  // Handle input changes with proper search logic
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setQuery(value);
-    // Show overlay when there is text
-    setOpen(value.trim().length > 0);
-  };
 
   return (
     <div className="relative">
@@ -162,12 +81,9 @@ export default function SearchBar() {
           onChange={handleInputChange}
           onFocus={() => setOpen(query.trim().length > 0)}
           placeholder="Search courts, venues, or forum…"
-          className="h-11 w-[22rem] lg:w-[28rem] rounded-full border border-white/10 bg-white/5 px-12 pr-28 text-sm text-slate-100 placeholder:text-slate-400 shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-200 focus:border-brand-strong focus:ring-2 focus:ring-brand/50 focus:outline-none focus:bg-slate-900/60 group-hover:border-brand group-hover:bg-slate-900/60 dark:border-white/10 dark:bg-slate-900/70 dark:text-white"
+          className="h-10 w-[16rem] lg:w-[20rem] rounded-full border border-white/10 bg-white/5 px-12 pr-16 text-sm text-slate-100 placeholder:text-slate-400 shadow-[0_8px_32px_rgba(0,0,0,0.25)] transition-all duration-200 focus:border-brand-strong focus:ring-2 focus:ring-brand/50 focus:outline-none focus:bg-slate-900/60 group-hover:border-brand group-hover:bg-slate-900/60 dark:border-white/10 dark:bg-slate-900/70 dark:text-white"
         />
         <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center space-x-1">
-          <span className="hidden sm:inline-flex items-center rounded-full border border-white/10 bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-strong shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
-            Book a court
-          </span>
           <kbd className="hidden xs:inline-flex items-center rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
             ⌘
           </kbd>
@@ -210,17 +126,17 @@ export default function SearchBar() {
 
             {/* Results */}
             <div className="max-h-80 overflow-y-auto">
-              {loading ? (
+              {searching ? (
                 <div className="px-4 py-8 text-center text-sm text-slate-400">
                   Searching...
                 </div>
-              ) : results[activeTab].length === 0 ? (
+              ) : categorizedResults[activeTab].length === 0 ? (
                 <div className="px-4 py-8 text-center text-sm text-slate-400">
                   No results found.
                 </div>
               ) : (
                 <div className="py-2">
-                  {results[activeTab].map((item, index) => (
+                  {categorizedResults[activeTab].map((item, index) => (
                     <Link
                       href={item.href}
                       key={`${item.type}-${index}`}
@@ -283,17 +199,17 @@ export default function SearchBar() {
 
           {/* Results */}
           <div className="flex-1 overflow-y-auto">
-            {loading ? (
+            {searching ? (
               <div className="px-4 py-8 text-center text-sm text-slate-400">
                 Searching...
               </div>
-            ) : results[activeTab].length === 0 ? (
+            ) : categorizedResults[activeTab].length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-slate-400">
                 No results found.
               </div>
             ) : (
               <div className="py-2">
-                {results[activeTab].map((item, index) => (
+                {categorizedResults[activeTab].map((item, index) => (
                   <Link
                     href={item.href}
                     key={`${item.type}-${index}`}
