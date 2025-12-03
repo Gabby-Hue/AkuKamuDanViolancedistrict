@@ -82,7 +82,7 @@ export function HeroCarousel() {
   const activeSlide = slides[activeIndex];
 
   return (
-    <section className="relative isolate overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
+    <section className="relative isolate min-h-screen overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
       <div className="absolute inset-0 bg-brand-strong">
         {slides.map((slide, index) => (
           <div
@@ -93,7 +93,7 @@ export function HeroCarousel() {
             )}
           >
             <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
-              <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[320px] lg:aspect-auto lg:h-[960px]">
+              <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[520px] lg:aspect-auto lg:h-[100vh]">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -109,7 +109,7 @@ export function HeroCarousel() {
         ))}
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pb-24 lg:pt-36">
         <div className="space-y-6 lg:max-w-3xl">
           <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-brand-contrast">
             <span className="h-2 w-2 rounded-full bg-brand" />
