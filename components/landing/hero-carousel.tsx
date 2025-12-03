@@ -69,26 +69,40 @@ function SlideIndicators({
 
 export function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % slides.length);
+      setActiveIndex((current) => current + 1);
     }, 6000);
 
     return () => window.clearInterval(interval);
   }, []);
 
-  const activeSlide = slides[activeIndex];
+  const handleTransitionEnd = () => {
+    if (activeIndex === slides.length) {
+      setIsTransitioning(false);
+      setActiveIndex(0);
+      requestAnimationFrame(() => setIsTransitioning(true));
+    }
+  };
+
+  const activeSlide = slides[activeIndex % slides.length];
+  const displaySlides = [...slides, slides[0]];
 
   return (
     <section className="relative isolate min-h-screen overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
       <div className="absolute inset-0 bg-brand-strong overflow-hidden">
         <div
           className="flex h-full transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          style={{
+            transform: `translateX(-${activeIndex * 100}%)`,
+            transitionDuration: isTransitioning ? "700ms" : "0ms",
+          }}
+          onTransitionEnd={handleTransitionEnd}
         >
-          {slides.map((slide, index) => (
-            <div key={slide.id} className="relative flex min-h-full min-w-full items-center justify-center">
+          {displaySlides.map((slide, index) => (
+            <div key={`${slide.id}-${index}`} className="relative flex min-h-full min-w-full items-center justify-center">
               <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
                 <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[520px] lg:aspect-auto lg:h-[100vh]">
                   <Image
@@ -138,7 +152,13 @@ export function HeroCarousel() {
         </div>
 
         <div className="flex justify-start text-xs text-brand-contrast/80">
-          <SlideIndicators activeIndex={activeIndex} onSelect={setActiveIndex} />
+          <SlideIndicators
+            activeIndex={activeIndex % slides.length}
+            onSelect={(index) => {
+              setIsTransitioning(true);
+              setActiveIndex(index);
+            }}
+          />
         </div>
       </div>
     </section>
