@@ -10,11 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fetchCourtSummaries, fetchForumThreads } from "@/lib/supabase/queries";
+import { fetchForumThreads } from "@/lib/supabase/queries";
 import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-highlights";
-import {
-  NearestCourtSpotlight,
-} from "@/components/venues/nearest-courts";
 import {
   SportsTabs,
   type SportCategory,
@@ -94,14 +91,11 @@ const sportsCategories: SportCategory[] = [
 ];
 
 export default async function Home() {
-  const [courts, threads] = await Promise.all([
-    fetchCourtSummaries(),
-    fetchForumThreads(),
-  ]);
+  const threads = await fetchForumThreads();
 
   return (
     <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24">
-      <HeroCarousel courts={courts} />
+      <HeroCarousel />
 
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -121,27 +115,6 @@ export default async function Home() {
         </div>
         <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-4 shadow-lg shadow-brand/5 dark:border-slate-800/70 dark:bg-slate-900/70">
           <SportsTabs sports={sportsCategories} />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">Sorotan venue</p>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Lapangan terdekat pilihan</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Rekomendasi terbaru dengan rating tinggi, siap dipesan lewat integrasi Midtrans yang otomatis.
-            </p>
-          </div>
-          <Button variant="ghost" asChild className="text-brand hover:text-brand-strong">
-            <Link href="/venues" className="gap-2">
-              Lihat direktori venue
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="rounded-4xl border border-slate-200/80 bg-gradient-to-br from-brand/5 via-white to-brand-soft/40 p-6 shadow-lg shadow-brand/10 dark:border-slate-800/70 dark:from-brand/15 dark:via-slate-900 dark:to-brand-soft/25">
-          <NearestCourtSpotlight courts={courts} limit={6} />
         </div>
       </section>
 
