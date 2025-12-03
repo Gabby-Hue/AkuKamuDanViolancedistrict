@@ -82,30 +82,29 @@ export function HeroCarousel() {
 
   return (
     <section className="relative isolate min-h-screen overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
-      <div className="absolute inset-0 bg-brand-strong">
-        {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={cn(
-              "absolute inset-0 flex items-center justify-center transition-opacity duration-700",
-              index === activeIndex ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
-              <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[520px] lg:aspect-auto lg:h-[100vh]">
-                <Image
-                  src={slide.image}
-                  alt={slide.title}
-                  fill
-                  priority={index === 0}
-                  sizes="(min-width: 1024px) 1200px, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/35 to-black/35" />
+      <div className="absolute inset-0 bg-brand-strong overflow-hidden">
+        <div
+          className="flex h-full transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {slides.map((slide, index) => (
+            <div key={slide.id} className="relative flex min-h-full min-w-full items-center justify-center">
+              <div className="relative w-full max-w-[3840px] overflow-hidden rounded-3xl min-[480px]:px-4 lg:px-0">
+                <div className="relative aspect-[4/1] w-full overflow-hidden rounded-3xl min-h-[520px] lg:aspect-auto lg:h-[100vh]">
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    priority={index === 0}
+                    sizes="(min-width: 1024px) 1200px, 100vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/35 to-black/35" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pb-24 lg:pt-36">
