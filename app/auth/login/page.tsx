@@ -5,7 +5,7 @@ import Image from "next/image";
 import { LoginForm } from "@/components/auth/login-form";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 function LoginPageContent() {
   const router = useRouter();
@@ -72,5 +72,9 @@ function LoginPageContent() {
 }
 
 export default function LoginPage() {
-  return <LoginPageContent />;
+  return (
+    <Suspense fallback={<div className="flex min-h-svh items-center justify-center">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  );
 }
