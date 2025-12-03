@@ -39,8 +39,7 @@ const slides: Slide[] = [
     description:
       "Forum dan Explore menyalakan ekosistem. Kamu tinggal hadir, sisanya sudah kami tata seperti highlight reel favoritmu.",
     image:
-      "https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=1600&q=80",
-  },
+      "/landing/basketball.jpg",},
 ];
 
 function SlideIndicators({
@@ -102,7 +101,7 @@ export function HeroCarousel() {
                   sizes="(min-width: 1024px) 1200px, 100vw"
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/65 to-black/45" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/35 to-black/35" />
               </div>
             </div>
           </div>
