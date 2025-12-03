@@ -4,6 +4,8 @@ import {
   fetchForumThreads,
 } from "@/lib/supabase/queries";
 
+export const dynamic = "force-dynamic";
+
 export default async function ForumPage() {
   const [categories, threads] = await Promise.all([
     fetchForumCategories(),

@@ -33,6 +33,8 @@ import {
 import { RevenueBarChart } from "@/components/revenue-bar-chart";
 import { BookingLineChart } from "@/components/booking-line-chart";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const profile = await requireRole("venue_partner");
   const identity = await getAuthenticatedProfile();
