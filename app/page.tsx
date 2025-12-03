@@ -23,6 +23,8 @@ import {
   type SportCategory,
 } from "@/components/landing/sports-tabs";
 
+export const dynamic = "force-dynamic";
+
 const automationHighlights: {
   title: string;
   description: string;
