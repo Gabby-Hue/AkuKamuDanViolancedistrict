@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { requireRole } from "@/lib/supabase/roles";
 import { fetchUserDashboardData } from "@/lib/supabase/queries";
 import {
