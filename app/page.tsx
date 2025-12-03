@@ -15,7 +15,6 @@ import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-hig
 import {
   NearestCourtSpotlight,
 } from "@/components/venues/nearest-courts";
-import { HeroCarousel } from "@/components/landing/hero-carousel";
 import {
   SportsTabs,
   type SportCategory,
@@ -101,39 +100,6 @@ export default async function Home() {
 
   return (
     <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24">
-      <section className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-8 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="space-y-8 rounded-4xl border border-slate-200/70 bg-white/90 p-8 shadow-xl shadow-brand/5 backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/70">
-            <Badge className="bg-brand/10 text-brand-strong dark:bg-brand/20 dark:text-brand-contrast">
-              Rombak total, siap dipakai komunitas
-            </Badge>
-            <div className="space-y-4">
-              <h1 className="text-4xl font-semibold leading-tight text-slate-900 dark:text-white sm:text-5xl">
-                Satu landing baru untuk booking, komunitas, dan operasi venue
-              </h1>
-              <p className="text-base text-slate-600 dark:text-slate-300">
-                CourtEase menghadirkan pengalaman cari lapangan yang imersif dengan UI shadcn baru. Booking, forum, dan integrasi
-                Midtrans berjalan otomatis untuk pemain maupun operator.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="shadow-lg shadow-brand/20">
-                <Link href="/explore">Jelajahi sekarang</Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/venue-partner" className="gap-2">
-                  Aktifkan venue
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-4 rounded-4xl border border-brand/30 bg-gradient-to-b from-brand/10 via-white to-brand-soft/40 p-4 shadow-lg shadow-brand/10 dark:border-brand/40 dark:from-brand/25 dark:via-slate-900 dark:to-brand-soft/30">
-            <HeroCarousel courts={courts} />
-          </div>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
