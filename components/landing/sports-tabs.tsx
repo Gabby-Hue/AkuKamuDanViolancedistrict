@@ -115,7 +115,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 animationFillMode: "backwards",
               }}
             >
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-100 transition duration-500 group-hover:-translate-y-1 dark:bg-slate-800/60">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-slate-100 transition duration-500 group-hover:-translate-y-1 dark:bg-slate-800/60">
                 <Image
                   src={sport.image}
                   alt={sport.name}
@@ -131,6 +131,10 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             </Link>
           ))}
         </div>
+
+        <p className="mt-4 text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          Basket • Futsal • Voli • Badminton • Tennis • Padel • Sepakbola
+        </p>
 
         {isOverflowing && (
           <div className="mt-6 hidden md:block">
