@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type SportCategory = {
@@ -66,7 +67,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-2">
           <p className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand dark:bg-brand/20">
@@ -74,16 +75,15 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             Pilihan cepat
           </p>
           <h2 className="text-2xl font-semibold text-brand dark:text-brand-contrast">
-            Popular sports
+            Shop by Sport
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            Temukan lapangan favorit komunitas, lengkap dengan akses menuju
-            kategori court yang relevan.
+            Pilih olahraga favoritmu dan temukan lapangan terbaik di sekitar.
           </p>
         </div>
         <div
           className={cn(
-            "items-center gap-2 transition-opacity duration-300",
+            "items-center gap-3 transition-opacity duration-300",
             isOverflowing ? "flex" : "hidden sm:flex",
           )}
         >
@@ -92,59 +92,33 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             onClick={() => scroll("prev")}
             disabled={!canScrollLeft && isOverflowing}
             className={cn(
-              "rounded-full border px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-200",
-              "border-brand/30 bg-brand/10 text-brand",
-              "hover:border-brand hover:bg-brand/20 hover:text-brand-strong hover:shadow-md",
-              "dark:border-brand/40 dark:bg-brand/20 dark:text-brand-contrast",
-              "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-brand/30 disabled:hover:bg-brand/10 disabled:hover:text-brand",
-              "dark:disabled:hover:border-brand/30 dark:disabled:hover:text-brand-contrast",
+              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.12)] ring-1 ring-black/5 transition duration-200",
+              "hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
+              "dark:bg-slate-900 dark:text-white dark:ring-white/10",
+              "disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none",
             )}
             aria-label="Lihat olahraga sebelumnya"
           >
-            ←
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             type="button"
             onClick={() => scroll("next")}
             disabled={!canScrollRight && isOverflowing}
             className={cn(
-              "rounded-full border px-3 py-2 text-sm font-semibold shadow-sm transition-all duration-200",
-              "border-brand/30 bg-brand/10 text-brand",
-              "hover:border-brand hover:bg-brand/20 hover:text-brand-strong hover:shadow-md",
-              "dark:border-brand/40 dark:bg-brand/20 dark:text-brand-contrast",
-              "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-brand/30 disabled:hover:bg-brand/10 disabled:hover:text-brand",
-              "dark:disabled:hover:border-brand/30 dark:disabled:hover:text-brand-contrast",
+              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.12)] ring-1 ring-black/5 transition duration-200",
+              "hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
+              "dark:bg-slate-900 dark:text-white dark:ring-white/10",
+              "disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none",
             )}
             aria-label="Lihat olahraga selanjutnya"
           >
-            →
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
 
       <div className="relative">
-        {/* Scroll indicator gradient */}
-        {isOverflowing && (
-          <>
-            <div
-              className={cn(
-                "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-300",
-                canScrollLeft ? "opacity-0" : "opacity-100",
-              )}
-            >
-              <div className="h-full w-full bg-gradient-to-r from-brand/10 via-white/60 to-transparent dark:from-brand/20 dark:via-slate-900/60" />
-            </div>
-            <div
-              className={cn(
-                "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none transition-opacity duration-300",
-                canScrollRight ? "opacity-0" : "opacity-100",
-              )}
-            >
-              <div className="h-full w-full bg-gradient-to-l from-brand/10 via-white/60 to-transparent dark:from-brand/20 dark:via-slate-900/60" />
-            </div>
-          </>
-        )}
-
         {/* Mobile scroll hint */}
         {isOverflowing && (
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-2 z-20 md:hidden">
@@ -162,15 +136,13 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         <div
           ref={trackRef}
           className={cn(
-            "flex gap-4 overflow-x-auto overflow-y-hidden rounded-3xl border p-4 shadow-sm backdrop-blur scrollbar-hide",
-            "border-brand/20 bg-brand/5",
-            "dark:border-brand/40 dark:bg-brand/15",
+            "flex gap-6 overflow-x-auto overflow-y-hidden py-4 scrollbar-hide",
             "scroll-smooth",
             isOverflowing ? "scrollbar-hide" : "overflow-x-hidden",
           )}
           style={{
             scrollbarWidth: "none",
-            msOverflowStyle: "none"
+            msOverflowStyle: "none",
           }}
         >
           {sports.map((sport, index) => (
@@ -178,10 +150,8 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
               key={sport.name}
               href={sport.href}
               className={cn(
-                "group relative flex overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300",
-                "hover:-translate-y-1 hover:border-brand hover:shadow-xl hover:scale-[1.02]",
-                "border-brand/25 bg-brand/5",
-                "dark:border-brand/40 dark:bg-brand/15",
+                "group relative flex flex-col gap-3 transition-all duration-300",
+                "hover:scale-[1.01]",
                 // Add subtle animation delay for each card
                 `animate-in fade-in slide-in-from-bottom`,
                 `animation-delay-[${index * 50}ms]`,
@@ -194,32 +164,23 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 animationFillMode: "backwards",
               }}
             >
-              <div className="absolute inset-0" aria-hidden>
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[28px] bg-slate-100 shadow-[0_14px_34px_rgba(0,0,0,0.14)] transition duration-500 group-hover:shadow-[0_18px_44px_rgba(0,0,0,0.18)] dark:bg-slate-800/60">
                 <Image
                   src={sport.image}
                   alt=""
                   fill
                   sizes="(max-width: 768px) 80vw, 20vw"
-                  className="object-cover transition duration-700 group-hover:scale-110"
+                  className="object-cover transition duration-700 group-hover:scale-105"
                   priority
                 />
-                <div
-                  className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/10 to-slate-950/70 transition-opacity duration-300 group-hover:opacity-90"
-                  style={{ backgroundColor: sport.accent }}
-                />
               </div>
-              <div className="relative flex w-full flex-col justify-end gap-3 p-4">
-                <span
-                  className={cn(
-                    "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition-all duration-300",
-                    "bg-brand/80 text-brand-contrast group-hover:bg-brand",
-                  )}
-                >
+              <div className="space-y-1 px-1 text-center">
+                <p className="text-sm font-semibold text-slate-900 transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
                   {sport.name}
-                </span>
-                <span className="text-xs font-medium text-white/90 transition-colors duration-300 group-hover:text-brand-contrast">
-                  Klik untuk menuju court {sport.name}
-                </span>
+                </p>
+                <p className="text-xs text-slate-500 transition-colors duration-300 group-hover:text-slate-700 dark:text-slate-300 dark:group-hover:text-white/80">
+                  Jelajahi {sport.name}
+                </p>
               </div>
             </Link>
           ))}
