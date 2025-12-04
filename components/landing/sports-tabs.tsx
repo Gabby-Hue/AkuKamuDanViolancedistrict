@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type SportCategory = {
@@ -19,20 +18,24 @@ const GAP_PX = 16;
 
 export function SportsTabs({ sports }: { sports: SportCategory[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [thumbWidth, setThumbWidth] = useState(100);
 
   useEffect(() => {
     const container = trackRef.current;
     if (!container) return;
 
     const checkScroll = () => {
-      setCanScrollLeft(container.scrollLeft > 0);
-      setCanScrollRight(
-        container.scrollLeft < container.scrollWidth - container.clientWidth,
-      );
       setIsOverflowing(container.scrollWidth > container.clientWidth);
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const progress = maxScroll > 0 ? container.scrollLeft / maxScroll : 0;
+      const visibleRatio =
+        container.scrollWidth > 0
+          ? (container.clientWidth / container.scrollWidth) * 100
+          : 100;
+      setScrollProgress(progress);
+      setThumbWidth(visibleRatio);
     };
 
     checkScroll();
@@ -54,18 +57,6 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
 
   const itemWidth = `calc((100% - ${(getVisibleCount() - 1) * GAP_PX}px) / ${getVisibleCount()})`;
 
-  const scroll = (direction: "next" | "prev") => {
-    const container = trackRef.current;
-
-    if (!container) return;
-
-    const delta =
-      (container.clientWidth / getVisibleCount() + GAP_PX) *
-      (direction === "next" ? 1 : -1);
-
-    container.scrollBy({ left: delta, behavior: "smooth" });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -81,41 +72,11 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             Pilih olahraga favoritmu dan temukan lapangan terbaik di sekitar.
           </p>
         </div>
-        <div
-          className={cn(
-            "items-center gap-3 transition-opacity duration-300",
-            isOverflowing ? "flex" : "hidden sm:flex",
-          )}
-        >
-          <button
-            type="button"
-            onClick={() => scroll("prev")}
-            disabled={!canScrollLeft && isOverflowing}
-            className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.12)] ring-1 ring-black/5 transition duration-200",
-              "hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
-              "dark:bg-slate-900 dark:text-white dark:ring-white/10",
-              "disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none",
-            )}
-            aria-label="Lihat olahraga sebelumnya"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scroll("next")}
-            disabled={!canScrollRight && isOverflowing}
-            className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-full bg-white text-slate-900 shadow-[0_12px_32px_rgba(0,0,0,0.12)] ring-1 ring-black/5 transition duration-200",
-              "hover:scale-105 hover:shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
-              "dark:bg-slate-900 dark:text-white dark:ring-white/10",
-              "disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none",
-            )}
-            aria-label="Lihat olahraga selanjutnya"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
+        {isOverflowing && (
+          <p className="hidden text-sm font-medium text-slate-500 transition-colors duration-200 md:block dark:text-slate-300">
+            Geser untuk melihat lebih banyak pilihan olahraga
+          </p>
+        )}
       </div>
 
       <div className="relative">
@@ -136,13 +97,13 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         <div
           ref={trackRef}
           className={cn(
-            "flex gap-6 overflow-x-auto overflow-y-hidden py-4 scrollbar-hide",
+            "scrollbar-modern flex gap-6 overflow-x-auto overflow-y-hidden py-4",
             "scroll-smooth",
-            isOverflowing ? "scrollbar-hide" : "overflow-x-hidden",
+            isOverflowing ? "scrollbar-modern" : "overflow-x-hidden",
           )}
           style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
+            scrollbarWidth: "thin",
+            msOverflowStyle: "auto",
           }}
         >
           {sports.map((sport, index) => (
@@ -185,6 +146,20 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             </Link>
           ))}
         </div>
+
+        {isOverflowing && (
+          <div className="mt-6 hidden md:block">
+            <div className="relative h-2 rounded-full bg-slate-200/80 shadow-inner dark:bg-slate-800">
+              <div
+                className="absolute left-0 top-0 h-2 rounded-full bg-brand/80 transition-[transform,width] duration-200 ease-out dark:bg-brand/70"
+                style={{
+                  width: `${Math.max(thumbWidth, 18)}%`,
+                  transform: `translateX(${scrollProgress * (100 - Math.max(thumbWidth, 18))}%)`,
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <style jsx>{`
@@ -211,8 +186,23 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           transform: translateY(20px);
         }
 
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+        .scrollbar-modern {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+        }
+
+        .scrollbar-modern::-webkit-scrollbar {
+          height: 10px;
+        }
+
+        .scrollbar-modern::-webkit-scrollbar-track {
+          background: rgba(226, 232, 240, 0.6);
+          border-radius: 9999px;
+        }
+
+        .scrollbar-modern::-webkit-scrollbar-thumb {
+          background: linear-gradient(90deg, rgba(59, 130, 246, 0.7), rgba(14, 165, 233, 0.7));
+          border-radius: 9999px;
         }
       `}</style>
     </div>
