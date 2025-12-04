@@ -98,24 +98,7 @@ export default async function Home() {
       <HeroCarousel />
 
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand">Sports hub</p>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Pilih olahraga favoritmu</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              Koleksi visual baru memudahkanmu berpindah olahraga tanpa keluar dari pengalaman shadcn.
-            </p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link href="/explore" className="gap-2">
-              Lihat jadwal cepat
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-4 shadow-lg shadow-brand/5 dark:border-slate-800/70 dark:bg-slate-900/70">
-          <SportsTabs sports={sportsCategories} />
-        </div>
+        <SportsTabs sports={sportsCategories} />
       </section>
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
