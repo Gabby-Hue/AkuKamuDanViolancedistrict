@@ -168,22 +168,11 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         }
 
         .scrollbar-modern {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(0, 0, 0, 0.7) transparent;
+          scrollbar-width: none;
         }
 
         .scrollbar-modern::-webkit-scrollbar {
-          height: 6px;
-          width: 6px;
-        }
-
-        .scrollbar-modern::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .scrollbar-modern::-webkit-scrollbar-thumb {
-          background-color: rgba(0, 0, 0, 0.7);
-          border-radius: 9999px;
+          display: none;
         }
       `}</style>
     </div>
