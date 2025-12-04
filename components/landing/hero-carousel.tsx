@@ -73,12 +73,9 @@ export function HeroCarousel() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      // Jangan paksa berpindah slide ketika sedang berada di slide duplikat
-      // (index terakhir) untuk menghindari lompatan mundur yang terlihat
-      // seperti meloncat kembali ke slide ke-2 lalu ke-1.
-      setActiveIndex((current) =>
-        current === slides.length ? current : current + 1,
-      );
+      // Putar terus hingga mencapai slide duplikat, lalu biarkan
+      // `onTransitionEnd` mengatur ulang ke indeks pertama.
+      setActiveIndex((current) => (current + 1) % (slides.length + 1));
     }, 6000);
 
     return () => window.clearInterval(interval);
