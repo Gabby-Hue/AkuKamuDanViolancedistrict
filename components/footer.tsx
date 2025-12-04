@@ -12,9 +12,9 @@ const productLinks = [
 ];
 
 const supportLinks = [
-  { label: "Bantuan", href: "/dashboard/venue/support" },
-  { label: "Kebijakan privasi", href: "/docs/privacy" },
-  { label: "Syarat & ketentuan", href: "/docs/terms" },
+  { label: "Bantuan", href: "/support#bantuan" },
+  { label: "Kebijakan privasi", href: "/support#privasi" },
+  { label: "Syarat & ketentuan", href: "/support#terms" },
 ];
 
 const communityLinks = [
