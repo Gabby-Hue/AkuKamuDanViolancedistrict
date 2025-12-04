@@ -12,7 +12,7 @@ export type SportCategory = {
   accent: string;
 };
 
-const VISIBLE_COUNT_DESKTOP = 5;
+const VISIBLE_COUNT_DESKTOP = 4;
 const VISIBLE_COUNT_MOBILE = 2.5;
 const GAP_PX = 16;
 
@@ -94,7 +94,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             isOverflowing ? "scrollbar-modern" : "overflow-x-hidden",
           )}
           style={{
-            scrollbarWidth: "thin",
+            scrollbarWidth: "none",
             msOverflowStyle: "auto",
           }}
         >
@@ -115,7 +115,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 animationFillMode: "backwards",
               }}
             >
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl bg-slate-100 transition duration-500 group-hover:-translate-y-1 dark:bg-slate-800/60">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-100 transition duration-500 group-hover:-translate-y-1 dark:bg-slate-800/60">
                 <Image
                   src={sport.image}
                   alt={sport.name}
@@ -172,12 +172,12 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         }
 
         .scrollbar-modern {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+          scrollbar-width: none;
+          scrollbar-color: transparent transparent;
         }
 
         .scrollbar-modern::-webkit-scrollbar {
-          height: 10px;
+          height: 0px;
         }
 
         .scrollbar-modern::-webkit-scrollbar-track {
