@@ -71,10 +71,6 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         )}
       </div>
 
-      <p className="text-sm font-medium text-[#0B0B0B]">
-        Basket · Futsal · Voli · Badminton · Tennis · Padel · Sepakbola
-      </p>
-
       <div className="relative">
         {/* Mobile scroll hint */}
         {isOverflowing && (
@@ -97,10 +93,6 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
             "scroll-smooth",
             isOverflowing ? "scrollbar-modern" : "overflow-x-hidden",
           )}
-          style={{
-            scrollbarWidth: "thin",
-            msOverflowStyle: "auto",
-          }}
         >
           {sports.map((sport, index) => (
             <Link
@@ -176,22 +168,12 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
         }
 
         .scrollbar-modern {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+          scrollbar-width: none;
+          scrollbar-color: transparent transparent;
         }
 
         .scrollbar-modern::-webkit-scrollbar {
-          height: 10px;
-        }
-
-        .scrollbar-modern::-webkit-scrollbar-track {
-          background: rgba(226, 232, 240, 0.6);
-          border-radius: 9999px;
-        }
-
-        .scrollbar-modern::-webkit-scrollbar-thumb {
-          background: linear-gradient(90deg, rgba(59, 130, 246, 0.7), rgba(14, 165, 233, 0.7));
-          border-radius: 9999px;
+          display: none;
         }
       `}</style>
     </div>
