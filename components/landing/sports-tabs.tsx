@@ -58,19 +58,11 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
   const itemWidth = `calc((100% - ${(getVisibleCount() - 1) * GAP_PX}px) / ${getVisibleCount()})`;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-2">
-          <p className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand dark:bg-brand/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            Pilihan cepat
-          </p>
-          <h2 className="text-2xl font-semibold text-brand dark:text-brand-contrast">
-            Shop by Sport
-          </h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            Pilih olahraga favoritmu dan temukan lapangan terbaik di sekitar.
-          </p>
+    <div className="space-y-5">
+      <div className="flex items-end justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Shop by sport</p>
+          <h2 className="text-3xl font-semibold text-slate-900 dark:text-white">Pilih olahraga favoritmu</h2>
         </div>
         {isOverflowing && (
           <p className="hidden text-sm font-medium text-slate-500 transition-colors duration-200 md:block dark:text-slate-300">
@@ -112,8 +104,6 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
               href={sport.href}
               className={cn(
                 "group relative flex flex-col gap-3 transition-all duration-300",
-                "hover:scale-[1.01]",
-                // Add subtle animation delay for each card
                 `animate-in fade-in slide-in-from-bottom`,
                 `animation-delay-[${index * 50}ms]`,
               )}
@@ -125,23 +115,18 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
                 animationFillMode: "backwards",
               }}
             >
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[28px] bg-slate-100 shadow-[0_14px_34px_rgba(0,0,0,0.14)] transition duration-500 group-hover:shadow-[0_18px_44px_rgba(0,0,0,0.18)] dark:bg-slate-800/60">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl bg-slate-100 transition duration-500 group-hover:-translate-y-1 dark:bg-slate-800/60">
                 <Image
                   src={sport.image}
-                  alt=""
+                  alt={sport.name}
                   fill
                   sizes="(max-width: 768px) 80vw, 20vw"
-                  className="object-cover transition duration-700 group-hover:scale-105"
+                  className="object-cover"
                   priority
                 />
               </div>
-              <div className="space-y-1 px-1 text-center">
-                <p className="text-sm font-semibold text-slate-900 transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
-                  {sport.name}
-                </p>
-                <p className="text-xs text-slate-500 transition-colors duration-300 group-hover:text-slate-700 dark:text-slate-300 dark:group-hover:text-white/80">
-                  Jelajahi {sport.name}
-                </p>
+              <div className="px-1 text-center">
+                <p className="text-base font-semibold text-slate-900 dark:text-white">{sport.name}</p>
               </div>
             </Link>
           ))}
