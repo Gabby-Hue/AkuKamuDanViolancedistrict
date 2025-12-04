@@ -12,10 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { fetchForumThreads } from "@/lib/supabase/queries";
 import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-highlights";
-import {
-  SportsTabs,
-  type SportCategory,
-} from "@/components/landing/sports-tabs";
 import { HeroCarousel } from "@/components/landing/hero-carousel";
 
 export const dynamic = "force-dynamic";
@@ -45,61 +41,12 @@ const partnerBenefits: {
   },
 ];
 
-const sportsCategories: SportCategory[] = [
-  {
-    name: "Basket",
-    href: "/courts/basket",
-    image: "/sports/basket.svg",
-    accent: "rgba(255, 122, 31, 0.2)",
-  },
-  {
-    name: "Voli",
-    href: "/courts/voli",
-    image: "/sports/voli.svg",
-    accent: "rgba(37, 99, 235, 0.2)",
-  },
-  {
-    name: "Futsal",
-    href: "/courts/futsal",
-    image: "/sports/futsal.svg",
-    accent: "rgba(22, 163, 74, 0.2)",
-  },
-  {
-    name: "Padel",
-    href: "/courts/padel",
-    image: "/sports/padel.svg",
-    accent: "rgba(6, 182, 212, 0.18)",
-  },
-  {
-    name: "Badminton",
-    href: "/courts/badminton",
-    image: "/sports/badminton.svg",
-    accent: "rgba(139, 92, 246, 0.2)",
-  },
-  {
-    name: "Tennis",
-    href: "/courts/tennis",
-    image: "/sports/tennis.svg",
-    accent: "rgba(34, 197, 94, 0.18)",
-  },
-  {
-    name: "Sepak bola",
-    href: "/courts/sepak-bola",
-    image: "/sports/sepak-bola.svg",
-    accent: "rgba(14, 165, 233, 0.2)",
-  },
-];
-
 export default async function Home() {
   const threads = await fetchForumThreads();
 
   return (
     <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24">
       <HeroCarousel />
-
-      <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
-        <SportsTabs sports={sportsCategories} />
-      </section>
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
