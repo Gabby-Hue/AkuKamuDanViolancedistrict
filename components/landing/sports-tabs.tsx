@@ -61,8 +61,8 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
     <div className="space-y-5">
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Shop by sport</p>
-          <h2 className="text-3xl font-semibold text-slate-900 dark:text-white">Pilih olahraga favoritmu</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#0B0B0B]">Book by sports</p>
+          <h2 className="text-3xl font-semibold text-[#0B0B0B]">Pilih olahraga favoritmu</h2>
         </div>
         {isOverflowing && (
           <p className="hidden text-sm font-medium text-slate-500 transition-colors duration-200 md:block dark:text-slate-300">
@@ -70,6 +70,10 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           </p>
         )}
       </div>
+
+      <p className="text-sm font-medium text-[#0B0B0B]">
+        Basket · Futsal · Voli · Badminton · Tennis · Padel · Sepakbola
+      </p>
 
       <div className="relative">
         {/* Mobile scroll hint */}
