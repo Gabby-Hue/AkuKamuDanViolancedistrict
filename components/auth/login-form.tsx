@@ -154,7 +154,7 @@ export function LoginForm({
           <Field>
             <Button
               type="submit"
-              className="bg-orange-500 dark:bg-orange-500 hover:bg-orange-600 dark:hover:bg-orange-600 dark:text-white"
+              className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 dark:text-white"
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Login"}

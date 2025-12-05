@@ -100,12 +100,12 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
-          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-orange-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-orange-500/40 dark:bg-orange-900/40 dark:shadow-[0_20px_80px_-24px_rgba(249,115,22,0.45)]">
-            <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-orange-200/50 blur-3xl dark:bg-orange-500/20" />
-            <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-orange-200/60 blur-3xl dark:bg-orange-400/20" />
+          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-orange-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:bg-teal-900/40 dark:shadow-[0_20px_80px_-24px_rgba(249,115,22,0.45)]">
+            <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-orange-200/50 blur-3xl dark:bg-teal-500/20" />
+            <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-orange-200/60 blur-3xl dark:bg-teal-400/20" />
             <div className="relative space-y-6">
               <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
-                <Badge className="rounded-full bg-white/80 px-3 py-1 text-orange-600 shadow-sm ring-1 ring-orange-100/80 dark:bg-slate-900/70 dark:text-orange-200 dark:ring-orange-500/40">
+                <Badge className="rounded-full bg-white/80 px-3 py-1 text-orange-600 shadow-sm ring-1 ring-orange-100/80 dark:bg-slate-900/70 dark:text-teal-200 dark:ring-teal-500/40">
                   Venue partner
                 </Badge>
                 <span className="rounded-full bg-orange-500 px-4 py-1 text-xs uppercase tracking-[0.28em] text-white shadow-md">
@@ -114,7 +114,7 @@ export default async function Home() {
               </div>
 
               <div className="grid gap-3 text-slate-900 dark:text-white">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-200">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-teal-200">
                   Operasional mulus untuk operator
                 </p>
                 <h2 className="text-3xl font-bold leading-tight text-slate-900 dark:text-white">
@@ -128,11 +128,11 @@ export default async function Home() {
                   return (
                     <Card
                       key={benefit.label}
-                      className="group relative overflow-hidden rounded-2xl border border-orange-100/80 bg-white/80 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-orange-500/40 dark:bg-slate-900/70"
+                      className="group relative overflow-hidden rounded-2xl border border-orange-100/80 bg-white/80 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-teal-500/40 dark:bg-slate-900/70"
                     >
                       <div className="absolute inset-0 bg-orange-50 opacity-0 transition duration-200 group-hover:opacity-100 dark:bg-slate-900/60" />
                       <CardHeader className="relative flex flex-row items-start gap-4 p-0">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-200/70 ring-2 ring-white/70 dark:bg-orange-500 dark:shadow-orange-900/40 dark:ring-slate-900">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white shadow-lg shadow-orange-200/70 ring-2 ring-white/70 dark:bg-teal-500 dark:shadow-teal-900/40 dark:ring-slate-900">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="space-y-1">
@@ -152,7 +152,7 @@ export default async function Home() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="gap-2 rounded-full bg-orange-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl dark:bg-orange-500"
+                  className="gap-2 rounded-full bg-orange-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl dark:bg-teal-500"
                 >
                   <Link href="/venue-partner">
                     Jadwalkan onboarding
@@ -162,7 +162,7 @@ export default async function Home() {
                 <Button
                   variant="outline"
                   asChild
-                  className="rounded-full border-orange-200/80 bg-white/70 text-orange-700 transition hover:border-orange-300 hover:text-orange-800 dark:border-orange-500/40 dark:bg-slate-900/70 dark:text-orange-100 dark:hover:border-orange-400"
+                  className="rounded-full border-orange-200/80 bg-white/70 text-orange-700 transition hover:border-orange-300 hover:text-orange-800 dark:border-teal-500/40 dark:bg-slate-900/70 dark:text-teal-100 dark:hover:border-teal-400"
                 >
                   <Link href="/dashboard/venue">Lihat dashboard venue</Link>
                 </Button>
