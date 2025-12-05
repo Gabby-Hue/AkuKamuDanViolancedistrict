@@ -58,11 +58,11 @@ export default async function VenuesPage({
             <li>• Booking 3 jam sekaligus untuk memicu promo venue partner.</li>
             <li>• Kirim review setelah main agar rating selalu terkini.</li>
           </ul>
-          <div className="rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-white to-brand-soft/30 p-5 text-sm shadow-sm shadow-brand/10 dark:border-brand/40 dark:from-brand/20 dark:via-slate-900 dark:to-brand-soft/30">
-            <p className="font-semibold text-slate-900 dark:text-white">
+          <div className="rounded-2xl bg-orange-500 p-5 text-sm text-white shadow-sm shadow-orange-300/50 dark:bg-teal-600 dark:shadow-teal-500/30">
+            <p className="font-semibold">
               Punya venue sendiri?
             </p>
-            <p className="mt-1 text-slate-600 dark:text-slate-300">
+            <p className="mt-1 text-orange-50 dark:text-teal-50">
               Ajukan akun venue partner dan nikmati automasi laporan, eksposur
               Explore, serta integrasi pembayaran yang sudah siap pakai.
             </p>
