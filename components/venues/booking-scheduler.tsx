@@ -25,13 +25,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { MidtransBookingButton } from "@/components/venues/midtrans-booking-button";
-
 type BookingSchedulerProps = {
   courtId: string;
-  isConfigured: boolean;
-  midtransClientKey: string | null;
-  snapScriptUrl: string;
   isBookingAllowed: boolean;
   disallowedMessage?: string | null;
 };
@@ -109,9 +104,6 @@ function formatDateTimeRange(start: Date, end: Date) {
 
 export function BookingScheduler({
   courtId,
-  isConfigured,
-  midtransClientKey,
-  snapScriptUrl,
   isBookingAllowed,
   disallowedMessage,
 }: BookingSchedulerProps) {
@@ -303,6 +295,30 @@ export function BookingScheduler({
     );
   }
 
+  const handleBookingRequest = useCallback(() => {
+    if (!isBookingAllowed) {
+      toast.info("Akses booking dibatasi", {
+        description:
+          disallowedMessage ??
+          "Akun kamu tidak memiliki akses untuk melakukan booking dari halaman ini.",
+      });
+      return;
+    }
+
+    if (!selectedSlot) {
+      toast.info("Atur jadwal booking", {
+        description:
+          "Pilih tanggal, jam mulai, dan durasi sebelum mengirim permintaan booking.",
+      });
+      return;
+    }
+
+    toast.success("Jadwal tersimpan", {
+      description:
+        "Hubungi pengelola venue untuk menyelesaikan pembayaran dan konfirmasi akhir.",
+    });
+  }, [disallowedMessage, isBookingAllowed, selectedSlot]);
+
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
@@ -439,20 +455,18 @@ export function BookingScheduler({
 
         {/* Booking Button Section */}
         <div className="space-y-4 pt-4 border-t">
-          <MidtransBookingButton
-            courtId={courtId}
-            isConfigured={isConfigured}
-            midtransClientKey={midtransClientKey}
-            snapScriptUrl={snapScriptUrl}
-            isBookingAllowed={isBookingAllowed}
-            disallowedMessage={disallowedMessage}
-            selectedSlot={selectedSlot}
-            notes={notes}
-          />
+          <Button
+            type="button"
+            onClick={handleBookingRequest}
+            className="inline-flex w-full items-center justify-center rounded-full bg-brand px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-brand disabled:cursor-not-allowed disabled:opacity-70"
+            disabled={!selectedSlot || !isBookingAllowed}
+          >
+            {isBookingAllowed ? "Konfirmasi Jadwal" : "Booking tidak tersedia"}
+          </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Jadwal dan pembayaran kamu akan tersimpan otomatis di dashboard
-            CourtEase.
+            Booking online Midtrans dinonaktifkan. Silakan gunakan jadwal ini
+            untuk berkoordinasi langsung dengan venue.
           </p>
         </div>
       </CardContent>
