@@ -95,6 +95,10 @@
     --brand-strong: 175 82% 48%;
     --brand-soft: 174 55% 26%;
     --brand-muted: 174 58% 76%;
+    --brand: 24 78% 62%;
+    --brand-strong: 22 82% 58%;
+    --brand-soft: 24 52% 28%;
+    --brand-muted: 24 70% 72%;
     --brand-contrast: 0 0% 100%;
     --background: hsl(210 35% 7%);
     --foreground: hsl(200 30% 92%);
