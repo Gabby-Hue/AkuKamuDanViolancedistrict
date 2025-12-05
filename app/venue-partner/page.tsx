@@ -357,25 +357,32 @@ export default function VenuePartnerPage() {
 
             {/* Card Visual di Sisi Kanan */}
             <div className="hidden lg:block">
-              <div className="rounded-3xl border border-white/20 bg-white/10 p-8 backdrop-blur-md">
-                <h2 className="text-2xl font-semibold mb-6">
+              <div className="rounded-3xl border-2 border-orange-400 bg-white p-8 shadow-xl transition-colors dark:border-teal-500 dark:bg-gray-900">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
                   Mengapa Memilih CourtEase?
                 </h2>
                 <ul className="space-y-4">
                   {benefits.slice(0, 3).map((benefit, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-white/20">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600 dark:bg-teal-900/40 dark:text-teal-300">
                         {benefit.icon}
                       </div>
                       <div>
-                        <p className="font-semibold">{benefit.title}</p>
-                        <p className="text-sm text-white/80">
+                        <p className="font-semibold text-gray-900 dark:text-white">{benefit.title}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                           {benefit.description}
                         </p>
                       </div>
                     </li>
                   ))}
                 </ul>
+                <Link
+                  href="#apply-form"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl border-2 border-orange-500 bg-white px-4 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-50 dark:border-teal-400 dark:bg-gray-900 dark:text-teal-200 dark:hover:bg-gray-800"
+                >
+                  Mulai Daftar Sekarang
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </div>
             </div>
           </div>
@@ -468,7 +475,7 @@ export default function VenuePartnerPage() {
       </section>
 
       {/* Application Form Section */}
-      <section className="py-20">
+      <section id="apply-form" className="py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl dark:border-gray-700 dark:bg-gray-800 sm:p-12">
             <div className="text-center">
