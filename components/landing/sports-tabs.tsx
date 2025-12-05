@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export type SportCategory = {
   name: string;
-  href: string;
+  sport: string;
   image: string;
   accent: string;
 };
@@ -97,7 +97,10 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           {sports.map((sport, index) => (
             <Link
               key={sport.name}
-              href={sport.href}
+              href={{
+                pathname: "/explore",
+                query: { sport: sport.sport },
+              }}
               className={cn(
                 "group relative flex flex-col gap-3 transition-all duration-300",
                 `animate-in fade-in slide-in-from-bottom`,
