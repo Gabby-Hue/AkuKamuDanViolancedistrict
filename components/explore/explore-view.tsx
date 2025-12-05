@@ -45,17 +45,17 @@ export function ExploreView({
   threads,
   totalReplies,
 }: ExploreViewProps) {
-  const [sportFilter, setSportFilter] = useState<string>("all");
   const [priceFilter, setPriceFilter] = useState<string>("all");
   const [ratingFilter, setRatingFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeSport, setActiveSport] = useState<string>("all");
 
   const sports = useMemo(() => {
     const unique = new Set<string>();
     courts.forEach((court) => {
       unique.add(court.sport);
     });
-    return ["all", ...Array.from(unique)];
+    return Array.from(unique);
   }, [courts]);
 
   const filteredCourts = useMemo(() => {
@@ -66,13 +66,32 @@ export function ExploreView({
       ratingOptions.find((option) => option.id === ratingFilter)?.value ?? 0;
 
     return courts
-      .filter((court) =>
-        sportFilter === "all" ? true : court.sport === sportFilter,
-      )
       .filter((court) => (pricePredicate ? pricePredicate(court) : true))
       .filter((court) => court.averageRating >= minRating)
       .sort((a, b) => b.averageRating - a.averageRating);
-  }, [courts, sportFilter, priceFilter, ratingFilter]);
+  }, [courts, priceFilter, ratingFilter]);
+
+  const sportSections = useMemo(
+    () =>
+      sports.map((sport) => ({
+        sport,
+        courts: filteredCourts.filter((court) => court.sport === sport),
+      })),
+    [filteredCourts, sports],
+  );
+
+  const handleSportSelect = (sport: string) => {
+    setActiveSport(sport);
+
+    if (sport === "all") return;
+
+    const sectionId = `sport-${sport.toLowerCase().replace(/\s+/g, "-")}`;
+    const section = document.getElementById(sectionId);
+
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
     <div className="mx-auto max-w-6xl space-y-12 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
@@ -145,16 +164,42 @@ export function ExploreView({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <FilterGroup
-              label="Olahraga"
-              options={sports.map((sport) => ({
-                id: sport,
-                label: sport === "all" ? "Semua" : sport,
-              }))}
-              value={sportFilter}
-              onChange={setSportFilter}
-            />
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+              Jalur olahraga
+            </p>
+            <div className="flex flex-wrap gap-2 rounded-2xl border border-brand-soft/60 bg-white/70 p-2 shadow-inner dark:border-brand-soft/30 dark:bg-slate-900/70">
+              <button
+                type="button"
+                onClick={() => handleSportSelect("all")}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-semibold transition",
+                  activeSport === "all"
+                    ? "bg-brand text-white shadow"
+                    : "text-brand hover:text-brand-strong",
+                )}
+              >
+                Semua
+              </button>
+              {sports.map((sport) => (
+                <button
+                  key={sport}
+                  type="button"
+                  onClick={() => handleSportSelect(sport)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-semibold transition",
+                    activeSport === sport
+                      ? "border-brand bg-brand/10 text-brand dark:border-brand"
+                      : "border-brand-soft/60 text-slate-500 hover:border-brand hover:text-brand dark:border-brand-soft/30 dark:text-slate-400",
+                  )}
+                >
+                  {sport}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
             <FilterGroup
               label="Budget per jam"
               options={priceOptions.map((option) => ({
@@ -187,15 +232,53 @@ export function ExploreView({
           viewMode === "list" ? "lg:grid-cols-1" : "",
         )}
       >
-        <div
-          className={cn(
-            "grid gap-5",
-            viewMode === "grid" ? "md:grid-cols-2" : "md:grid-cols-1",
-          )}
-        >
-          {filteredCourts.map((court) => (
-            <CourtCard key={court.id} court={court} viewMode={viewMode} />
+        <div className="space-y-6">
+          {(activeSport === "all"
+            ? sportSections
+            : sportSections.filter((section) => section.sport === activeSport)
+          ).map((section) => (
+            <div
+              key={section.sport}
+              id={`sport-${section.sport.toLowerCase().replace(/\s+/g, "-")}`}
+              className="scroll-mt-32 space-y-4 rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/60"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-muted">
+                    Olahraga
+                  </p>
+                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                    {section.sport}
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {section.courts.length} lapangan tersedia untuk {section.sport}.
+                  </p>
+                </div>
+                <span className="rounded-full border border-brand-soft/60 bg-brand/10 px-3 py-1 text-xs font-semibold text-brand dark:border-brand-soft/30 dark:bg-brand/20 dark:text-brand-contrast">
+                  Jalur khusus {section.sport}
+                </span>
+              </div>
+
+              <div
+                className={cn(
+                  "grid gap-5",
+                  viewMode === "grid" ? "md:grid-cols-2" : "md:grid-cols-1",
+                )}
+              >
+                {section.courts.map((court) => (
+                  <CourtCard key={court.id} court={court} viewMode={viewMode} />
+                ))}
+              </div>
+
+              {!section.courts.length && (
+                <div className="rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-6 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
+                  Belum ada lapangan yang cocok untuk {section.sport} dengan filter saat ini.
+                  Sesuaikan budget atau rating untuk melihat opsi lainnya.
+                </div>
+              )}
+            </div>
           ))}
+
           {!filteredCourts.length && (
             <div className="rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-8 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
               Kombinasi filter saat ini belum menemukan lapangan yang cocok.
