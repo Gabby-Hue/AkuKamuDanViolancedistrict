@@ -93,7 +93,7 @@ export function HeroCarousel() {
   const displaySlides = [...slides, slides[0]];
 
   return (
-    <section className="relative isolate min-h-screen overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-brand-contrast">
+    <section className="relative isolate min-h-screen overflow-hidden rounded-none bg-gradient-to-b from-brand-soft via-brand-soft/80 to-brand-strong text-white">
       <div className="absolute inset-0 bg-brand-strong overflow-hidden">
         <div
           className="flex h-full transition-transform duration-700 ease-in-out"
@@ -125,35 +125,35 @@ export function HeroCarousel() {
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 pb-16 pt-28 sm:px-6 lg:px-8 lg:pb-24 lg:pt-36">
         <div className="space-y-6 lg:max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-brand-contrast">
+          <p className="inline-flex items-center gap-2 rounded-full bg-brand/25 px-4 py-1 text-sm font-semibold text-white">
             <span className="h-2 w-2 rounded-full bg-brand" />
             {activeSlide.kicker}
           </p>
           <h1 className="text-4xl font-black leading-tight sm:text-5xl">
             {activeSlide.title}
           </h1>
-          <p className="max-w-2xl text-lg text-brand-contrast/80">
+          <p className="max-w-2xl text-lg text-white/90">
             {activeSlide.description}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button
               asChild
               variant="secondary"
-              className="bg-brand text-brand-contrast shadow-lg shadow-brand/30 transition hover:bg-brand-strong hover:shadow-brand/40"
+              className="bg-brand text-white shadow-lg shadow-brand/30 transition hover:bg-brand-strong hover:shadow-brand/40"
             >
               <Link href="/explore">Mulai jelajahi</Link>
             </Button>
             <Button
               asChild
               variant="outline"
-              className="border-brand/60 text-brand-contrast hover:bg-brand/20 hover:text-brand-contrast"
+              className="border-brand/60 text-white hover:bg-brand/20 hover:text-white"
             >
               <Link href="/venue-partner">Daftar sebagai venue partner</Link>
             </Button>
           </div>
         </div>
 
-        <div className="flex justify-start text-xs text-brand-contrast/80">
+        <div className="flex justify-start text-xs text-white/80">
           <SlideIndicators
             activeIndex={activeIndex % slides.length}
             onSelect={(index) => {
