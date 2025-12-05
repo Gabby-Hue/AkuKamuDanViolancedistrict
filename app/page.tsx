@@ -91,7 +91,7 @@ export default async function Home() {
   const threads = await fetchForumThreads();
 
   return (
-    <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24">
+    <main className="space-y-20 bg-gradient-to-b from-white via-slate-50 to-white pb-24 dark:from-slate-900 dark:via-slate-950 dark:to-slate-950">
       <HeroCarousel />
 
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
