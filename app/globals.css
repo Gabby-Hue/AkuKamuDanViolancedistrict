@@ -50,11 +50,11 @@
 
 :root {
     --radius: 0.625rem;
-    /* Orange & teal palette */
-    --brand: 174 66% 42%;
-    --brand-strong: 22 95% 55%;
-    --brand-soft: 174 70% 92%;
-    --brand-muted: 174 42% 38%;
+    /* Orange-forward palette for light mode */
+    --brand: 24 92% 55%;
+    --brand-strong: 22 96% 52%;
+    --brand-soft: 24 90% 92%;
+    --brand-muted: 24 58% 40%;
     --brand-contrast: 0 0% 100%;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -86,14 +86,14 @@
     --sidebar-accent: hsl(240 4.8% 95.9%);
     --sidebar-accent-foreground: hsl(240 5.9% 10%);
     --sidebar-border: hsl(220 13% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
+    --sidebar-ring: hsl(var(--brand-strong));
 }
 
 .dark {
-    --brand: 174 70% 50%;
-    --brand-strong: 22 90% 56%;
-    --brand-soft: 174 45% 26%;
-    --brand-muted: 174 55% 70%;
+    --brand: 24 78% 62%;
+    --brand-strong: 22 82% 58%;
+    --brand-soft: 24 52% 28%;
+    --brand-muted: 24 70% 72%;
     --brand-contrast: 0 0% 100%;
     --background: hsl(210 35% 7%);
     --foreground: hsl(200 30% 92%);
@@ -125,7 +125,7 @@
     --sidebar-accent: hsl(210 22% 16%);
     --sidebar-accent-foreground: hsl(210 25% 94%);
     --sidebar-border: hsl(210 22% 16%);
-    --sidebar-ring: hsl(174 70% 50%);
+    --sidebar-ring: hsl(var(--brand-strong));
 }
 
 @layer base {
