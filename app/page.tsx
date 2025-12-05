@@ -100,53 +100,73 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
-          <div className="space-y-4 rounded-4xl border border-brand/30 bg-gradient-to-br from-brand/10 via-white to-brand-soft/30 p-8 shadow-xl shadow-brand/15 dark:border-brand/35 dark:from-brand/20 dark:via-slate-900 dark:to-brand-soft/25">
-            <div className="flex items-center gap-3">
-              <Badge className="bg-white/70 text-brand shadow-sm dark:bg-slate-900/70">Venue partner</Badge>
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-muted">Midtrans ready</span>
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Operasional mulus untuk operator</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                Dashboard baru menghadirkan automasi laporan, broadcast tim, dan eksposur komunitas. Onboarding dibantu tim Courtease.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {partnerBenefits.map((benefit) => {
-                const Icon = benefit.icon;
-                return (
-                  <Card
-                    key={benefit.label}
-                    className="group relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-orange-100/70 text-left shadow-sm shadow-orange-100/60 transition hover:-translate-y-1 hover:shadow-lg dark:border-teal-400/40 dark:from-teal-900/40 dark:via-slate-900 dark:to-teal-800/40 dark:shadow-teal-900/40"
-                  >
-                    <div className="absolute inset-0 bg-orange-100/30 opacity-0 transition duration-200 group-hover:opacity-100 group-hover:mix-blend-overlay dark:bg-teal-500/15 dark:group-hover:mix-blend-screen" />
-                    <CardHeader className="flex flex-row items-start gap-4 pb-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 text-orange-700 ring-1 ring-orange-200/60 shadow-sm dark:bg-teal-900/70 dark:text-teal-200 dark:ring-teal-500/40">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                          {benefit.label}
-                        </CardTitle>
-                        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200/90">
-                          {benefit.detail}
-                        </p>
-                      </div>
-                    </CardHeader>
-                  </Card>
-                );
-              })}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild className="gap-2">
-                <Link href="/venue-partner">
-                  Jadwalkan onboarding
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/venue">Lihat dashboard venue</Link>
-              </Button>
+          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-gradient-to-br from-orange-50 via-white to-teal-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:from-teal-900/50 dark:via-slate-950 dark:to-teal-800/60 dark:shadow-[0_20px_80px_-24px_rgba(20,184,166,0.45)]">
+            <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-orange-200/50 blur-3xl dark:bg-teal-500/20" />
+            <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-teal-200/60 blur-3xl dark:bg-orange-400/20" />
+            <div className="relative space-y-6">
+              <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
+                <Badge className="rounded-full bg-white/80 px-3 py-1 text-orange-600 shadow-sm ring-1 ring-orange-100/80 dark:bg-slate-900/70 dark:text-teal-200 dark:ring-teal-500/40">
+                  Venue partner
+                </Badge>
+                <span className="rounded-full bg-gradient-to-r from-orange-500 to-teal-500 px-4 py-1 text-xs uppercase tracking-[0.28em] text-white shadow-md">
+                  Midtrans ready
+                </span>
+              </div>
+
+              <div className="grid gap-3 text-slate-900 dark:text-white">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-teal-200">
+                  Operasional mulus untuk operator
+                </p>
+                <h2 className="text-3xl font-bold leading-tight text-slate-900 dark:text-white">
+                  Dashboard baru menghadirkan automasi laporan, broadcast tim, dan eksposur komunitas. Onboarding dibantu tim Courtease.
+                </h2>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {partnerBenefits.map((benefit) => {
+                  const Icon = benefit.icon;
+                  return (
+                    <Card
+                      key={benefit.label}
+                      className="group relative overflow-hidden rounded-2xl border border-orange-100/80 bg-white/80 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-teal-500/40 dark:bg-slate-900/70"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-white/20 to-teal-100/70 opacity-0 transition duration-200 group-hover:opacity-100 dark:from-teal-500/25 dark:via-slate-900/60 dark:to-orange-400/25" />
+                      <CardHeader className="relative flex flex-row items-start gap-4 p-0">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-teal-500 text-white shadow-lg shadow-orange-200/70 ring-2 ring-white/70 dark:shadow-teal-900/40 dark:ring-slate-900">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                            {benefit.label}
+                          </CardTitle>
+                          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-200/90">
+                            {benefit.detail}
+                          </p>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  asChild
+                  className="gap-2 rounded-full bg-gradient-to-r from-orange-500 to-teal-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl"
+                >
+                  <Link href="/venue-partner">
+                    Jadwalkan onboarding
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  asChild
+                  className="rounded-full border-orange-200/80 bg-white/70 text-orange-700 transition hover:border-orange-300 hover:text-orange-800 dark:border-teal-500/40 dark:bg-slate-900/70 dark:text-teal-100 dark:hover:border-teal-400"
+                >
+                  <Link href="/dashboard/venue">Lihat dashboard venue</Link>
+                </Button>
+              </div>
             </div>
           </div>
           <Card className="border-brand/30 bg-white/95 shadow-xl shadow-brand/10 dark:border-brand/40 dark:bg-slate-900/80">
