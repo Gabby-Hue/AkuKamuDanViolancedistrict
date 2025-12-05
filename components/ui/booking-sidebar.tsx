@@ -6,9 +6,6 @@ import { Calendar, CreditCard, Shield, Users } from "lucide-react";
 
 interface BookingSidebarProps {
   courtId: string;
-  isConfigured: boolean;
-  midtransClientKey: string | null;
-  snapScriptUrl: string;
   isBookingAllowed: boolean;
   disallowedMessage?: string | null;
   className?: string;
@@ -16,9 +13,6 @@ interface BookingSidebarProps {
 
 export function BookingSidebar({
   courtId,
-  isConfigured,
-  midtransClientKey,
-  snapScriptUrl,
   isBookingAllowed,
   disallowedMessage,
   className,
@@ -69,9 +63,6 @@ export function BookingSidebar({
       {/* Booking Scheduler */}
       <BookingScheduler
         courtId={courtId}
-        isConfigured={isConfigured}
-        midtransClientKey={midtransClientKey}
-        snapScriptUrl={snapScriptUrl}
         isBookingAllowed={isBookingAllowed}
         disallowedMessage={disallowedMessage}
       />

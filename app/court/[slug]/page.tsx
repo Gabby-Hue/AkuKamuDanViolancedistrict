@@ -22,14 +22,6 @@ export default async function CourtDetailPage({
     notFound();
   }
 
-  const midtransClientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY ?? null;
-  const midtransScriptUrl =
-    process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL ??
-    "https://app.sandbox.midtrans.com/snap/snap.js";
-  const midtransConfigured = Boolean(
-    midtransClientKey && process.env.MIDTRANS_SERVER_KEY,
-  );
-
   const isBookingAllowed = !profile || profile.role === "user";
   const bookingRestrictionMessage = profile
     ? profile.role === "admin"
@@ -171,9 +163,6 @@ export default async function CourtDetailPage({
           <div className="lg:sticky lg:top-8">
             <BookingSidebar
               courtId={court.id}
-              isConfigured={midtransConfigured}
-              midtransClientKey={midtransClientKey}
-              snapScriptUrl={midtransScriptUrl}
               isBookingAllowed={isBookingAllowed}
               disallowedMessage={bookingRestrictionMessage}
             />
