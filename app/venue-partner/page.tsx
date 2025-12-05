@@ -29,7 +29,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-orange-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-teal-600 dark:hover:bg-teal-700"
+      className="flex w-full items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-orange-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-orange-600 dark:hover:bg-orange-700"
     >
       {pending ? (
         <>
@@ -253,7 +253,7 @@ function PartnerApplicationForm() {
           Saya menyetujui{" "}
           <Link
             href="/terms"
-            className="font-medium text-orange-600 hover:text-orange-500 dark:text-teal-400 dark:hover:text-teal-300"
+            className="font-medium text-orange-600 hover:text-orange-500 dark:text-orange-300 dark:hover:text-orange-200"
           >
             syarat dan ketentuan
           </Link>{" "}
@@ -318,7 +318,7 @@ export default function VenuePartnerPage() {
   return (
     <main className="top-0min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section - Didesain Ulang Total */}
-      <section className="relative overflow-hidden bg-orange-500 text-white dark:bg-teal-700">
+      <section className="relative overflow-hidden bg-orange-500 text-white dark:bg-orange-700">
         {/* Dekorasi Abstrak */}
         <div className="absolute inset-0 bg-brand-soft/20">
           <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
@@ -357,14 +357,14 @@ export default function VenuePartnerPage() {
 
             {/* Card Visual di Sisi Kanan */}
             <div className="hidden lg:block">
-              <div className="rounded-3xl border-2 border-orange-400 bg-white p-8 shadow-xl transition-colors dark:border-teal-500 dark:bg-gray-900">
+              <div className="rounded-3xl border-2 border-orange-400 bg-white p-8 shadow-xl transition-colors dark:border-orange-500 dark:bg-gray-900">
                 <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
                   Mengapa Memilih CourtEase?
                 </h2>
                 <ul className="space-y-4">
                   {benefits.slice(0, 3).map((benefit, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600 dark:bg-teal-900/40 dark:text-teal-300">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300">
                         {benefit.icon}
                       </div>
                       <div>
@@ -378,7 +378,7 @@ export default function VenuePartnerPage() {
                 </ul>
                 <Link
                   href="#apply-form"
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl border-2 border-orange-500 bg-white px-4 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-50 dark:border-teal-400 dark:bg-gray-900 dark:text-teal-200 dark:hover:bg-gray-800"
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl border-2 border-orange-500 bg-white px-4 py-3 font-semibold text-orange-600 transition-colors hover:bg-orange-50 dark:border-orange-400 dark:bg-gray-900 dark:text-orange-200 dark:hover:bg-gray-800"
                 >
                   Mulai Daftar Sekarang
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -423,7 +423,7 @@ export default function VenuePartnerPage() {
                 key={index}
                 className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500 text-white shadow-md transition-shadow group-hover:shadow-lg dark:bg-teal-600">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500 text-white shadow-md transition-shadow group-hover:shadow-lg dark:bg-orange-600">
                   {benefit.icon}
                 </div>
                 <h3 className="mt-5 text-xl font-semibold text-gray-900 dark:text-white">
@@ -454,7 +454,7 @@ export default function VenuePartnerPage() {
           <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
             {milestones.map((milestone, index) => (
               <div key={index} className="relative text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-500 text-2xl font-bold text-white shadow-lg dark:bg-teal-600">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-500 text-2xl font-bold text-white shadow-lg dark:bg-orange-600">
                   {index + 1}
                 </div>
                 <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
@@ -496,7 +496,7 @@ export default function VenuePartnerPage() {
               Sudah menjadi mitra?{" "}
               <Link
                 href="/auth/login"
-                className="font-semibold text-orange-600 hover:text-orange-500 dark:text-teal-400 dark:hover:text-teal-300"
+                className="font-semibold text-orange-600 hover:text-orange-500 dark:text-orange-300 dark:hover:text-orange-200"
               >
                 Masuk ke Dashboard Partner
               </Link>
