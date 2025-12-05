@@ -356,6 +356,7 @@ export function ExploreView({
       </section>
 
       <section
+        id="semua-lapangan"
         ref={listRef}
         className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]"
       >
