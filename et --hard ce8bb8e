@@ -1,0 +1,110 @@
+[33m80ebd5f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m sports tab format
+[33m9d372b6[m[33m ([m[1;31morigin/codex/remove-black-line-under-sports-tabs[m[33m)[m Update sports tabs styling
+[33mce8bb8e[m remove card sports tab
+[33m3abbe27[m[33m ([m[1;31morigin/codex/remove-card-and-simplify-layout[m[33m)[m Simplify sports selection layout
+[33ma818640[m scrolll button
+[33mb026e55[m[33m ([m[1;31morigin/codex/ganti-button-menjadi-scroll[m[33m)[m Add scrollable track indicator for sports tabs
+[33m2b5a957[m sports tab
+[33m521f17a[m[33m ([m[1;31morigin/codex/merombak-sports-tab-ke-persegin-panjang[m[33m)[m Restyle sports tabs like Nike carousel
+[33m4a54aef[m looping image
+[33m8f979a2[m[33m ([m[1;31morigin/codex/update-image-slider-for-looping-animation[m[33m)[m Fix hero carousel loop progression
+[33mdbc1f2c[m bug image
+[33m6277a5d[m[33m ([m[1;31morigin/codex/perbaiki-bug-gambar-berganti[m[33m)[m Fix hero carousel reset timing
+[33m76df59c[m slider sequance
+[33m466cd5b[m[33m ([m[1;31morigin/codex/update-image-slider-sequence[m[33m)[m Adjust hero carousel looping
+[33m16cc798[m animation hero
+[33m06cb6eb[m[33m ([m[1;31morigin/codex/add-slide-transition-animation-to-carousel[m[33m)[m Add sliding transition to hero carousel
+[33m073663e[m image new
+[33m84b02da[m dark overlayy
+[33m5dedc51[m[33m ([m[1;31morigin/codex/add-70%-dark-overlay-to-carousel-slider[m[33m)[m Darken hero carousel overlay
+[33mc73a43f[m mood image
+[33m9e27a13[m[33m ([m[1;31morigin/codex/update-image-slider-opacity-and-mood[m[33m)[m Adjust hero carousel overlay mood
+[33m78faae3[m Navbar transparan
+[33m85f6767[m[33m ([m[1;31morigin/codex/buat-landing-page-full-screen-dan-navbar-transparan[m[33m)[m Make landing hero full height and adjust navbar transparency
+[33m58e8c1c[m update landing images
+[33m438613b[m remove field component
+[33mff4d5bb[m[33m ([m[1;31morigin/codex/remove-nearby-field-components[m[33m)[m Simplify landing page hero
+[33m995d7de[m Clean landing page
+[33mad36c12[m[33m ([m[1;31morigin/codex/remove-leafej.js-and-its-map[m[33m)[m Remove Leaflet map UI and clean carousel copy
+[33m3ca222d[m Merge pull request #11 from Gabby-Hue/codex/kembalikan-slider-gambar-hero-carousel
+[33m9ed4dc3[m[33m ([m[1;31morigin/codex/kembalikan-slider-gambar-hero-carousel[m[33m)[m Restore hero carousel on homepage
+[33mb298bef[m remove action page
+[33m39350cf[m[33m ([m[1;31morigin/codex/remove-this-section[m[33m)[m Remove landing hero hero section
+[33m8c4c0ae[m typescript test
+[33mb510f59[m[33m ([m[1;31morigin/codex/fix-typescript-build-error-in-search-bar.tsx[m[33m)[m Fix typing for search result categorization
+[33m072ba9b[m update navbar
+[33m4a54beb[m[33m ([m[1;31morigin/codex/remove-components-and-update-navbar[m[33m)[m Update landing hero and navbar search
+[33mcb36aca[m dynamic server fix #2
+[33md2983ac[m[33m ([m[1;31morigin/codex/fix-next.js-dynamic-server-usage-error[m[33m)[m Mark Supabase pages as dynamic
+[33m91c9a9f[m dynamic routing
+[33m01b1b3f[m[33m ([m[1;31morigin/codex/fix-dynamic-routing-for-next.js[m[33m)[m Make dashboard routes dynamic
+[33m86c4991[m tsx fix
+[33mc2936a8[m[33m ([m[1;31morigin/codex/change-all-ts-files-to-tsx[m[33m)[m Wrap login page in suspense boundary
+[33mf0099d3[m recreate navbar
+[33m864de88[m[33m ([m[1;31morigin/codex/recreate-navbar-with-hover-effects[m[33m)[m Revamp navbar with orange and teal styling
+[33m6e6cd63[m Revamp ui
+[33ma72f5ad[m[33m ([m[1;31morigin/codex/remake-landing-page-and-explore-tab-ui[m[33m)[m Revamp landing, explore, and venue experiences
+[33mc753036[m resize-and-adjust-image-opacity
+[33m1462338[m[33m ([m[1;31morigin/codex/resize-and-adjust-image-opacity-qi6eet[m[33m)[m Merge branch 'main' into codex/resize-and-adjust-image-opacity-qi6eet
+[33m0c84998[m Update hero carousel sizing
+[33mc488452[m Resize-and-adjust-image-opacity
+[33mfd3c099[m[33m ([m[1;31morigin/codex/resize-and-adjust-image-opacity[m[33m)[m Adjust hero carousel image sizing
+[33m34750b1[m update
+[33m49ea5aa[m first push
+[33mca26a2c[m Lemans
+[33m7351575[m Refresh brand colors to orange and teal
+[33m20e5213[m Recolour remaining component
+[33m8beb4a9[m Merge branch 'main' into codex/update-landing-page-color-scheme-755izv
+[33mad15d09[m Apply brand palette globally
+[33ma20ba25[m Recolour test
+[33mb078a1f[m Refine landing brand colors
+[33m3207a99[m perfect booking workflow
+[33m45fb9ab[m fix TypeError
+[33m3e1fc75[m todo: fix dashboard venue backend
+[33mf7d6f5b[m merge for push
+[33m8f2d00a[m fix dashboard user booking button, and dashboard venue item.id
+[33m3432db5[m hero carousel
+[33m0941100[m Add autoplay hero carousel to landing page
+[33m3e61b71[m fix booking workflow
+[33mdc199a0[m fix TypeError
+[33m2a132dc[m fix booking workflow and dashboard user
+[33m2a842cf[m fix venue partner application and dashboard admin application
+[33m6da3183[m add logic redirectTo and router.back at login register page
+[33mef7a5cb[m fix all TypeError
+[33mae41ea8[m perfect ui
+[33mdd32491[m simplify navbar, fix navbar auth menu, and edit login register page
+[33mc4610ec[m add ui for dashboard user, and add cool ticket booking court
+[33m4bdc3f1[m add ui for dashboard admin
+[33m61caf65[m edit and simplify ui for dashboard venue
+[33mab2cc03[m add functional dashboard for venue
+[33m759c1af[m Merge pull request #9 from Farel028/codex/add-7-image-tabs-under-hero-section
+[33m6ad7ee4[m Add sports category carousel below hero
+[33m808cb2f[m add docs and add path name for navbar
+[33mfb3868b[m add docs and add path name for navbar
+[33m8e6c5b2[m Merge pull request #8 from Farel028/codex/add-gradient-background-to-landing-page-trbfyh
+[33m290e399[m Adjust landing hero gradient colors
+[33mf5c3d6d[m request colour
+[33mbeb4fc6[m Add Supa Snowy inspired landing gradient and copy
+[33m5582cf7[m Merge pull request #5 from Farel028/codex/change-color-palette-to-orange-and-green
+[33m970585a[m Update color palettes for light and dark modes
+[33m5a3c605[m fix leaflet map window missing, and change navbar with wave-navbar
+[33m35e84df[m change navbar with old navbar
+[33m965ef53[m add fetch user at navbar, and navbar-auth-menu
+[33m08621b4[m big refactor for api logic
+[33m00f4768[m new navbar and smooth animation
+[33m1913088[m Merge pull request #4 from Farel028/fix-ui/ux-issues-and-bugs/2025-11-15_14-10-56
+[33m8b287b4[m Refine explore data flow and migrate toast notifications
+[33m4dd3fc9[m with frontend but not configured with backend
+[33m602f79f[m new navbar
+[33m16b816d[m Initial commit of my project
+[33m20d6869[m add new image for not-found
+[33m312fd66[m add not-found, and fix navbar
+[33mad6dbec[m add custom not-found
+[33m5e31731[m add api bookings, courts, dashboard, forum, payments, search, and venues
+[33m6697c7b[m Merge pull request #3 from Farel028/fix-login-page-issue-and-clean-code
+[33m4b8e338[m Revamp landing page and relax auth gating
+[33m1f818f9[m Merge pull request #2 from Farel028/fix-dashboard-and-login-errors
+[33ma0a2cdf[m Fix dashboard data serialization and add registration flow
+[33m2bab0c4[m Merge pull request #1 from Farel028/fix-bugs-in-login-and-dashboard
+[33m7028be6[m feat: wire dashboards to supabase auth
+[33mc78847e[m rebuild: auth, dashboard

@@ -108,9 +108,7 @@ export default async function Home() {
                 <Badge className="rounded-full bg-white/80 px-3 py-1 text-orange-600 shadow-sm ring-1 ring-orange-100/80 dark:bg-slate-900/70 dark:text-teal-200 dark:ring-teal-500/40">
                   Venue partner
                 </Badge>
-                <span className="rounded-full bg-orange-500 px-4 py-1 text-xs uppercase tracking-[0.28em] text-white shadow-md">
-                  Midtrans ready
-                </span>
+
               </div>
 
               <div className="grid gap-3 text-slate-900 dark:text-white">
@@ -152,7 +150,7 @@ export default async function Home() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="gap-2 rounded-full bg-orange-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl dark:bg-teal-500"
+                  className="gap-2 rounded-full bg-orange-500 px-6 font-semibold shadow-lg transition hover:shadow-xl dark:bg-teal-500"
                 >
                   <Link href="/venue-partner">
                     Jadwalkan onboarding
