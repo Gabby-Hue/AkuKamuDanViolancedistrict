@@ -100,7 +100,7 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
-          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-gradient-to-br from-orange-50 via-white to-teal-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:from-teal-900/50 dark:via-slate-950 dark:to-teal-800/60 dark:shadow-[0_20px_80px_-24px_rgba(20,184,166,0.45)]">
+          <div className="relative overflow-hidden rounded-[28px] border border-teal-100/80 bg-teal-50 p-8 shadow-[0_20px_80px_-30px_rgba(20,184,166,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:bg-teal-900/60 dark:shadow-[0_20px_80px_-24px_rgba(20,184,166,0.45)]">
             <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-orange-200/50 blur-3xl dark:bg-teal-500/20" />
             <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-teal-200/60 blur-3xl dark:bg-orange-400/20" />
             <div className="relative space-y-6">
@@ -108,7 +108,7 @@ export default async function Home() {
                 <Badge className="rounded-full bg-white/80 px-3 py-1 text-orange-600 shadow-sm ring-1 ring-orange-100/80 dark:bg-slate-900/70 dark:text-teal-200 dark:ring-teal-500/40">
                   Venue partner
                 </Badge>
-                <span className="rounded-full bg-gradient-to-r from-orange-500 to-teal-500 px-4 py-1 text-xs uppercase tracking-[0.28em] text-white shadow-md">
+                <span className="rounded-full bg-teal-500 px-4 py-1 text-xs uppercase tracking-[0.28em] text-white shadow-md">
                   Midtrans ready
                 </span>
               </div>
@@ -128,11 +128,11 @@ export default async function Home() {
                   return (
                     <Card
                       key={benefit.label}
-                      className="group relative overflow-hidden rounded-2xl border border-orange-100/80 bg-white/80 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-teal-500/40 dark:bg-slate-900/70"
+                      className="group relative overflow-hidden rounded-2xl border border-teal-100/80 bg-white/80 p-4 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl dark:border-teal-500/40 dark:bg-slate-900/70"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-100/60 via-white/20 to-teal-100/70 opacity-0 transition duration-200 group-hover:opacity-100 dark:from-teal-500/25 dark:via-slate-900/60 dark:to-orange-400/25" />
+                      <div className="absolute inset-0 bg-teal-50 opacity-0 transition duration-200 group-hover:opacity-100 dark:bg-slate-900/60" />
                       <CardHeader className="relative flex flex-row items-start gap-4 p-0">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-teal-500 text-white shadow-lg shadow-orange-200/70 ring-2 ring-white/70 dark:shadow-teal-900/40 dark:ring-slate-900">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-500 text-white shadow-lg shadow-orange-200/70 ring-2 ring-white/70 dark:shadow-teal-900/40 dark:ring-slate-900">
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="space-y-1">
@@ -152,7 +152,7 @@ export default async function Home() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="gap-2 rounded-full bg-gradient-to-r from-orange-500 to-teal-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl"
+                  className="gap-2 rounded-full bg-teal-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl"
                 >
                   <Link href="/venue-partner">
                     Jadwalkan onboarding
