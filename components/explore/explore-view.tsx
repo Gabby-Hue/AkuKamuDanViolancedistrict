@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -85,6 +85,21 @@ export function ExploreView({
   const [activeSport, setActiveSport] = useState<string>(initialSport ?? "all");
   const listRef = useRef<HTMLDivElement | null>(null);
 
+  const updateUrlWithSport = useCallback((sport: string) => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (sport === "all") {
+      params.delete("sport");
+    } else {
+      params.set("sport", sport);
+    }
+
+    const query = params.toString();
+    const newUrl = `${window.location.pathname}${query ? `?${query}` : ""}#semua-lapangan`;
+    window.history.replaceState(null, "", newUrl);
+  }, []);
+
   const sports = useMemo(() => {
     const unique = new Set(defaultSports);
     courts.forEach((court) => {
@@ -99,7 +114,8 @@ export function ExploreView({
       sports.find((sport) => normalizeSport(sport) === normalizeSport(initialSport)) ??
       "all";
     setActiveSport(matchedSport);
-  }, [initialSport, sports]);
+    updateUrlWithSport(matchedSport);
+  }, [initialSport, sports, updateUrlWithSport]);
 
   useEffect(() => {
     if (!initialSport || !listRef.current) return;
@@ -158,19 +174,7 @@ export function ExploreView({
   const handleSportSelect = (sport: string) => {
     setActiveSport(sport);
 
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (sport === "all") {
-        params.delete("sport");
-      } else {
-        params.set("sport", sport);
-      }
-      const query = params.toString();
-      const newUrl = query
-        ? `${window.location.pathname}?${query}`
-        : window.location.pathname;
-      window.history.replaceState(null, "", newUrl);
-    }
+    updateUrlWithSport(sport);
 
     if (listRef.current) {
       listRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
