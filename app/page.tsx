@@ -152,7 +152,7 @@ export default async function Home() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="gap-2 rounded-full bg-teal-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl"
+                  className="gap-2 rounded-full bg-orange-500 px-6 font-semibold shadow-lg shadow-orange-200/70 transition hover:shadow-xl dark:bg-teal-500"
                 >
                   <Link href="/venue-partner">
                     Jadwalkan onboarding
