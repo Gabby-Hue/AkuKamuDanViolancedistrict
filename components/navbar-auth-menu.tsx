@@ -82,6 +82,18 @@ export function NavbarAuthMenu({
         } = await supabase.auth.getUser();
 
         if (error) {
+          const isMissingSession =
+            typeof error.message === "string" &&
+            error.message.toLowerCase().includes("auth session missing");
+
+          if (isMissingSession) {
+            if (!ignore) {
+              setUser(null);
+              setLoading(false);
+            }
+            return;
+          }
+
           console.error("Failed to fetch session", error.message);
           // Don't throw here, just continue with null user
         }
