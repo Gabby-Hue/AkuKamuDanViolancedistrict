@@ -88,11 +88,26 @@ export function ExploreView({
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const sports = useMemo(() => {
-    const unique = new Set(defaultSports);
+    const normalizedToLabel = new Map<string, string>();
+
     courts.forEach((court) => {
-      unique.add(court.sport);
+      const normalized = normalizeSport(court.sport);
+      if (!normalizedToLabel.has(normalized)) {
+        normalizedToLabel.set(normalized, court.sport);
+      }
     });
-    return defaultSports.filter((sport) => unique.has(sport));
+
+    const orderedDefaults = defaultSports
+      .map((sport) => normalizeSport(sport))
+      .filter((sport) => normalizedToLabel.has(sport));
+
+    const remaining = Array.from(normalizedToLabel.keys())
+      .filter((sport) => !orderedDefaults.includes(sport))
+      .sort();
+
+    return [...orderedDefaults, ...remaining].map(
+      (sport) => normalizedToLabel.get(sport) ?? sport,
+    );
   }, [courts]);
 
   useEffect(() => {
@@ -299,7 +314,7 @@ export function ExploreView({
             {[{ sport: "all", count: filteredCourts.length, averageRating: averageForAll }, ...sportMeta].map(
               (sport) => {
                 const visual = getSportVisual(sport.sport);
-                const isActive = activeSport === sport.sport;
+                const isActive = normalizeSport(sport.sport) === activeSport;
 
                 return (
                   <button
