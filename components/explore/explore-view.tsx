@@ -36,6 +36,26 @@ const ratingOptions = [
 
 const normalizeSport = (value: string) => value.trim().toLowerCase();
 
+const sportVisuals: Record<string, { image?: string; accent: string }> = {
+  basket: { image: "/sports/basket.svg", accent: "from-orange-100 via-white to-orange-200" },
+  voli: { image: "/sports/voli.svg", accent: "from-blue-100 via-white to-blue-200" },
+  futsal: { image: "/sports/futsal.svg", accent: "from-emerald-100 via-white to-emerald-200" },
+  padel: { image: "/sports/padel.svg", accent: "from-cyan-100 via-white to-cyan-200" },
+  badminton: { image: "/sports/badminton.svg", accent: "from-violet-100 via-white to-violet-200" },
+  tennis: { image: "/sports/tennis.svg", accent: "from-lime-100 via-white to-lime-200" },
+  "sepak bola": { image: "/sports/sepak-bola.svg", accent: "from-sky-100 via-white to-sky-200" },
+  all: { accent: "from-brand/10 via-white to-brand-soft/30" },
+};
+
+const getSportVisual = (sport: string) => {
+  const normalized = normalizeSport(sport);
+  return (
+    sportVisuals[normalized] ?? {
+      accent: "from-slate-100 via-white to-slate-200",
+    }
+  );
+};
+
 type ExploreViewProps = {
   courts: CourtSummary[];
   threads: ForumThreadSummary[];
@@ -249,36 +269,79 @@ export function ExploreView({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-          {[{ sport: "all", count: filteredCourts.length, averageRating: averageForAll }, ...sportMeta].map(
-            (sport) => (
-              <button
-                key={sport.sport}
-                type="button"
-                onClick={() => handleSportSelect(sport.sport)}
-                className={cn(
-                  "group rounded-2xl border px-4 py-3 text-left shadow-sm transition",
-                  activeSport === sport.sport
-                    ? "border-brand bg-brand/5 ring-2 ring-brand/30 dark:border-brand dark:bg-brand/15"
-                    : "border-slate-200/80 bg-white/70 hover:-translate-y-0.5 hover:border-brand/60 dark:border-slate-800/60 dark:bg-slate-900/60",
-                )}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-muted">
-                      {sport.sport === "all" ? "Semua olahraga" : sport.sport}
-                    </p>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
-                      {sport.count} lapangan siap dimainkan
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm transition group-hover:bg-brand group-hover:text-white dark:bg-slate-800 dark:text-slate-200">
-                    {sport.averageRating.toFixed(1)} ★
-                  </span>
-                </div>
-              </button>
-            ),
-          )}
+        <div className="mt-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-brand-muted">
+              Geser untuk melihat olahraga lain
+            </p>
+            <span className="hidden rounded-full bg-brand/10 px-3 py-1 text-[11px] font-semibold text-brand-strong shadow-sm dark:bg-brand/20 dark:text-brand-contrast sm:inline-flex">
+              {filteredCourts.length} lapangan aktif
+            </span>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-2 pt-1">
+            {[{ sport: "all", count: filteredCourts.length, averageRating: averageForAll }, ...sportMeta].map(
+              (sport) => {
+                const visual = getSportVisual(sport.sport);
+                const isActive = activeSport === sport.sport;
+
+                return (
+                  <button
+                    key={sport.sport}
+                    type="button"
+                    onClick={() => handleSportSelect(sport.sport)}
+                    className={cn(
+                      "group relative flex min-w-[180px] flex-col gap-3 text-left transition duration-300 sm:min-w-[190px]",
+                      isActive ? "scale-[1.02]" : "hover:-translate-y-1",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-gradient-to-br shadow-sm transition duration-300",
+                        visual.accent,
+                        isActive
+                          ? "ring-2 ring-brand shadow-brand/20"
+                          : "shadow-brand/10 hover:shadow-brand/20",
+                      )}
+                    >
+                      {visual.image ? (
+                        <Image
+                          src={visual.image}
+                          alt={sport.sport}
+                          fill
+                          sizes="(max-width: 768px) 60vw, 12vw"
+                          className="object-cover"
+                          priority
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/60 via-white to-white/40 text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+                          {sport.sport}
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/15 via-black/0 to-transparent" />
+                      <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm backdrop-blur-md dark:bg-slate-900/80 dark:text-slate-100">
+                        {sport.averageRating.toFixed(1)} ★
+                      </div>
+                      {isActive && (
+                        <div className="absolute inset-x-3 bottom-3 rounded-full bg-brand/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-white shadow-sm">
+                          Aktif
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 px-1">
+                      <p className="text-sm font-semibold text-slate-900 transition group-hover:text-brand dark:text-white dark:group-hover:text-brand-muted">
+                        {sport.sport === "all" ? "Semua olahraga" : sport.sport}
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        {sport.count} lapangan aktif • {sport.averageRating.toFixed(1)}★ rata-rata
+                      </p>
+                    </div>
+                  </button>
+                );
+              },
+            )}
+          </div>
         </div>
       </section>
 
