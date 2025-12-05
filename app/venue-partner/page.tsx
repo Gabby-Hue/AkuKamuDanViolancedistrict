@@ -29,7 +29,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:from-orange-600 hover:to-orange-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed dark:from-teal-600 dark:to-teal-700 dark:hover:from-teal-700 dark:hover:to-teal-800"
+      className="flex w-full items-center justify-center rounded-lg bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-orange-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-teal-600 dark:hover:bg-teal-700"
     >
       {pending ? (
         <>
@@ -318,7 +318,7 @@ export default function VenuePartnerPage() {
   return (
     <main className="top-0min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section - Didesain Ulang Total */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-teal-600 text-white">
+      <section className="relative overflow-hidden bg-orange-500 text-white dark:bg-teal-700">
         {/* Dekorasi Abstrak */}
         <div className="absolute inset-0 bg-brand-soft/20">
           <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white/10 blur-3xl"></div>
@@ -416,7 +416,7 @@ export default function VenuePartnerPage() {
                 key={index}
                 className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-800"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md group-hover:shadow-lg transition-shadow">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500 text-white shadow-md transition-shadow group-hover:shadow-lg dark:bg-teal-600">
                   {benefit.icon}
                 </div>
                 <h3 className="mt-5 text-xl font-semibold text-gray-900 dark:text-white">
@@ -447,7 +447,7 @@ export default function VenuePartnerPage() {
           <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
             {milestones.map((milestone, index) => (
               <div key={index} className="relative text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-2xl font-bold text-white shadow-lg">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-500 text-2xl font-bold text-white shadow-lg dark:bg-teal-600">
                   {index + 1}
                 </div>
                 <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
