@@ -100,6 +100,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
               href={{
                 pathname: "/explore",
                 query: { sport: sport.sport },
+                hash: "semua-lapangan",
               }}
               className={cn(
                 "group relative flex flex-col gap-3 transition-all duration-300",
