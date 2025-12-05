@@ -117,9 +117,9 @@ export default async function Home() {
                 return (
                   <Card
                     key={benefit.label}
-                    className="group relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-orange-100/70 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-teal-400/30 dark:from-teal-900/40 dark:via-slate-900 dark:to-teal-800/40"
+                    className="group relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-orange-100/70 text-left shadow-sm shadow-orange-100/60 transition hover:-translate-y-1 hover:shadow-lg dark:border-teal-400/40 dark:from-teal-900/40 dark:via-slate-900 dark:to-teal-800/40 dark:shadow-teal-900/40"
                   >
-                    <div className="absolute inset-0 opacity-0 transition duration-200 group-hover:opacity-100 group-hover:mix-blend-overlay dark:group-hover:mix-blend-screen" />
+                    <div className="absolute inset-0 bg-orange-100/30 opacity-0 transition duration-200 group-hover:opacity-100 group-hover:mix-blend-overlay dark:bg-teal-500/15 dark:group-hover:mix-blend-screen" />
                     <CardHeader className="flex flex-row items-start gap-4 pb-3">
                       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 text-orange-700 ring-1 ring-orange-200/60 shadow-sm dark:bg-teal-900/70 dark:text-teal-200 dark:ring-teal-500/40">
                         <Icon className="h-5 w-5" />
