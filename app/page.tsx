@@ -100,7 +100,7 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl space-y-10 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[1fr,0.9fr]">
-          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-orange-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:bg-teal-900/40 dark:shadow-[0_20px_80px_-24px_rgba(249,115,22,0.45)]">
+          <div className="relative overflow-hidden rounded-[28px] border border-orange-100/80 bg-orange-50 p-8 shadow-[0_20px_80px_-30px_rgba(249,115,22,0.45)] backdrop-blur-sm dark:border-teal-500/40 dark:bg-teal-900/40 dark:shadow-[0_20px_80px_-24px_rgba(15,118,110,0.55)]">
             <div className="absolute -left-10 -top-16 h-48 w-48 rounded-full bg-orange-200/50 blur-3xl dark:bg-teal-500/20" />
             <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-orange-200/60 blur-3xl dark:bg-teal-400/20" />
             <div className="relative space-y-6">
