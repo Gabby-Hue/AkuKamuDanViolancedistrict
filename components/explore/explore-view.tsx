@@ -82,7 +82,9 @@ export function ExploreView({
   const [priceFilter, setPriceFilter] = useState<string>("all");
   const [ratingFilter, setRatingFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [activeSport, setActiveSport] = useState<string>(initialSport ?? "all");
+  const [activeSport, setActiveSport] = useState<string>(
+    initialSport ? normalizeSport(initialSport) : "all",
+  );
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const sports = useMemo(() => {
@@ -98,7 +100,7 @@ export function ExploreView({
     const matchedSport =
       sports.find((sport) => normalizeSport(sport) === normalizeSport(initialSport)) ??
       "all";
-    setActiveSport(matchedSport);
+    setActiveSport(normalizeSport(matchedSport));
   }, [initialSport, sports]);
 
   useEffect(() => {
@@ -149,21 +151,25 @@ export function ExploreView({
     [activeSport, filteredCourts],
   );
 
-  const activeSportLabel = activeSport === "all" ? "Semua olahraga" : activeSport;
+  const activeSportLabel =
+    activeSport === "all"
+      ? "Semua olahraga"
+      : sports.find((sport) => normalizeSport(sport) === activeSport) ?? activeSport;
   const averageForAll = filteredCourts.length
     ? filteredCourts.reduce((acc, court) => acc + court.averageRating, 0) /
       filteredCourts.length
     : 0;
 
   const handleSportSelect = (sport: string) => {
-    setActiveSport(sport);
+    const normalizedSport = normalizeSport(sport);
+    setActiveSport(normalizedSport);
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (sport === "all") {
+      if (normalizedSport === "all") {
         params.delete("sport");
       } else {
-        params.set("sport", sport);
+        params.set("sport", normalizedSport);
       }
       const query = params.toString();
       const newUrl = query
