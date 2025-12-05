@@ -27,20 +27,17 @@ const partnerBenefits: {
 }[] = [
   {
     label: "Integrasi pembayaran",
-    detail:
-      "Aktifkan Midtrans tanpa coding. Monitoring dan notifikasi otomatis sudah terpasang seperti template Supa Snowy.",
+    detail: "Aktifkan Midtrans instan, laporan dan notifikasi langsung siap.",
     icon: Sparkles,
   },
   {
     label: "Dashboard multi-venue",
-    detail:
-      "Kelola banyak cabang dalam satu akun. Harga, jadwal, dan laporan keuangan tersusun rapi di satu workspace.",
+    detail: "Atur banyak cabang, jadwal, dan harga di satu workspace.",
     icon: MapPin,
   },
   {
     label: "Eksposur komunitas",
-    detail:
-      "Tampil di halaman Explore dan Forum sehingga komunitas olahraga mudah menemukan venue kamu dan segera booking.",
+    detail: "Muncul di Explore dan Forum agar komunitas cepat menemukan venue kamu.",
     icon: ShieldCheck,
   },
 ];
@@ -118,18 +115,24 @@ export default async function Home() {
               {partnerBenefits.map((benefit) => {
                 const Icon = benefit.icon;
                 return (
-                  <Card key={benefit.label} className="border-brand-soft/60 bg-white/90 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-brand-soft/30 dark:bg-slate-900/70">
-                    <CardHeader className="flex flex-row items-start gap-3 pb-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand-strong dark:bg-brand/25 dark:text-brand-contrast">
+                  <Card
+                    key={benefit.label}
+                    className="group relative overflow-hidden rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50 via-white to-orange-100/70 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-teal-400/30 dark:from-teal-900/40 dark:via-slate-900 dark:to-teal-800/40"
+                  >
+                    <div className="absolute inset-0 opacity-0 transition duration-200 group-hover:opacity-100 group-hover:mix-blend-overlay dark:group-hover:mix-blend-screen" />
+                    <CardHeader className="flex flex-row items-start gap-4 pb-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 text-orange-700 ring-1 ring-orange-200/60 shadow-sm dark:bg-teal-900/70 dark:text-teal-200 dark:ring-teal-500/40">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                        {benefit.label}
-                      </CardTitle>
+                      <div className="space-y-1">
+                        <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                          {benefit.label}
+                        </CardTitle>
+                        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200/90">
+                          {benefit.detail}
+                        </p>
+                      </div>
                     </CardHeader>
-                    <CardContent className="pt-0 text-sm text-slate-600 dark:text-slate-300">
-                      {benefit.detail}
-                    </CardContent>
                   </Card>
                 );
               })}
