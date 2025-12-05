@@ -580,8 +580,28 @@ export async function fetchVenueDashboardData(profile: {
     };
   }
 
-  const [courtsRes, bookingsRes, blackoutsRes] = await Promise.all([
-    supabase.from("court_summaries").select("*").in("id", courtIds),
+  const [
+    courtsRes,
+    reviewSummaryRes,
+    primaryImagesRes,
+    bookingsRes,
+    blackoutsRes,
+  ] = await Promise.all([
+    supabase
+      .from("courts")
+      .select(
+        `id, slug, name, sport, surface, price_per_hour, capacity, amenities, description, is_active,
+         venue:venues(name, city, district, latitude, longitude)`,
+      )
+      .in("id", courtIds),
+    supabase
+      .from("court_review_summary")
+      .select("court_id, average_rating, review_count")
+      .in("court_id", courtIds),
+    supabase
+      .from("court_images")
+      .select("court_id, image_url, is_primary, display_order")
+      .in("court_id", courtIds),
     supabase
       .from("bookings")
       .select(
@@ -597,31 +617,54 @@ export async function fetchVenueDashboardData(profile: {
       .order("start_date", { ascending: true }),
   ]);
 
-  const ownedCourts = ((courtsRes.data ?? []) as CourtSummaryRow[]).map(
-    (court) => ({
+  const reviewSummaryMap = new Map<string, { average_rating: number | null; review_count: number | null }>();
+  (reviewSummaryRes.data ?? []).forEach((summary: any) => {
+    reviewSummaryMap.set(summary.court_id, {
+      average_rating: summary.average_rating,
+      review_count: summary.review_count,
+    });
+  });
+
+  const primaryImageByCourt = new Map<string, string | null>();
+  (primaryImagesRes.data ?? [])
+    .sort((a: any, b: any) => {
+      if (a.is_primary === b.is_primary) {
+        return (a.display_order ?? 0) - (b.display_order ?? 0);
+      }
+
+      return a.is_primary ? -1 : 1;
+    })
+    .forEach((image: any) => {
+      if (!primaryImageByCourt.has(image.court_id)) {
+        primaryImageByCourt.set(image.court_id, image.image_url ?? null);
+      }
+    });
+
+  const ownedCourts = ((courtsRes.data ?? []) as any[]).map((court) => {
+    const reviewSummary = reviewSummaryMap.get(court.id);
+
+    return {
       id: court.id,
       slug: court.slug,
       name: court.name,
       sport: court.sport,
-      surface: court.surface,
+      surface: court.surface ?? null,
       pricePerHour: Number(court.price_per_hour ?? 0),
       capacity: court.capacity ?? null,
       amenities: Array.isArray(court.amenities) ? court.amenities : [],
       description: court.description ?? null,
-      venueName: court.venue_name,
-      venueCity: court.venue_city ?? null,
-      venueDistrict: court.venue_district ?? null,
+      venueName: court.venue?.name ?? "",
+      venueCity: court.venue?.city ?? null,
+      venueDistrict: court.venue?.district ?? null,
       venueLatitude:
-        typeof court.venue_latitude === "number" ? court.venue_latitude : null,
+        typeof court.venue?.latitude === "number" ? court.venue.latitude : null,
       venueLongitude:
-        typeof court.venue_longitude === "number"
-          ? court.venue_longitude
-          : null,
-      primaryImageUrl: court.primary_image_url ?? null,
-      averageRating: Number(court.average_rating ?? 0),
-      reviewCount: Number(court.review_count ?? 0),
-    }),
-  );
+        typeof court.venue?.longitude === "number" ? court.venue.longitude : null,
+      primaryImageUrl: primaryImageByCourt.get(court.id) ?? null,
+      averageRating: Number(reviewSummary?.average_rating ?? 0),
+      reviewCount: Number(reviewSummary?.review_count ?? 0),
+    } satisfies CourtSummary;
+  });
 
   const blackoutsByCourt = new Map<string, CourtBlackout[]>();
   ((blackoutsRes.data ?? []) as any[]).forEach((row) => {
