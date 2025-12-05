@@ -394,14 +394,14 @@ export default async function BookingDetailPage({
                     )}
 
                   {paymentExpiresAt && booking.payment_status === "pending" && (
-                    <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <div className="flex items-center text-orange-800 dark:text-orange-200">
+                    <div className="p-3 bg-orange-50 dark:bg-teal-900/20 rounded-lg">
+                      <div className="flex items-center text-orange-800 dark:text-teal-200">
                         <Timer className="h-4 w-4 mr-2" />
                         <span className="text-sm font-medium">
                           Batas Waktu Pembayaran
                         </span>
                       </div>
-                      <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                      <p className="text-xs text-orange-700 dark:text-teal-300 mt-1">
                         {paymentExpiresAt.toLocaleDateString("id-ID", {
                           weekday: "long",
                           year: "numeric",
@@ -411,7 +411,7 @@ export default async function BookingDetailPage({
                           minute: "2-digit",
                         })}
                       </p>
-                      <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      <p className="text-xs text-orange-600 dark:text-teal-400 mt-1">
                         Sisa waktu:{" "}
                         {Math.max(
                           0,

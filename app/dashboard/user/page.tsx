@@ -63,7 +63,7 @@ export default async function UserDashboardPage() {
       color: pendingPayments > 0 ? "text-orange-600" : "text-green-600",
       bgColor:
         pendingPayments > 0
-          ? "bg-orange-100 dark:bg-orange-900/20"
+          ? "bg-orange-100 dark:bg-teal-900/20"
           : "bg-green-100 dark:bg-green-900/20",
       highlight: pendingPayments > 0,
     },
@@ -149,7 +149,7 @@ export default async function UserDashboardPage() {
               key={stat.title}
               className={`relative overflow-hidden ${
                 stat.highlight
-                  ? "ring-2 ring-orange-200 dark:ring-orange-800"
+                  ? "ring-2 ring-orange-200 dark:ring-teal-800"
                   : ""
               }`}
             >
@@ -169,7 +169,7 @@ export default async function UserDashboardPage() {
                   {stat.description}
                 </p>
                 {stat.highlight && (
-                  <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-orange-400">
+                  <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-teal-400">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     Perlu tindakan segera
                   </div>
@@ -321,7 +321,7 @@ export default async function UserDashboardPage() {
 
                         {booking.payment_status === "pending" &&
                           booking.payment_expires_at && (
-                            <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-orange-400">
+                            <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-teal-400">
                               <Timer className="h-3 w-3 mr-1" />
                               Batas Bayar:{" "}
                               {new Date(
@@ -411,12 +411,12 @@ export default async function UserDashboardPage() {
                   </div>
 
                   {pendingPayments > 0 && (
-                    <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <div className="flex items-center text-orange-800 dark:text-orange-200 text-sm font-medium mb-2">
+                    <div className="mt-4 p-3 bg-orange-50 dark:bg-teal-900/20 rounded-lg">
+                      <div className="flex items-center text-orange-800 dark:text-teal-200 text-sm font-medium mb-2">
                         <AlertCircle className="h-4 w-4 mr-2" />
                         Perlu Tindakan
                       </div>
-                      <div className="space-y-2 text-xs text-orange-700 dark:text-orange-300">
+                      <div className="space-y-2 text-xs text-orange-700 dark:text-teal-300">
                         {data.bookings
                           .filter(
                             (booking) => booking.payment_status === "pending",

@@ -51,7 +51,7 @@ export default function Display404() {
             </button>
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 bg-[#fb8f39] hover:bg-amber-500 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-600/40 transition-colors"
+              className="inline-flex items-center justify-center rounded-2xl px-5 py-3 bg-[#fb8f39] hover:bg-amber-500 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-600/40 dark:focus:ring-teal-500/40 transition-colors"
             >
               Back to homepage
             </Link>
