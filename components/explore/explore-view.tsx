@@ -36,6 +36,16 @@ const ratingOptions = [
 
 const normalizeSport = (value: string) => value.trim().toLowerCase();
 
+const defaultSports = [
+  "basket",
+  "futsal",
+  "voli",
+  "padel",
+  "badminton",
+  "tennis",
+  "sepak bola",
+];
+
 const sportVisuals: Record<string, { image?: string; accent: string }> = {
   basket: { image: "/sports/basket.svg", accent: "from-orange-100 via-white to-orange-200" },
   voli: { image: "/sports/voli.svg", accent: "from-blue-100 via-white to-blue-200" },
@@ -76,11 +86,11 @@ export function ExploreView({
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const sports = useMemo(() => {
-    const unique = new Set<string>();
+    const unique = new Set(defaultSports);
     courts.forEach((court) => {
       unique.add(court.sport);
     });
-    return Array.from(unique);
+    return defaultSports.filter((sport) => unique.has(sport));
   }, [courts]);
 
   useEffect(() => {
