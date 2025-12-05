@@ -97,11 +97,7 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
           {sports.map((sport, index) => (
             <Link
               key={sport.name}
-              href={{
-                pathname: "/explore",
-                query: { sport: sport.sport },
-                hash: "semua-lapangan",
-              }}
+              href={`/explore?sport=${encodeURIComponent(sport.sport)}#semua-lapangan`}
               className={cn(
                 "group relative flex flex-col gap-3 transition-all duration-300",
                 `animate-in fade-in slide-in-from-bottom`,
