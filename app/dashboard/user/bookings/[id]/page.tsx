@@ -158,11 +158,11 @@ export default async function BookingDetailPage({
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
                 {booking.venueName || booking.court?.venueName}
-                {booking.venueCity || booking.court?.venueCity && `, ${booking.venueCity || booking.court?.venueCity}`}
+                {(booking.court?.venueCity) && `, ${booking.court?.venueCity}`}
               </p>
-              {booking.venueAddress || booking.court?.venueAddress ? (
+              {booking.court?.venueAddress ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {booking.venueAddress || booking.court?.venueAddress}
+                  {booking.court?.venueAddress}
                 </p>
               ) : null}
             </div>
@@ -183,7 +183,7 @@ export default async function BookingDetailPage({
               {booking.paymentStatus === "pending" && booking.paymentToken && (
                 <ContinuePaymentButton
                   snapToken={booking.paymentToken}
-                  redirectUrl={booking.paymentRedirectUrl}
+                  redirectUrl={booking.paymentRedirectUrl || null}
                   clientKey={
                     process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null
                   }
@@ -407,7 +407,7 @@ export default async function BookingDetailPage({
               <ReviewForm
                 bookingId={booking.id}
                 profileId={profile.id}
-                courtName={booking.court?.name}
+                courtName={booking.court?.name || "Court"}
               />
             )}
 
@@ -425,11 +425,11 @@ export default async function BookingDetailPage({
                     {booking.venueName || booking.court?.venueName}
                   </h3>
                   <div className="text-slate-600 dark:text-slate-300">
-                    {booking.venueAddress || booking.court?.venueAddress ? (
-                      <p>{booking.venueAddress || booking.court?.venueAddress}</p>
+                    {booking.court?.venueAddress ? (
+                      <p>{booking.court?.venueAddress}</p>
                     ) : null}
-                    {booking.venueCity || booking.court?.venueCity ? (
-                      <p>{booking.venueCity || booking.court?.venueCity}</p>
+                    {booking.court?.venueCity ? (
+                      <p>{booking.court?.venueCity}</p>
                     ) : null}
                   </div>
                 </div>

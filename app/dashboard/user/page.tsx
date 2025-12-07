@@ -58,7 +58,6 @@ export default async function UserDashboardPage() {
   // Get user bookings using UserQueries
   const userBookings = await UserQueries.getUserBookings(profile.id, {
     limit: 10,
-    upcoming: false,
   });
 
   // Get recommended courts using PublicQueries
