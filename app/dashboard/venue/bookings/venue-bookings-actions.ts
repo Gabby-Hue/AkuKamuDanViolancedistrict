@@ -26,13 +26,13 @@ export async function getVenueBookingsData(options?: {
   try {
     const profile = await requireRole("venue_partner");
 
-    // Get venue dashboard data first to get the venue ID
+    // Get venue dashboard data first to get venue ID
     const venueDashboardData = await VenueQueries.getVenueDashboardData(
       profile.id,
     );
     const venueId = options?.venueId || venueDashboardData.venue.id;
 
-    // Get bookings using the new query system
+    // Get bookings using new query system
     const bookings = await VenueQueries.getVenueBookings(profile.id, venueId, {
       status: options?.status as any,
       paymentStatus: options?.paymentStatus as any,
@@ -81,7 +81,7 @@ export async function updateBookingStatus(data: {
     const profile = await requireRole("venue_partner");
     const supabase = await createClient();
 
-    // First verify that the booking belongs to the venue partner's venue
+    // First verify that booking belongs to venue partner's venue
     const { data: bookingData, error: bookingError } = await supabase
       .from("bookings")
       .select(
@@ -102,11 +102,23 @@ export async function updateBookingStatus(data: {
       };
     }
 
+    // Fix: Access the first element of the courts array or handle empty array
+    const courtData = Array.isArray(bookingData.courts)
+      ? bookingData.courts[0]
+      : bookingData.courts;
+
+    if (!courtData || !courtData.venue_id) {
+      return {
+        success: false,
+        error: "Data lapangan tidak valid",
+      };
+    }
+
     // Verify venue ownership
     const { data: venueCheck, error: venueError } = await supabase
       .from("venues")
       .select("id")
-      .eq("id", bookingData.courts.venue_id)
+      .eq("id", courtData.venue_id) // Use courtData.venue_id instead
       .eq("owner_profile_id", profile.id)
       .single();
 
@@ -117,7 +129,7 @@ export async function updateBookingStatus(data: {
       };
     }
 
-    // Update the booking status
+    // Update booking status
     const updateData: any = {
       status: data.status,
       updated_at: new Date().toISOString(),
@@ -169,7 +181,7 @@ export async function cancelBooking(data: { bookingId: string }): Promise<{
     const profile = await requireRole("venue_partner");
     const supabase = await createClient();
 
-    // First verify that the booking belongs to the venue partner's venue
+    // First verify that booking belongs to venue partner's venue
     const { data: bookingData, error: bookingError } = await supabase
       .from("bookings")
       .select(
@@ -190,11 +202,23 @@ export async function cancelBooking(data: { bookingId: string }): Promise<{
       };
     }
 
+    // Fix: Access the first element of the courts array or handle empty array
+    const courtData = Array.isArray(bookingData.courts)
+      ? bookingData.courts[0]
+      : bookingData.courts;
+
+    if (!courtData || !courtData.venue_id) {
+      return {
+        success: false,
+        error: "Data lapangan tidak valid",
+      };
+    }
+
     // Verify venue ownership
     const { data: venueCheck, error: venueError } = await supabase
       .from("venues")
       .select("id")
-      .eq("id", bookingData.courts.venue_id)
+      .eq("id", courtData.venue_id) // Use courtData.venue_id instead
       .eq("owner_profile_id", profile.id)
       .single();
 
