@@ -54,7 +54,6 @@ export type Venue = {
   slug: string;
   name: string;
   city: string | null;
-  district: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -170,7 +169,7 @@ export async function getBookingDetail(
         id, slug, name, sport, surface, price_per_hour, capacity,
         facilities, description, venue_id, is_active,
         venue:venues(
-          id, slug, name, city, district, address, latitude, longitude,
+          id, slug, name, city, address, latitude, longitude,
           description, contact_phone, contact_email, facility_types,
           facility_count, venue_status, verified_at
         )
@@ -561,4 +560,3 @@ export const bookingService = {
   updateBookingStatus,
   checkBookingAvailability,
 };
-

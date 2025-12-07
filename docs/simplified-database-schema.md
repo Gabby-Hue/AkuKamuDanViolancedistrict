@@ -33,7 +33,7 @@ Analisis database schema CourtEase dengan fokus pada efisiensi, eliminasi duplik
 ```sql
 -- Core entities tetap sama
 profiles (id, role, full_name, email, phone, avatar_url, created_at, updated_at)
-venues (id, name, slug, city, district, latitude, longitude, owner_profile_id)
+venues (id, name, slug, city, latitude, longitude, owner_profile_id)
 courts (id, venue_id, name, slug, sport, surface, price_per_hour, capacity, facilities, is_active)
 bookings (id, court_id, profile_id, start_time, end_time, status, payment_status, price_total)
 court_reviews (id, court_id, profile_id, rating, comment, booking_id)

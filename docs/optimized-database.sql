@@ -60,7 +60,6 @@ CREATE TABLE IF NOT EXISTS public.venues (
         (lower(replace(name, ' ', '-')) || '-' || substr((id)::text, 1, 6))
     ) STORED,
     city text,
-    district text,
     address text,
     latitude double precision,
     longitude double precision,
@@ -217,7 +216,6 @@ SELECT
     c.venue_id,
     v.name AS venue_name,
     v.city AS venue_city,
-    v.district AS venue_district,
     v.latitude AS venue_latitude,
     v.longitude AS venue_longitude,
     v.contact_phone AS venue_contact_phone,
@@ -244,7 +242,7 @@ JOIN venues v ON v.id = c.venue_id
 LEFT JOIN court_reviews cr ON cr.court_id = c.id
 LEFT JOIN bookings b ON b.court_id = c.id
 WHERE c.is_active = true
-GROUP BY c.id, v.name, v.city, v.district, v.latitude, v.longitude,
+GROUP BY c.id, v.name, v.city, v.latitude, v.longitude,
          v.contact_phone, v.contact_email, v.address;
 
 -- View: Venue Stats (simplified)
@@ -279,7 +277,6 @@ SELECT
   v.slug,
   v.name AS venue_name,
   v.city AS venue_city,
-  v.district AS venue_district,
   v.owner_profile_id,
   COALESCE(bd.total_courts, 0) AS total_courts,
   COALESCE(bd.total_bookings, 0) AS total_bookings,
@@ -348,7 +345,6 @@ SELECT
     c.primary_image_url,
     v.name AS venue_name,
     v.city AS venue_city,
-    v.district AS venue_district,
     v.address AS venue_address,
     v.latitude AS venue_latitude,
     v.longitude AS venue_longitude

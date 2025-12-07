@@ -27,7 +27,9 @@ export async function getVenueBookingsData(options?: {
     const profile = await requireRole("venue_partner");
 
     // Get venue dashboard data first to get the venue ID
-    const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+    const venueDashboardData = await VenueQueries.getVenueDashboardData(
+      profile.id,
+    );
     const venueId = options?.venueId || venueDashboardData.venue.id;
 
     // Get bookings using the new query system
@@ -35,26 +37,30 @@ export async function getVenueBookingsData(options?: {
       status: options?.status as any,
       paymentStatus: options?.paymentStatus as any,
       limit: options?.limit,
-      offset: options?.offset
+      offset: options?.offset,
     });
 
     // Transform venues array for compatibility
-    const venues = [{
-      id: venueDashboardData.venue.id,
-      name: venueDashboardData.venue.name,
-      city: venueDashboardData.venue.city || "",
-      district: venueDashboardData.venue.district
-    }];
+    const venues = [
+      {
+        id: venueDashboardData.venue.id,
+        name: venueDashboardData.venue.name,
+        city: venueDashboardData.venue.city || "",
+      },
+    ];
 
     return {
       success: true,
-      data: { bookings, venues }
+      data: { bookings, venues },
     };
   } catch (error) {
     console.error("Error in getVenueBookingsData:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal mengambil data bookings"
+      error:
+        error instanceof Error
+          ? error.message
+          : "Gagal mengambil data bookings",
     };
   }
 }
@@ -78,19 +84,21 @@ export async function updateBookingStatus(data: {
     // First verify that the booking belongs to the venue partner's venue
     const { data: bookingData, error: bookingError } = await supabase
       .from("bookings")
-      .select(`
+      .select(
+        `
         id,
         courts!inner (
           venue_id
         )
-      `)
+      `,
+      )
       .eq("id", data.bookingId)
       .single();
 
     if (bookingError || !bookingData) {
       return {
         success: false,
-        error: "Booking tidak ditemukan"
+        error: "Booking tidak ditemukan",
       };
     }
 
@@ -105,14 +113,14 @@ export async function updateBookingStatus(data: {
     if (venueError || !venueCheck) {
       return {
         success: false,
-        error: "Akses ditolak: Booking tidak termasuk dalam venue Anda"
+        error: "Akses ditolak: Booking tidak termasuk dalam venue Anda",
       };
     }
 
     // Update the booking status
     const updateData: any = {
       status: data.status,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
     if (data.notes) {
@@ -127,7 +135,7 @@ export async function updateBookingStatus(data: {
     if (updateError) {
       return {
         success: false,
-        error: "Gagal memperbarui status booking"
+        error: "Gagal memperbarui status booking",
       };
     }
 
@@ -135,13 +143,16 @@ export async function updateBookingStatus(data: {
 
     return {
       success: true,
-      data: { success: true }
+      data: { success: true },
     };
   } catch (error) {
     console.error("Error in updateBookingStatus:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal memperbarui status booking"
+      error:
+        error instanceof Error
+          ? error.message
+          : "Gagal memperbarui status booking",
     };
   }
 }
@@ -149,9 +160,7 @@ export async function updateBookingStatus(data: {
 /**
  * Server action to cancel booking
  */
-export async function cancelBooking(data: {
-  bookingId: string;
-}): Promise<{
+export async function cancelBooking(data: { bookingId: string }): Promise<{
   success: boolean;
   data?: any;
   error?: string;
@@ -163,19 +172,21 @@ export async function cancelBooking(data: {
     // First verify that the booking belongs to the venue partner's venue
     const { data: bookingData, error: bookingError } = await supabase
       .from("bookings")
-      .select(`
+      .select(
+        `
         id,
         courts!inner (
           venue_id
         )
-      `)
+      `,
+      )
       .eq("id", data.bookingId)
       .single();
 
     if (bookingError || !bookingData) {
       return {
         success: false,
-        error: "Booking tidak ditemukan"
+        error: "Booking tidak ditemukan",
       };
     }
 
@@ -190,7 +201,7 @@ export async function cancelBooking(data: {
     if (venueError || !venueCheck) {
       return {
         success: false,
-        error: "Akses ditolak: Booking tidak termasuk dalam venue Anda"
+        error: "Akses ditolak: Booking tidak termasuk dalam venue Anda",
       };
     }
 
@@ -199,14 +210,14 @@ export async function cancelBooking(data: {
       .from("bookings")
       .update({
         status: "cancelled",
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", data.bookingId);
 
     if (cancelError) {
       return {
         success: false,
-        error: "Gagal membatalkan booking"
+        error: "Gagal membatalkan booking",
       };
     }
 
@@ -214,13 +225,14 @@ export async function cancelBooking(data: {
 
     return {
       success: true,
-      data: { success: true }
+      data: { success: true },
     };
   } catch (error) {
     console.error("Error in cancelBooking:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal membatalkan booking"
+      error:
+        error instanceof Error ? error.message : "Gagal membatalkan booking",
     };
   }
 }

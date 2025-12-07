@@ -15,19 +15,22 @@ export default async function CourtImagesPage({ params }: PageProps) {
   const { id: courtId } = await params;
 
   // Get venue dashboard data using the new query system
-  const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+  const venueDashboardData = await VenueQueries.getVenueDashboardData(
+    profile.id,
+  );
 
   if (!venueDashboardData.venue.id) {
     throw new Error("Venue tidak ditemukan");
   }
 
   // Transform venues array for the client component
-  const venues = [{
-    id: venueDashboardData.venue.id,
-    name: venueDashboardData.venue.name,
-    city: venueDashboardData.venue.city || "",
-    district: venueDashboardData.venue.district
-  }];
+  const venues = [
+    {
+      id: venueDashboardData.venue.id,
+      name: venueDashboardData.venue.name,
+      city: venueDashboardData.venue.city || "",
+    },
+  ];
 
   return (
     <ClientImagesWrapper

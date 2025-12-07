@@ -1,4 +1,7 @@
-import type { VenueCourtDetail, VenueCourtMetrics } from "@/lib/supabase/queries/venue-courts";
+import type {
+  VenueCourtDetail,
+  VenueCourtMetrics,
+} from "@/lib/supabase/queries/venue-courts";
 
 export interface VenueInfoResponse {
   profile: {
@@ -16,7 +19,6 @@ export interface VenueInfoResponse {
     name: string;
     slug: string;
     city: string | null;
-    district: string | null;
     address: string | null;
     latitude: number | null;
     longitude: number | null;
@@ -37,7 +39,6 @@ export interface VenueInfoResponse {
     id: string;
     name: string;
     city: string | null;
-    district: string | null;
   }>;
   message?: string;
 }
@@ -49,7 +50,6 @@ export interface VenueCourtsResponse {
     id: string;
     name: string;
     city: string | null;
-    district: string | null;
   }>;
 }
 
@@ -77,7 +77,6 @@ export interface UpdateCourtRequest {
 export interface UpdateVenueRequest {
   name?: string;
   city?: string;
-  district?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
@@ -112,7 +111,9 @@ class VenueApiClient {
     return result.data;
   }
 
-  async updateVenueInfo(data: UpdateVenueRequest): Promise<{ message: string; venue: any }> {
+  async updateVenueInfo(
+    data: UpdateVenueRequest,
+  ): Promise<{ message: string; venue: any }> {
     const response = await fetch(`/api/dashboard/venue/info`, {
       method: "PUT",
       headers: {
@@ -150,7 +151,10 @@ class VenueApiClient {
     return result.data;
   }
 
-  async updateProfileSettings(data: { fullName?: string; phone?: string }): Promise<{ message: string; profile: any }> {
+  async updateProfileSettings(data: {
+    fullName?: string;
+    phone?: string;
+  }): Promise<{ message: string; profile: any }> {
     const response = await fetch(`/api/dashboard/venue/settings`, {
       method: "PUT",
       headers: {
@@ -206,7 +210,9 @@ class VenueApiClient {
     return result.data;
   }
 
-  async createCourt(data: CreateCourtRequest): Promise<{ message: string; courtId: string; venueId: string }> {
+  async createCourt(
+    data: CreateCourtRequest,
+  ): Promise<{ message: string; courtId: string; venueId: string }> {
     const response = await fetch(`/api/dashboard/venue/courts/create`, {
       method: "POST",
       headers: {
@@ -225,7 +231,10 @@ class VenueApiClient {
     return result.data;
   }
 
-  async updateCourt(courtId: string, data: UpdateCourtRequest): Promise<{ message: string }> {
+  async updateCourt(
+    courtId: string,
+    data: UpdateCourtRequest,
+  ): Promise<{ message: string }> {
     const response = await fetch(`/api/dashboard/venue/courts/${courtId}`, {
       method: "PUT",
       headers: {
@@ -262,7 +271,11 @@ class VenueApiClient {
     return result.data;
   }
 
-  async toggleCourtAvailability(courtId: string, isActive: boolean, reason?: string): Promise<{ message: string; isActive: boolean }> {
+  async toggleCourtAvailability(
+    courtId: string,
+    isActive: boolean,
+    reason?: string,
+  ): Promise<{ message: string; isActive: boolean }> {
     const response = await fetch(`/api/dashboard/venue/courts/${courtId}`, {
       method: "PATCH",
       headers: {
@@ -274,7 +287,9 @@ class VenueApiClient {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Gagal mengubah status ketersediaan lapangan");
+      throw new Error(
+        error.error || "Gagal mengubah status ketersediaan lapangan",
+      );
     }
 
     const result = await response.json();

@@ -49,7 +49,6 @@ export interface Court {
   venueId: string;
   venueName: string;
   venueCity?: string;
-  venueDistrict?: string;
   venueAddress?: string;
   venueLatitude?: number;
   venueLongitude?: number;

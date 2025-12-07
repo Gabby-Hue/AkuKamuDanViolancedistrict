@@ -82,7 +82,6 @@ interface VenueData {
   id: string;
   name: string;
   city: string | null;
-  district: string | null;
 }
 
 interface ClientImagesWrapperProps {
@@ -146,14 +145,12 @@ export default function ClientImagesWrapper({
             id: "placeholder",
             name: "Venue belum tersedia",
             city: null,
-            district: null,
           },
         ]
   ).map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description:
-      [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    description: [venue.city] || null,
     icon: "MapPin",
   }));
 

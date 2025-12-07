@@ -102,7 +102,7 @@ export class PublicQueries {
     // Get venue contact info separately
     const { data: venueData, error: venueError } = await supabase
       .from("venues")
-      .select("contact_phone, contact_email, address, district")
+      .select("contact_phone, contact_email, address")
       .eq("id", courtData.venue_id)
       .single();
 
@@ -435,7 +435,6 @@ export class PublicQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-      venueDistrict: court.venue_district,
       venueAddress: venue?.address,
       venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
@@ -473,7 +472,6 @@ export class PublicQueries {
         `${venue.venue_name.toLowerCase().replace(/\s+/g, "-")}-${venue.venue_id.slice(0, 6)}`,
       name: venue.venue_name,
       city: venue.venue_city,
-      district: venue.venue_district,
       latitude: venue.venue_latitude,
       longitude: venue.venue_longitude,
       ownerProfileId: venue.owner_profile_id,

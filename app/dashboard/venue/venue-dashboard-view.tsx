@@ -38,7 +38,10 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { refreshVenueStatsAction, refreshChartDataAction } from "./venue-actions";
+import {
+  refreshVenueStatsAction,
+  refreshChartDataAction,
+} from "./venue-actions";
 import type { VenueStatsData } from "./direct-stats-fetcher";
 
 interface VenueDashboardClientProps {
@@ -101,8 +104,7 @@ export default function VenueDashboardView({
     ? venues.map((venue) => ({
         id: venue.id,
         name: venue.name,
-        description:
-          [venue.city, venue.district].filter(Boolean).join(", ") || null,
+        description: [venue.city] || null,
         icon: "MapPin",
       }))
     : [
@@ -173,15 +175,17 @@ export default function VenueDashboardView({
       console.error("Error fetching chart data:", error);
       // Fallback to original revenueData if available
       if (revenueData) {
-        const monthlyData = revenueData.monthlyRevenue?.map((item: any) => ({
-          month: item.month,
-          revenue: item.revenue / 1000000,
-        })) || [];
+        const monthlyData =
+          revenueData.monthlyRevenue?.map((item: any) => ({
+            month: item.month,
+            revenue: item.revenue / 1000000,
+          })) || [];
 
-        const trendsData = revenueData.bookingTrends?.map((item: any) => ({
-          date: item.date,
-          bookings: item.bookings,
-        })) || [];
+        const trendsData =
+          revenueData.bookingTrends?.map((item: any) => ({
+            date: item.date,
+            bookings: item.bookings,
+          })) || [];
 
         setChartData({
           monthly: monthlyData,
@@ -209,7 +213,6 @@ export default function VenueDashboardView({
     }
   };
 
-  
   // Get display stats (use server data as fallback)
   const displayStats = realTimeStats?.venueStats || venueStats.stats;
   const displayCourts = realTimeStats?.courtStats || venueStats.courts;
@@ -265,7 +268,8 @@ export default function VenueDashboardView({
               <Building2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
               <h3 className="text-lg font-semibold mb-2">Belum Ada Venue</h3>
               <p className="text-sm">
-                Anda belum memiliki venue. Silakan tambahkan venue terlebih dahulu.
+                Anda belum memiliki venue. Silakan tambahkan venue terlebih
+                dahulu.
               </p>
             </div>
           </div>
@@ -414,7 +418,9 @@ export default function VenueDashboardView({
                   <div className="space-y-4">
                     {displayTopCourts.length > 0 ? (
                       displayTopCourts
-                        .sort((a: any, b: any) => b.totalRevenue - a.totalRevenue)
+                        .sort(
+                          (a: any, b: any) => b.totalRevenue - a.totalRevenue,
+                        )
                         .slice(0, 5)
                         .map((court: any, index: number) => (
                           <div key={court.id} className="flex items-center">

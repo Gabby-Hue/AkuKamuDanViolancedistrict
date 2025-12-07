@@ -19,7 +19,6 @@ SELECT
     -- Venue information
     v.name AS venue_name,
     v.city AS venue_city,
-    v.district AS venue_district,
     v.latitude AS venue_latitude,
     v.longitude AS venue_longitude,
     v.contact_phone AS venue_contact_phone,
@@ -66,7 +65,7 @@ GROUP BY
     c.id, c.slug, c.name, c.sport, c.surface, c.price_per_hour,
     c.capacity, c.facilities, c.description, c.venue_id, c.is_active,
     c.primary_image_url, c.created_at, c.updated_at,
-    v.name, v.city, v.district, v.latitude, v.longitude,
+    v.name, v.city, v.latitude, v.longitude,
     v.contact_phone, v.contact_email, v.address;
 
 -- Create index for better performance

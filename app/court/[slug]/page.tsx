@@ -111,7 +111,6 @@ export default async function CourtDetailPage({
             <p className="text-sm text-slate-600 dark:text-slate-300">
               {court.venueName}
               {court.venueCity ? ` • ${court.venueCity}` : ""}
-              {court.venueDistrict ? `, ${court.venueDistrict}` : ""}
             </p>
           </div>
           <div className="text-right text-sm text-slate-500 dark:text-slate-400">

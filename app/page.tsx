@@ -216,7 +216,6 @@ function adaptCourtToSummary(court: Court) {
     description: court.description || null,
     venueName: court.venueName,
     venueCity: court.venueCity || null,
-    venueDistrict: court.venueDistrict || null,
     venueLatitude: court.venueLatitude || null,
     venueLongitude: court.venueLongitude || null,
     primaryImageUrl: court.primaryImageUrl || null,

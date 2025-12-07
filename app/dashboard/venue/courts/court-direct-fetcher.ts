@@ -17,7 +17,6 @@ export type CourtDetails = {
   venue_id: string;
   venue_name: string;
   venue_city: string;
-  venue_district: string;
   average_rating: number;
   review_count: number;
   total_bookings: number;
@@ -65,7 +64,7 @@ export async function getCourtById(
       .from("courts")
       .select(
         `id, slug, name, sport, surface, price_per_hour, capacity, facilities, description,
-         venue:venues(id, name, city, district, address, latitude, longitude, contact_phone, contact_email),
+         venue:venues(id, name, city, address, latitude, longitude, contact_phone, contact_email),
          reviews:court_reviews(id, rating, comment, created_at, profile:profiles(full_name))`,
       )
       .eq("id", courtId)
@@ -92,7 +91,8 @@ export async function getVenueCourtsWithStats(
 ): Promise<CourtList[]> {
   try {
     // Use the updated venue-stats function that gets ALL courts with real stats
-    const { fetchVenueStatsByVenueId } = await import("@/lib/supabase/queries/venue-stats");
+    const { fetchVenueStatsByVenueId } =
+      await import("@/lib/supabase/queries/venue-stats");
     const venueData = await fetchVenueStatsByVenueId(venueId);
 
     // Transform the data to match CourtList interface

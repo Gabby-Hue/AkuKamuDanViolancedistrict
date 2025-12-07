@@ -93,7 +93,6 @@ interface VenueData {
   id: string;
   name: string;
   city: string | null;
-  district: string | null;
 }
 
 interface VenueBookingsClientProps {
@@ -109,9 +108,7 @@ export default function VenueBookingsClient({
 }: VenueBookingsClientProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(
-    null,
-  );
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("today");
 
@@ -127,7 +124,8 @@ export default function VenueBookingsClient({
     showCancel: boolean = true,
   ) => {
     const isPaid = booking.paymentStatus === "paid";
-    const canConfirm = booking.status === "pending" || booking.status === "awaiting_information";
+    const canConfirm =
+      booking.status === "pending" || booking.status === "awaiting_information";
 
     switch (booking.status) {
       case "confirmed":
@@ -136,7 +134,9 @@ export default function VenueBookingsClient({
             <Button
               size="sm"
               className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => handleUpdateBookingStatus(booking.id, "checked_in")}
+              onClick={() =>
+                handleUpdateBookingStatus(booking.id, "checked_in")
+              }
             >
               <CheckCircle className="mr-1 h-3 w-3" />
               Check In
@@ -259,14 +259,12 @@ export default function VenueBookingsClient({
             id: "placeholder",
             name: "Venue belum tersedia",
             city: null,
-            district: null,
           },
         ]
   ).map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description:
-      [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    description: [venue.city] || null,
     icon: "MapPin",
   }));
 
@@ -345,7 +343,8 @@ export default function VenueBookingsClient({
 
   // Get pending bookings for the card
   const pendingBookings = bookings.filter(
-    (booking) => booking.status === "pending" || booking.status === "awaiting_information",
+    (booking) =>
+      booking.status === "pending" || booking.status === "awaiting_information",
   );
 
   // Filter bookings based on selected tab
@@ -355,12 +354,12 @@ export default function VenueBookingsClient({
     switch (selectedTab) {
       case "today":
         // Today's bookings - all statuses except pending
-        return allBookings.filter(
-          (booking) => {
-            const bookingDate = new Date(booking.startTime).toISOString().split("T")[0];
-            return bookingDate === today && booking.status !== "pending";
-          },
-        );
+        return allBookings.filter((booking) => {
+          const bookingDate = new Date(booking.startTime)
+            .toISOString()
+            .split("T")[0];
+          return bookingDate === today && booking.status !== "pending";
+        });
       case "upcoming":
         // Future bookings - confirmed, checked_in, completed
         return allBookings.filter(
@@ -501,24 +500,30 @@ export default function VenueBookingsClient({
                           </div>
                           <div>
                             <h4 className="font-medium">
-                              {booking.startTime && booking.endTime ?
-                                `${new Date(booking.startTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })} - ${new Date(booking.endTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}` : "Waktu tidak tersedia"
-                              }
+                              {booking.startTime && booking.endTime
+                                ? `${new Date(
+                                    booking.startTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })} - ${new Date(
+                                    booking.endTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}`
+                                : "Waktu tidak tersedia"}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.court?.name || "Unknown Court"} • {booking.customer?.fullName || "Customer"}
+                              {booking.court?.name || "Unknown Court"} •{" "}
+                              {booking.customer?.fullName || "Customer"}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {booking.startTime ?
-                                new Date(booking.startTime).toLocaleDateString("id-ID") :
-                                "Tanggal tidak tersedia"
-                              }
+                              {booking.startTime
+                                ? new Date(
+                                    booking.startTime,
+                                  ).toLocaleDateString("id-ID")
+                                : "Tanggal tidak tersedia"}
                             </p>
                             {!isPaid && (
                               <div className="flex items-center gap-1 mt-1">
@@ -533,7 +538,11 @@ export default function VenueBookingsClient({
                         <div className="flex items-center space-x-2">
                           <Badge
                             variant={isPaid ? "default" : "secondary"}
-                            className={isPaid ? "bg-green-100 text-green-800 border-green-200" : ""}
+                            className={
+                              isPaid
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : ""
+                            }
                           >
                             {isPaid ? "Dibayar" : "Belum Bayar"}
                           </Badge>
@@ -588,18 +597,23 @@ export default function VenueBookingsClient({
                           </div>
                           <div>
                             <h4 className="font-medium">
-                              {booking.startTime && booking.endTime ?
-                                `${new Date(booking.startTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })} - ${new Date(booking.endTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}` : "Waktu tidak tersedia"
-                              }
+                              {booking.startTime && booking.endTime
+                                ? `${new Date(
+                                    booking.startTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })} - ${new Date(
+                                    booking.endTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}`
+                                : "Waktu tidak tersedia"}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.court?.name || "Unknown Court"} • {booking.customer?.fullName || "Customer"}
+                              {booking.court?.name || "Unknown Court"} •{" "}
+                              {booking.customer?.fullName || "Customer"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {new Date(booking.startTime).toLocaleDateString(
@@ -696,47 +710,54 @@ export default function VenueBookingsClient({
                           <div className="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10">
                             <Calendar className="h-6 w-6 text-primary" />
                             <span className="text-xs font-medium">
-                              {booking.startTime ?
-                                new Date(booking.startTime).getDate() :
-                                new Date().getDate()
-                              }
+                              {booking.startTime
+                                ? new Date(booking.startTime).getDate()
+                                : new Date().getDate()}
                             </span>
                           </div>
                           <div>
-                            <h4 className="font-medium">{booking.court?.name || "Unknown Court"}</h4>
+                            <h4 className="font-medium">
+                              {booking.court?.name || "Unknown Court"}
+                            </h4>
                             <p className="text-sm text-muted-foreground">
-                              {booking.startTime ?
-                                new Date(booking.startTime).toLocaleDateString(
-                                  "id-ID",
-                                  {
+                              {booking.startTime
+                                ? new Date(
+                                    booking.startTime,
+                                  ).toLocaleDateString("id-ID", {
                                     weekday: "long",
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
-                                  },
-                                ) : "Tanggal tidak tersedia"
-                              }
+                                  })
+                                : "Tanggal tidak tersedia"}
                             </p>
                             <p className="text-sm">
-                              {booking.startTime && booking.endTime ?
-                                `${new Date(booking.startTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })} - ${new Date(booking.endTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}` : "Waktu tidak tersedia"
-                              }
+                              {booking.startTime && booking.endTime
+                                ? `${new Date(
+                                    booking.startTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })} - ${new Date(
+                                    booking.endTime,
+                                  ).toLocaleTimeString("id-ID", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}`
+                                : "Waktu tidak tersedia"}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{booking.court?.name || "Unknown Court"}</p>
+                          <p className="font-medium">
+                            {booking.court?.name || "Unknown Court"}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             {booking.customer?.fullName || "Customer"}
                           </p>
                           <p className="font-medium text-primary">
-                            Rp {(booking.priceTotal || 0).toLocaleString("id-ID")}
+                            Rp{" "}
+                            {(booking.priceTotal || 0).toLocaleString("id-ID")}
                           </p>
                         </div>
                         <div className="flex gap-1">
@@ -818,7 +839,9 @@ export default function VenueBookingsClient({
                           </TableCell>
                           <TableCell>
                             <div>
-                              <p className="font-medium">{booking.court?.name || "Unknown Court"}</p>
+                              <p className="font-medium">
+                                {booking.court?.name || "Unknown Court"}
+                              </p>
                               <p className="text-sm text-muted-foreground">
                                 {booking.court?.sport || "Unknown Sport"}
                               </p>
@@ -832,24 +855,35 @@ export default function VenueBookingsClient({
                                 )}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {new Date(booking.startTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })} - {new Date(booking.endTime).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {new Date(booking.startTime).toLocaleTimeString(
+                                  "id-ID",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}{" "}
+                                -{" "}
+                                {new Date(booking.endTime).toLocaleTimeString(
+                                  "id-ID",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
                             {Math.round(
-                              (new Date(booking.endTime).getTime() - new Date(booking.startTime).getTime()) /
-                                (1000 * 60 * 60)
-                            )} jam
+                              (new Date(booking.endTime).getTime() -
+                                new Date(booking.startTime).getTime()) /
+                                (1000 * 60 * 60),
+                            )}{" "}
+                            jam
                           </TableCell>
                           <TableCell>
-                            Rp {(booking.priceTotal || 0).toLocaleString("id-ID")}
+                            Rp{" "}
+                            {(booking.priceTotal || 0).toLocaleString("id-ID")}
                           </TableCell>
                           <TableCell>
                             <Badge
@@ -1012,7 +1046,8 @@ export default function VenueBookingsClient({
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Nama:</span>
                         <span className="font-medium">
-                          {selectedBooking?.customer?.fullName || "Unknown Customer"}
+                          {selectedBooking?.customer?.fullName ||
+                            "Unknown Customer"}
                         </span>
                       </div>
                       {selectedBooking?.customer?.email && (
@@ -1053,42 +1088,50 @@ export default function VenueBookingsClient({
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Tanggal:</span>
                         <span className="font-medium">
-                          {selectedBooking?.startTime ?
-                            new Date(selectedBooking.startTime).toLocaleDateString(
-                              "id-ID",
-                              {
+                          {selectedBooking?.startTime
+                            ? new Date(
+                                selectedBooking.startTime,
+                              ).toLocaleDateString("id-ID", {
                                 weekday: "long",
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
-                              },
-                            ) : "N/A"
-                          }
+                              })
+                            : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Waktu:</span>
                         <span className="font-medium">
-                          {selectedBooking?.startTime && selectedBooking?.endTime ?
-                            `${new Date(selectedBooking.startTime).toLocaleTimeString("id-ID", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })} - ${new Date(selectedBooking.endTime).toLocaleTimeString("id-ID", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}` : "N/A"
-                          }
+                          {selectedBooking?.startTime &&
+                          selectedBooking?.endTime
+                            ? `${new Date(
+                                selectedBooking.startTime,
+                              ).toLocaleTimeString("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })} - ${new Date(
+                                selectedBooking.endTime,
+                              ).toLocaleTimeString("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}`
+                            : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Durasi:</span>
                         <span className="font-medium">
-                          {selectedBooking?.startTime && selectedBooking?.endTime ?
-                            `${Math.round(
-                              (new Date(selectedBooking.endTime).getTime() - new Date(selectedBooking.startTime).getTime()) /
-                                (1000 * 60 * 60)
-                            )} jam` : "N/A"
-                          }
+                          {selectedBooking?.startTime &&
+                          selectedBooking?.endTime
+                            ? `${Math.round(
+                                (new Date(selectedBooking.endTime).getTime() -
+                                  new Date(
+                                    selectedBooking.startTime,
+                                  ).getTime()) /
+                                  (1000 * 60 * 60),
+                              )} jam`
+                            : "N/A"}
                         </span>
                       </div>
                     </div>

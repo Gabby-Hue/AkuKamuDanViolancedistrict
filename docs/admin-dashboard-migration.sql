@@ -20,7 +20,6 @@ SELECT
     c.venue_id,
     v.name AS venue_name,
     v.city AS venue_city,
-    v.district AS venue_district,
     v.latitude AS venue_latitude,
     v.longitude AS venue_longitude,
     c.primary_image_url,
@@ -38,7 +37,7 @@ LEFT JOIN venues v ON v.id = c.venue_id
 LEFT JOIN bookings b ON b.court_id = c.id
 LEFT JOIN court_reviews cr ON cr.court_id = c.id
 GROUP BY c.id, c.slug, c.name, c.sport, c.surface, c.price_per_hour, c.capacity,
-         c.facilities, c.description, c.venue_id, v.name, v.city, v.district,
+         c.facilities, c.description, c.venue_id, v.name, v.city,
          v.latitude, v.longitude, c.primary_image_url, c.is_active;
 
 -- View: Venue Stats (for admin dashboard top venues)
@@ -48,7 +47,6 @@ SELECT
     v.slug,
     v.name AS venue_name,
     v.city AS venue_city,
-    v.district AS venue_district,
     v.owner_profile_id,
     COUNT(DISTINCT c.id) AS total_courts,
     COUNT(DISTINCT b.id) FILTER (WHERE b.status NOT IN ('pending', 'cancelled')) AS total_bookings,
@@ -70,7 +68,7 @@ FROM venues v
 LEFT JOIN courts c ON c.venue_id = v.id AND c.is_active = true
 LEFT JOIN bookings b ON b.court_id = c.id
 LEFT JOIN court_reviews cr ON cr.court_id = c.id
-GROUP BY v.id, v.slug, v.name, v.city, v.district, v.owner_profile_id, v.venue_status;
+GROUP BY v.id, v.slug, v.name, v.city, v.owner_profile_id, v.venue_status;
 
 -- =====================================
 -- RPC FUNCTIONS FOR ADMIN DASHBOARD CHARTS

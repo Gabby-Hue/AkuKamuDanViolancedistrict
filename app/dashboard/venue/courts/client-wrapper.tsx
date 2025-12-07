@@ -114,7 +114,11 @@ function CourtCard({
   return (
     <>
       <Card className="relative overflow-hidden">
-        <CourtImage src={court.primaryImageUrl || ''} alt={court.name} fallbackId={court.id} />
+        <CourtImage
+          src={court.primaryImageUrl || ""}
+          alt={court.name}
+          fallbackId={court.id}
+        />
         <div className="absolute top-2 right-2">
           <Badge variant={court.isActive ? "default" : "secondary"}>
             {court.isActive ? "Aktif" : "Maintenance"}
@@ -224,8 +228,7 @@ export default function CourtsClientWrapper({
   const teams: TeamOption[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description:
-      [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    description: [venue.city] || null,
     icon: "MapPin",
   }));
 

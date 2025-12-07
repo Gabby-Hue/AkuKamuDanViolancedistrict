@@ -44,7 +44,6 @@ export interface Court {
   venueId: string;
   venueName: string;
   venueCity: string;
-  venueDistrict: string;
   venueLatitude: number;
   venueLongitude: number;
   averageRating: number;
@@ -85,7 +84,6 @@ export interface Venue {
   slug: string;
   name: string;
   city: string;
-  district: string;
   latitude: number;
   longitude: number;
   ownerProfileId: string;
@@ -343,7 +341,6 @@ export class PublicQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-      venueDistrict: court.venue_district,
       venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
       averageRating: Number(court.average_rating || 0),
@@ -374,7 +371,6 @@ export class PublicQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-      venueDistrict: court.venue_district,
       venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
       averageRating: Number(court.average_rating || 0),
@@ -405,7 +401,6 @@ export class PublicQueries {
       slug: venue.slug || `${venue.venue_name.toLowerCase().replace(/\s+/g, '-')}`,
       name: venue.venue_name,
       city: venue.venue_city || '',
-      district: venue.venue_district || '',
       latitude: venue.venue_latitude,
       longitude: venue.venue_longitude,
       ownerProfileId: '',
@@ -486,7 +481,6 @@ export class DashboardQueries {
       slug: venue.slug,
       name: venue.name,
       city: venue.city || '',
-      district: venue.district || '',
       latitude: venue.latitude,
       longitude: venue.longitude,
       ownerProfileId: venue.owner_profile_id || '',
@@ -523,7 +517,6 @@ export class DashboardQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-      venueDistrict: court.venue_district,
       venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
       averageRating: Number(court.average_rating || 0),

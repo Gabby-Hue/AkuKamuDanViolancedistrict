@@ -8,21 +8,20 @@ export default async function AddCourtPage() {
   const identity = await getAuthenticatedProfile();
 
   // Get venue dashboard data using the new query system
-  const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+  const venueDashboardData = await VenueQueries.getVenueDashboardData(
+    profile.id,
+  );
 
   // Transform venues array for the client component
-  const venues = [{
-    id: venueDashboardData.venue.id,
-    name: venueDashboardData.venue.name,
-    city: venueDashboardData.venue.city || "",
-    district: venueDashboardData.venue.district
-  }];
+  const venues = [
+    {
+      id: venueDashboardData.venue.id,
+      name: venueDashboardData.venue.name,
+      city: venueDashboardData.venue.city || "",
+    },
+  ];
 
   return (
-    <ClientFormWrapper
-      profile={profile}
-      identity={identity}
-      venues={venues}
-    />
+    <ClientFormWrapper profile={profile} identity={identity} venues={venues} />
   );
 }

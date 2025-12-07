@@ -39,25 +39,30 @@ export async function getVenueSettingsData(): Promise<{
     if (profileError || !profileData) {
       return {
         success: false,
-        error: "Profile not found"
+        error: "Profile not found",
       };
     }
 
     // Get venue dashboard data using the new query system
-    const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+    const venueDashboardData = await VenueQueries.getVenueDashboardData(
+      profile.id,
+    );
 
     return {
       success: true,
       data: {
         profile: profileData,
-        venue: venueDashboardData.venue
-      }
+        venue: venueDashboardData.venue,
+      },
     };
   } catch (error) {
     console.error("Error in getVenueSettingsData:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal mengambil data pengaturan"
+      error:
+        error instanceof Error
+          ? error.message
+          : "Gagal mengambil data pengaturan",
     };
   }
 }
@@ -82,14 +87,14 @@ export async function updateProfile(data: {
       .update({
         full_name: data.fullName,
         phone: data.phone,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", profile.id);
 
     if (error) {
       return {
         success: false,
-        error: "Gagal memperbarui profil"
+        error: "Gagal memperbarui profil",
       };
     }
 
@@ -97,13 +102,14 @@ export async function updateProfile(data: {
 
     return {
       success: true,
-      data: { success: true }
+      data: { success: true },
     };
   } catch (error) {
     console.error("Error in updateProfile:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal memperbarui profil"
+      error:
+        error instanceof Error ? error.message : "Gagal memperbarui profil",
     };
   }
 }
@@ -114,7 +120,6 @@ export async function updateProfile(data: {
 export async function updateVenue(data: {
   name?: string;
   city?: string | null;
-  district?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -134,16 +139,18 @@ export async function updateVenue(data: {
     const profile = await requireRole("venue_partner");
 
     // First get the venue data to find the venue ID
-    const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+    const venueDashboardData = await VenueQueries.getVenueDashboardData(
+      profile.id,
+    );
 
     if (!venueDashboardData.venue.id) {
       return {
         success: false,
-        error: "Venue tidak ditemukan"
+        error: "Venue tidak ditemukan",
       };
     }
 
-      const result = await VenueQueries.updateVenueSettings(
+    const result = await VenueQueries.updateVenueSettings(
       profile.id,
       venueDashboardData.venue.id,
       {
@@ -154,8 +161,8 @@ export async function updateVenue(data: {
         longitude: data.longitude,
         description: data.description,
         contact_phone: data.contactPhone,
-        contact_email: data.contactEmail
-      }
+        contact_email: data.contactEmail,
+      },
     );
 
     if (result.success) {
@@ -168,7 +175,7 @@ export async function updateVenue(data: {
     console.error("Error in updateVenue:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Gagal memperbarui venue"
+      error: error instanceof Error ? error.message : "Gagal memperbarui venue",
     };
   }
 }

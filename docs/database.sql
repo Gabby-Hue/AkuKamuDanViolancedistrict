@@ -336,7 +336,6 @@ select
   c.venue_id,
   v.name as venue_name,
   v.city as venue_city,
-  v.district as venue_district,
   v.latitude as venue_latitude,
   v.longitude as venue_longitude,
   COALESCE(r.average_rating, 0::numeric) as average_rating,
@@ -394,7 +393,6 @@ select
   cs.venue_id,
   cs.venue_name,
   cs.venue_city,
-  cs.venue_district,
   cs.venue_latitude,
   cs.venue_longitude,
   cs.average_rating,
@@ -576,7 +574,6 @@ create table public.venues (
     )
   ) STORED null,
   city text null,
-  district text null,
   address text null,
   latitude double precision null,
   longitude double precision null,

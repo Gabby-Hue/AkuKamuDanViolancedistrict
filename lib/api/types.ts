@@ -47,7 +47,6 @@ export type VenueRow = {
   slug: string;
   name: string;
   city: string | null;
-  district: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -96,7 +95,6 @@ export type CourtSummaryRow = {
   description: string | null;
   venue_name: string;
   venue_city: string | null;
-  venue_district: string | null;
   venue_latitude: number | null;
   venue_longitude: number | null;
   primary_image_url: string | null;
@@ -114,7 +112,6 @@ export type CourtImageRow = {
   created_at: string;
   updated_at: string;
 };
-
 
 // Helper types for Supabase queries
 export type CourtWithVenue = CourtRow & {

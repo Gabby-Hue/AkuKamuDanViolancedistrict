@@ -18,7 +18,6 @@ function adaptCourtToSummary(court: Court) {
     description: court.description || null,
     venueName: court.venueName,
     venueCity: court.venueCity || null,
-    venueDistrict: court.venueDistrict || null,
     venueLatitude: court.venueLatitude || null,
     venueLongitude: court.venueLongitude || null,
     primaryImageUrl: court.primaryImageUrl || null,
@@ -40,8 +39,8 @@ function adaptThreadToSummary(thread: ForumThread) {
     category: thread.category || null,
     author_name: thread.author || null,
     latestReplyBody: null, // Would need additional data fetching
-    latestReplyAt: null,   // Would need additional data fetching
-    reviewCourt: null,     // Would need additional data fetching
+    latestReplyAt: null, // Would need additional data fetching
+    reviewCourt: null, // Would need additional data fetching
   };
 }
 
@@ -57,9 +56,9 @@ export default async function ExplorePage({
   // Fetch ALL courts and threads (no server-side filtering)
   const [courts, threads] = await Promise.all([
     PublicQueries.getActiveCourts({
-      limit: 100
+      limit: 100,
     }), // Get ALL courts for client-side filtering
-    PublicQueries.getForumThreads({ limit: 20 })   // Get recent forum threads
+    PublicQueries.getForumThreads({ limit: 20 }), // Get recent forum threads
   ]);
 
   // Transform data to match component expectations
@@ -67,7 +66,10 @@ export default async function ExplorePage({
   const adaptedThreads = threads.map(adaptThreadToSummary);
 
   // Calculate total replies from threads
-  const totalReplies = threads.reduce((sum, thread) => sum + thread.replyCount, 0);
+  const totalReplies = threads.reduce(
+    (sum, thread) => sum + thread.replyCount,
+    0,
+  );
 
   return (
     <ExploreView

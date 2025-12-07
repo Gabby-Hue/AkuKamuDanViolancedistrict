@@ -46,7 +46,9 @@ export default async function SettingsPage() {
   const profile = await requireRole("venue_partner");
 
   // Get venue dashboard data using the new query system
-  const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+  const venueDashboardData = await VenueQueries.getVenueDashboardData(
+    profile.id,
+  );
 
   const displayName = profile.full_name ?? "Partner";
   const email = "partner@courtease.id";
@@ -77,18 +79,18 @@ export default async function SettingsPage() {
   ];
 
   // Transform venues array for compatibility
-  const venues = [{
-    id: venueDashboardData.venue.id,
-    name: venueDashboardData.venue.name,
-    city: venueDashboardData.venue.city,
-    district: venueDashboardData.venue.district
-  }];
+  const venues = [
+    {
+      id: venueDashboardData.venue.id,
+      name: venueDashboardData.venue.name,
+      city: venueDashboardData.venue.city,
+    },
+  ];
 
   const teams: TeamOption[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description:
-      [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    description: [venue.city] || null,
     icon: "MapPin",
   }));
 

@@ -39,7 +39,6 @@ interface Venue {
   name: string;
   slug: string;
   city: string | null;
-  district: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;

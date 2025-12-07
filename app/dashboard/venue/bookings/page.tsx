@@ -8,15 +8,18 @@ export default async function BookingsPage() {
   const identity = await getAuthenticatedProfile();
 
   // Get venue dashboard data using the new query system
-  const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
+  const venueDashboardData = await VenueQueries.getVenueDashboardData(
+    profile.id,
+  );
 
   // Transform venues array for the client component
-  const venues = [{
-    id: venueDashboardData.venue.id,
-    name: venueDashboardData.venue.name,
-    city: venueDashboardData.venue.city || "",
-    district: null,
-      }];
+  const venues = [
+    {
+      id: venueDashboardData.venue.id,
+      name: venueDashboardData.venue.name,
+      city: venueDashboardData.venue.city || "",
+    },
+  ];
 
   return (
     <VenueBookingsClient

@@ -68,8 +68,7 @@ export default function ClientEditFormWrapper({
   const teams: TeamOption[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description:
-      [venue.city, venue.district].filter(Boolean).join(", ") || null,
+    description: [venue.city] || null,
     icon: "MapPin",
   }));
 
@@ -84,7 +83,8 @@ export default function ClientEditFormWrapper({
       setError(null);
 
       // Use direct query server action instead of API call
-      const { getCourtDetailsAction } = await import("@/app/dashboard/venue/courts/court-actions");
+      const { getCourtDetailsAction } =
+        await import("@/app/dashboard/venue/courts/court-actions");
       const courtData = await getCourtDetailsAction(courtId);
 
       if (courtData) {
