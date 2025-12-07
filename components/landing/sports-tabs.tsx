@@ -21,6 +21,21 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [thumbWidth, setThumbWidth] = useState(100);
+  const [visibleCount, setVisibleCount] = useState(VISIBLE_COUNT_DESKTOP);
+
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      const width = window.innerWidth;
+      setVisibleCount(width < 768 ? VISIBLE_COUNT_MOBILE : VISIBLE_COUNT_DESKTOP);
+    };
+
+    updateVisibleCount();
+    window.addEventListener("resize", updateVisibleCount);
+
+    return () => {
+      window.removeEventListener("resize", updateVisibleCount);
+    };
+  }, []);
 
   useEffect(() => {
     const container = trackRef.current;
@@ -46,16 +61,9 @@ export function SportsTabs({ sports }: { sports: SportCategory[] }) {
       container.removeEventListener("scroll", checkScroll);
       window.removeEventListener("resize", checkScroll);
     };
-  }, [sports]);
+  }, [sports, visibleCount]);
 
-  const getVisibleCount = () => {
-    if (typeof window === "undefined") return VISIBLE_COUNT_DESKTOP;
-    return window.innerWidth < 768
-      ? VISIBLE_COUNT_MOBILE
-      : VISIBLE_COUNT_DESKTOP;
-  };
-
-  const itemWidth = `calc((100% - ${(getVisibleCount() - 1) * GAP_PX}px) / ${getVisibleCount()})`;
+  const itemWidth = `calc((100% - ${(visibleCount - 1) * GAP_PX}px) / ${visibleCount})`;
 
   return (
     <div className="space-y-5">
