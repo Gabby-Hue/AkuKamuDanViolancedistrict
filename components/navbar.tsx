@@ -21,15 +21,84 @@ export default function NavbarNew() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isOnHeroDark, setIsOnHeroDark] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
+
+      // Check if we're in hero section (top part of page)
+      const heroSection = document.querySelector('[data-hero-section="true"]');
+      if (heroSection) {
+        const rect = heroSection.getBoundingClientRect();
+        const isInHero = rect.bottom > 0; // Hero section is still visible
+
+        if (!isInHero) {
+          setIsOnHeroDark(false); // Reset when scrolled past hero
+        }
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Listen for hero carousel slide changes
+    const handleHeroSlideChange = (event: CustomEvent) => {
+      const { isDarkBackground } = event.detail;
+      setIsOnHeroDark(isDarkBackground);
+    };
+
+    // Check hero status directly by querying data attribute
+    const checkHeroStatus = () => {
+      const heroSection = document.querySelector('[data-hero-section="true"]');
+      if (heroSection) {
+        const isVisible = heroSection.getBoundingClientRect().top < window.innerHeight && heroSection.getBoundingClientRect().bottom > 0;
+        const slideIsDark = heroSection.getAttribute('data-slide-is-dark') === 'true';
+
+        // Fallback: Check current slide by analyzing images
+        const images = heroSection.querySelectorAll('img');
+        const firstImage = images[0];
+        const isDarkByAlt = firstImage && (firstImage.alt === "Main hari ini, esok, atau kapan saja" || firstImage.alt === "Temukan bakat dan komunitas baru");
+
+        const isDark = slideIsDark || isDarkByAlt;
+        setIsOnHeroDark(isVisible && isDark);
+      }
+    };
+
+    // Check if we're on landing page and add event listeners
+    if (pathname === "/") {
+      // Listen for window events (global scope)
+      window.addEventListener("hero-slide-change", handleHeroSlideChange as EventListener);
+
+      // Set up MutationObserver to detect data attribute changes
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'data-slide-is-dark') {
+            checkHeroStatus();
+          }
+        });
+      });
+
+      const heroSection = document.querySelector('[data-hero-section="true"]');
+      if (heroSection) {
+        observer.observe(heroSection, { attributes: true });
+
+        // Initial check after a short delay
+        setTimeout(() => {
+          checkHeroStatus();
+        }, 100);
+      }
+
+      return () => {
+        window.removeEventListener("hero-slide-change", handleHeroSlideChange as EventListener);
+        observer.disconnect();
+      };
+    }
+
+    return () => {};
+  }, [pathname]);
 
   useEffect(() => {
     if (!menuOpen) {
@@ -67,19 +136,19 @@ export default function NavbarNew() {
       <header
         className={clsx(
           "fixed w-full transition-all duration-300 top-0 z-500",
-          scrolled
-            ? "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
-            : "bg-transparent",
+          // When not scrolled and on hero with dark background
+          !scrolled && pathname === "/" && isOnHeroDark
+            ? "bg-transparent"
+            : // When scrolled or not on hero
+              scrolled
+                ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-gray-100/20 dark:border-slate-700/30"
+                : "bg-transparent",
         )}
       >
-        {/* Gradient line - hanya muncul saat scroll */}
-        {scrolled && (
-          <div className="h-px bg-gradient-to-r from-brand via-brand-strong to-brand" />
-        )}
 
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16">
           {/* Mobile view */}
-          <div className="flex w-full items-center justify-between text-white sm:hidden">
+          <div className="flex w-full items-center justify-between sm:hidden">
             <Link
               href="/"
               className="flex items-center gap-2 text-lg font-bold"
@@ -91,12 +160,23 @@ export default function NavbarNew() {
                 height={28}
                 className="rounded-lg"
               />
-              <span className="text-lg font-bold text-brand dark:text-brand-contrast">
+              <span className={clsx(
+                "text-lg font-bold",
+                pathname === "/" && !scrolled && isOnHeroDark
+                  ? "text-white"
+                  : "text-brand dark:text-brand-contrast"
+              )}>
                 courtease
               </span>
             </Link>
             <div className="flex items-center">
-              <SearchBar />
+              <SearchBar
+                className={
+                  pathname === "/" && !scrolled && isOnHeroDark
+                    ? "text-white hover:bg-white/10"
+                    : ""
+                }
+              />
               <div className="scale-100 origin-right">
                 <NavbarAuthMenu
                   variant="inline"
@@ -106,7 +186,12 @@ export default function NavbarNew() {
               <button
                 type="button"
                 aria-label="Buka menu navigasi"
-                className="rounded-lg p-2 text-brand transition-colors duration-200 hover:bg-brand/10 dark:text-brand-contrast dark:hover:bg-brand/20"
+                className={clsx(
+                  "rounded-lg p-2 transition-colors duration-200",
+                  pathname === "/" && !scrolled && isOnHeroDark
+                    ? "text-white hover:bg-white/10"
+                    : "text-brand hover:bg-brand/10 dark:text-brand-contrast dark:hover:bg-brand/20"
+                )}
                 onClick={() => setMenuOpen(true)}
               >
                 <Menu className="h-5 w-5" />
@@ -115,7 +200,7 @@ export default function NavbarNew() {
           </div>
 
           {/* Desktop view */}
-          <div className="hidden w-full items-center justify-between text-white sm:flex">
+          <div className="hidden w-full items-center justify-between sm:flex">
             <div className="flex items-center gap-8">
               <Link
                 href="/"
@@ -128,7 +213,12 @@ export default function NavbarNew() {
                   height={32}
                   className="rounded-lg"
                 />
-                <span className="text-xl font-bold normal-case text-brand dark:text-brand-contrast">
+                <span className={clsx(
+                  "text-xl font-bold normal-case",
+                  pathname === "/" && !scrolled && isOnHeroDark
+                    ? "text-white"
+                    : "text-brand dark:text-brand-contrast"
+                )}>
                   courtease
                 </span>
               </Link>
@@ -146,16 +236,25 @@ export default function NavbarNew() {
                         className={clsx(
                           "relative px-4 py-2 text-sm font-medium transition-colors duration-200 group",
                           isActive
-                            ? "text-brand dark:text-brand-contrast"
-                            : "text-slate-800 dark:text-slate-200",
-                          "hover:text-brand dark:hover:text-brand-contrast",
+                            ? pathname === "/" && !scrolled && isOnHeroDark
+                              ? "text-white"
+                              : "text-brand dark:text-brand-contrast"
+                            : pathname === "/" && !scrolled && isOnHeroDark
+                              ? "text-white"
+                              : "text-slate-800 dark:text-slate-200",
+                          pathname === "/" && !scrolled && isOnHeroDark
+                            ? "hover:text-white/80"
+                            : "hover:text-brand dark:hover:text-brand-contrast",
                         )}
                       >
                         {link.label}
                         <span
                           className={clsx(
-                            "absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-brand to-brand-strong transform transition-transform duration-300 ease-out origin-left",
-                            isActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                            "absolute bottom-0 left-0 h-0.5 w-full transform transition-transform duration-300 ease-out origin-left",
+                            pathname === "/" && !scrolled && isOnHeroDark
+                              ? "bg-white"
+                              : "bg-gradient-to-r from-brand to-brand-strong",
+                            isActive || scrolled ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
                           )}
                         />
                       </Link>
@@ -164,16 +263,34 @@ export default function NavbarNew() {
                 </nav>
             </div>
             <div className="flex items-center gap-3">
-              <SearchBar />
-              <div className="text-white">
-                <ModeToggle />
+              <SearchBar
+                className={
+                  pathname === "/" && !scrolled && isOnHeroDark
+                    ? "text-white hover:bg-white/10"
+                    : ""
+                }
+              />
+              <div>
+                <ModeToggle
+                  className={clsx(
+                    "rounded-full",
+                    pathname === "/" && !scrolled && isOnHeroDark
+                      ? "text-white hover:bg-white/10 hover:text-white"
+                      : "text-brand hover:bg-brand/10 hover:text-brand-strong"
+                  )}
+                />
               </div>
-              <NavbarAuthMenu variant="inline" onAction={() => {}} />
+              <NavbarAuthMenu
+              variant="inline"
+              onAction={() => {}}
+              isHeroDark={pathname === "/" && !scrolled && isOnHeroDark}
+            />
             </div>
           </div>
         </div>
       </header>
 
+      
       {/* Mobile menu overlay - FULL PAGE */}
       <div
         className={clsx(
@@ -231,12 +348,17 @@ export default function NavbarNew() {
             <NavbarAuthMenu
               variant="stacked"
               onAction={() => setMenuOpen(false)}
+              isHeroDark={false} // Mobile menu uses its own dark background
             />
           </div>
 
           {/* Dark mode toggle in bottom left corner */}
           <div className="absolute bottom-6 left-6">
-            <ModeToggle />
+            <ModeToggle
+              className={clsx(
+                "rounded-full text-brand hover:bg-brand/10 hover:text-brand-strong dark:text-brand-contrast dark:hover:bg-brand/20 dark:hover:text-brand"
+              )}
+            />
           </div>
 
           {/* Close button in top right */}

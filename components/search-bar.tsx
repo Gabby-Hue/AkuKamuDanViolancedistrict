@@ -17,6 +17,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Database search result type
 type SearchResult = {
@@ -78,7 +79,7 @@ async function fetchSearchResults(query: string): Promise<SearchResults> {
   }
 }
 
-export default function SearchBar() {
+export default function SearchBar({ className }: { className?: string }) {
   // Current search text
   const [query, setQuery] = useState<string>("");
   // Whether the overlay/dropdown is currently visible
@@ -179,7 +180,10 @@ export default function SearchBar() {
         type="button"
         aria-label="Search"
         onClick={() => setOpen(true)}
-        className="md:hidden rounded-lg p-2 text-brand dark:text-brand-contrast"
+        className={cn(
+          "md:hidden rounded-lg p-2 text-brand dark:text-brand-contrast",
+          className
+        )}
       >
         <Search className="h-5 w-5" />
       </button>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { CourtSummary } from "@/lib/supabase/queries/courts";
 import { formatDistance } from "@/lib/geo";
 import type { Coordinates } from "@/lib/geo";
@@ -170,26 +171,11 @@ export function NearestCourtTiles({ courts, limit }: Props) {
               {message}
             </div>
           )}
-          <div className="grid gap-3 text-sm">
+          <div className="grid gap-5 text-sm">
             {visible.map(({ item: court, distanceKm }) => {
               const distanceLabel = formatDistance(distanceKm);
               return (
-                <div
-                  key={court.id}
-                  className="rounded-2xl border border-brand/25 bg-white/95 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 hover:shadow-brand/30 dark:border-brand/35 dark:bg-brand/20"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand dark:text-brand">
-                    {court.venueCity ?? "Lokasi fleksibel"}
-                  </p>
-                  <p className="mt-1 text-base font-semibold text-slate-900 dark:text-white">
-                    {court.name}
-                  </p>
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-200">
-                    Mulai dari Rp{court.pricePerHour.toLocaleString("id-ID")}
-                    /jam
-                    {distanceLabel ? ` • ${distanceLabel}` : ""}
-                  </p>
-                </div>
+                <ImprovedCourtCard key={court.id} court={court} distanceLabel={distanceLabel} viewMode="list" />
               );
             })}
             {!visible.length && (
@@ -221,52 +207,11 @@ export function NearestCourtSpotlight({ courts, limit }: Props) {
   return (
     <div className="space-y-3">
       <p className="text-xs text-slate-600 dark:text-slate-100">{message}</p>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {visible.map(({ item: court, distanceKm }) => {
           const distanceLabel = formatDistance(distanceKm);
           return (
-            <article
-              key={court.id}
-              className="group flex flex-col gap-4 rounded-3xl border border-brand/25 bg-white/90 p-6 shadow-sm shadow-brand/10 transition hover:-translate-y-1 hover:border-brand/60 hover:shadow-brand/30 dark:border-brand/35 dark:bg-brand/20"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {court.name}
-                </p>
-                <span className="rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand dark:bg-brand/20 dark:text-brand">
-                  {court.averageRating.toFixed(1)} ★
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 dark:text-slate-200">
-                {court.venueName}
-              </p>
-              <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-200">
-                <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
-                  {court.sport}
-                </span>
-                {court.venueCity && (
-                  <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
-                    {court.venueCity}
-                  </span>
-                )}
-                {distanceLabel && (
-                  <span className="rounded-full bg-brand/10 px-3 py-1 font-semibold text-brand dark:bg-brand/25 dark:text-brand-contrast">
-                    {distanceLabel}
-                  </span>
-                )}
-              </div>
-              <div className="mt-auto flex items-center justify-between text-sm">
-                <span className="font-semibold text-brand dark:text-brand">
-                  Rp{court.pricePerHour.toLocaleString("id-ID")}/jam
-                </span>
-                <Link
-                  href={`/court/${court.slug}`}
-                  className="text-xs font-semibold text-slate-500 transition hover:text-brand dark:text-slate-200 dark:hover:text-brand"
-                >
-                  Detail venue →
-                </Link>
-              </div>
-            </article>
+            <ImprovedCourtCard key={court.id} court={court} distanceLabel={distanceLabel} viewMode="grid" />
           );
         })}
         {!visible.length && (
@@ -277,5 +222,125 @@ export function NearestCourtSpotlight({ courts, limit }: Props) {
         )}
       </div>
     </div>
+  );
+}
+
+type ImprovedCourtCardProps = {
+  court: CourtSummary;
+  distanceLabel?: string | null;
+  viewMode: "grid" | "list";
+};
+
+function ImprovedCourtCard({ court, distanceLabel, viewMode }: ImprovedCourtCardProps) {
+  const price = new Intl.NumberFormat("id-ID").format(court.pricePerHour);
+
+  return (
+    <Link
+      href={`/court/${court.slug}`}
+      className={cn(
+        "group overflow-hidden rounded-3xl border border-brand/60 bg-white/95 shadow-sm transition hover:-translate-y-1 hover:border-brand hover:shadow-xl dark:border-brand/30 dark:bg-slate-900/70",
+        viewMode === "list"
+          ? "flex flex-col gap-4 p-4 sm:flex-row sm:items-stretch sm:gap-6"
+          : "flex flex-col",
+      )}
+    >
+      <div
+        className={cn(
+          "relative overflow-hidden",
+          viewMode === "list"
+            ? "h-48 w-full rounded-2xl sm:h-40 sm:w-48 sm:flex-shrink-0"
+            : "h-52",
+        )}
+      >
+        {court.primaryImageUrl ? (
+          <Image
+            src={court.primaryImageUrl}
+            alt={court.name}
+            fill
+            sizes={viewMode === "list" ? "192px" : "(max-width: 768px) 50vw, 33vw"}
+            className="object-cover transition duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-200 via-white to-brand-soft/50 text-slate-500 dark:from-slate-800 dark:via-slate-900 dark:to-brand-soft/30">
+            <span className="text-xs font-semibold uppercase tracking-widest text-center">
+              {court.sport}
+            </span>
+          </div>
+        )}
+        {/* Rating badge */}
+        <div className="absolute top-3 right-3">
+          <div className="rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white">
+            {court.averageRating.toFixed(1)} ★
+          </div>
+        </div>
+        {distanceLabel && (
+          <div className="absolute top-3 left-3">
+            <div className="rounded-full bg-black/60 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white">
+              {distanceLabel}
+            </div>
+          </div>
+        )}
+      </div>
+      <div
+        className={cn(
+          "flex flex-1 flex-col gap-3 p-5",
+          viewMode === "list" ? "p-0 sm:p-5" : "",
+        )}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand dark:text-brand-muted">
+              {court.sport}
+            </p>
+            <h3 className="text-lg font-semibold text-slate-900 transition group-hover:text-brand dark:text-white dark:group-hover:text-brand-muted line-clamp-1">
+              {court.name}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+              {court.venueName}
+              {court.venueCity ? ` • ${court.venueCity}` : ""}
+            </p>
+          </div>
+          <div className="text-right text-xs text-slate-500 dark:text-slate-400 flex-shrink-0">
+            <p className="font-semibold text-brand dark:text-brand">
+              Rp{price}
+              <span className="font-normal">/jam</span>
+            </p>
+          </div>
+        </div>
+        {court.facilities.length > 0 && (
+          <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+            {court.facilities
+              .slice(0, viewMode === "grid" ? 3 : 5)
+              .map((amenity) => (
+                <span
+                  key={amenity}
+                  className="rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800/80"
+                >
+                  {amenity}
+                </span>
+              ))}
+            {court.facilities.length > (viewMode === "grid" ? 3 : 5) && (
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-500 dark:bg-slate-800/80">
+                +{court.facilities.length - (viewMode === "grid" ? 3 : 5)}
+              </span>
+            )}
+          </div>
+        )}
+        {court.description && viewMode === "grid" && (
+          <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
+            {court.description.length > 80
+              ? `${court.description.slice(0, 80)}...`
+              : court.description}
+          </p>
+        )}
+        {distanceLabel && viewMode === "list" && (
+          <div className="mt-auto">
+            <p className="text-xs text-brand dark:text-brand-muted">
+              📍 {distanceLabel}
+            </p>
+          </div>
+        )}
+      </div>
+    </Link>
   );
 }

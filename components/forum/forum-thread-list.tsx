@@ -5,11 +5,9 @@ import Link from "next/link";
 
 import { MapPin } from "lucide-react";
 
-import type { ForumCategory, ForumThreadSummary } from "@/lib/supabase/queries";
+import type { ForumCategory, ForumThreadSummary } from "@/lib/queries/types";
 import { cn } from "@/lib/utils";
 import { truncateText } from "@/lib/strings";
-
-import { useRealtimeThreadSummaries } from "@/components/forum/use-realtime-thread-summaries";
 
 const sortOptions = [
   { id: "latest", label: "Latest" },
@@ -25,7 +23,7 @@ export function ForumThreadList({ categories, threads }: ForumThreadListProps) {
   const [activeSort, setActiveSort] = useState<string>("latest");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
-  const liveThreads = useRealtimeThreadSummaries(threads);
+  const liveThreads = threads; // Use threads directly since realtime hook was removed
 
   const categoryOptions = useMemo(() => {
     const unique = new Map<string, ForumCategory>();

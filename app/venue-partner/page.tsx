@@ -281,7 +281,7 @@ export default function VenuePartnerPage() {
   ];
 
   return (
-    <main className="top-0min-h-screen bg-white dark:bg-gray-900">
+    <main className="min-h-screen">
       {/* Hero Section - Didesain Ulang Total */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-teal-600 text-white">
         {/* Dekorasi Abstrak */}

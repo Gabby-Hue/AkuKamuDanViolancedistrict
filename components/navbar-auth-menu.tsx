@@ -24,10 +24,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type NavbarAuthMenuProps = {
   variant?: "inline" | "stacked";
   onAction?: () => void;
+  isHeroDark?: boolean;
 };
 
 type AuthenticatedUser = {
@@ -54,6 +56,7 @@ function getDashboardUrl(userRole: string | null): string {
 export function NavbarAuthMenu({
   variant = "inline",
   onAction,
+  isHeroDark = false,
 }: NavbarAuthMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -236,12 +239,25 @@ export function NavbarAuthMenu({
 
     return (
       <div className="hidden sm:flex items-center gap-2">
-        <Button asChild variant="link">
+        <Button
+          asChild
+          variant="link"
+          className={isHeroDark ? "text-white hover:text-white/80" : ""}
+        >
           <Link href={`/auth/login?redirect=${encodeURIComponent(pathname)}`}>
             Masuk
           </Link>
         </Button>
-        <Button asChild className="rounded-full px-6 text-sm font-semibold">
+        <Button
+          asChild
+          variant={isHeroDark ? "outline" : "default"}
+          className={cn(
+            "rounded-full px-6 text-sm font-semibold",
+            isHeroDark
+              ? "!bg-white !text-brand !border-white hover:!bg-white/90 hover:!text-brand-strong"
+              : ""
+          )}
+        >
           <Link
             href={`/auth/register?redirect=${encodeURIComponent(pathname)}`}
           >

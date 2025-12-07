@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import {
   CalendarClock,
   CreditCard,
@@ -133,7 +134,7 @@ export default async function UserDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-20 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="mb-8">
@@ -566,49 +567,76 @@ export default async function UserDashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {recommendedCourts.map((court) => (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {recommendations.map((court) => (
                     <div
                       key={court.id}
-                      className="rounded-lg border p-4 hover:shadow-md transition-shadow"
+                      className="group cursor-pointer rounded-lg border overflow-hidden hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-white">
-                            {court.name}
-                          </h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {court.venueName}
-                            {court.venueCity && ` • ${court.venueCity}`}
-                          </p>
+                      <Link href={`/court/${court.slug}`}>
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          {court.primaryImageUrl ? (
+                            <Image
+                              src={court.primaryImageUrl}
+                              alt={court.name}
+                              fill
+                              sizes="(max-width: 768px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                              <div className="text-center p-4">
+                                <div className="text-3xl mb-2">🏟️</div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {court.sport}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          <div className="absolute top-2 right-2">
+                            <div className="bg-black/60 backdrop-blur-sm text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              {court.averageRating ? Number(court.averageRating).toFixed(1) : "0.0"}
+                              {court.reviewCount > 0 && (
+                                <span className="text-gray-300">
+                                  ({court.reviewCount})
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-blue-600 dark:text-blue-400">
-                            Rp{" "}
-                            {Number(court.pricePerHour || 0).toLocaleString(
-                              "id-ID",
-                            )}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            /jam
-                          </p>
+                        <div className="p-4">
+                          <div className="space-y-2">
+                            <h4 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
+                              {court.name}
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {court.venueName}
+                              {court.venueCity && `, ${court.venueCity}`}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-xs">
+                                  {court.sport}
+                                </Badge>
+                                {court.surface && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {court.surface}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold text-blue-600 dark:text-blue-400">
+                                  Rp{Number(court.pricePerHour || 0).toLocaleString("id-ID")}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  /jam
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                        <Badge variant="outline">{court.sport}</Badge>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span>{court.averageRating || "0.0"}</span>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        asChild
-                      >
-                        <Link href={`/court/${court.slug}`}>Detail Venue</Link>
-                      </Button>
+                      </Link>
                     </div>
                   ))}
                 </div>

@@ -1,18 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { ThreadReplyForm } from "@/components/forum/thread-reply-form";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
-import type { ForumReply } from "@/lib/supabase/queries/forum";
-
-function sortReplies(replies: ForumReply[]) {
-  return [...replies].sort(
-    (a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-  );
-}
+import { sortReplies } from "@/lib/utils/forum-utils";
+import { refreshForumThread } from "./forum-actions";
+import type { ForumReply } from "@/lib/queries/types";
 
 type ThreadRepliesProps = {
   threadId: string;
@@ -25,84 +17,27 @@ export function ThreadReplies({
   initialReplies,
   onTotalChange,
 }: ThreadRepliesProps) {
-  const [replies, setReplies] = useState<ForumReply[]>(
-    sortReplies(initialReplies),
+  const sortedReplies = sortReplies(initialReplies);
+
+  // Report total to parent
+  if (onTotalChange) {
+    onTotalChange(sortedReplies.length);
+  }
+
+  const handleReplyCreated = async (reply: ForumReply) => {
+    // Revalidate the forum thread path to refresh server-side data
+    await refreshForumThread();
+  };
+
+  const replyNames = Array.from(
+    new Set(
+      sortedReplies
+        .map((reply) => reply.authorName ?? "Member CourtEase")
+        .filter(Boolean),
+    ),
   );
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    const sorted = sortReplies(initialReplies);
-    setReplies(sorted);
-  }, [initialReplies]);
-
-  useEffect(() => {
-    onTotalChange?.(replies.length);
-  }, [replies.length, onTotalChange]);
-
-  const refreshReplies = useCallback(async () => {
-    const supabase = createClient();
-    setIsSyncing(true);
-    type ReplyRow = {
-      id: string;
-      body: string;
-      created_at: string;
-      author: { full_name: string | null } | null;
-    };
-
-    const { data, error } = await supabase
-      .from("forum_replies")
-      .select("id, body, created_at, author:profiles(full_name)")
-      .eq("thread_id", threadId)
-      .order("created_at", { ascending: true });
-
-    const rows = (Array.isArray(data) ? data : []) as unknown as ReplyRow[];
-
-    if (!error) {
-      const mapped = rows.map<ForumReply>((reply) => ({
-        id: reply.id,
-        body: reply.body,
-        created_at: reply.created_at,
-        author_name: reply.author?.full_name ?? null,
-      }));
-      setReplies(mapped);
-    }
-    setIsSyncing(false);
-  }, [threadId]);
-
-  useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`forum-thread-${threadId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "forum_replies",
-          filter: `thread_id=eq.${threadId}`,
-        },
-        () => {
-          refreshReplies();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [threadId, refreshReplies]);
-
-  const replyNames = useMemo(() => {
-    return Array.from(
-      new Set(
-        replies
-          .map((reply) => reply.author_name ?? "Member CourtEase")
-          .filter(Boolean),
-      ),
-    );
-  }, [replies]);
-
-  const totalReplies = replies.length;
+  const totalReplies = sortedReplies.length;
 
   return (
     <section className="space-y-6">
@@ -112,78 +47,60 @@ export function ThreadReplies({
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
               Balasan ({totalReplies})
             </h2>
-            {isSyncing && (
-              <p className="text-xs text-brand-strong">
-                Menyinkronkan balasan terbaru…
-              </p>
-            )}
           </div>
           {replyNames.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-300">
               <span className="font-semibold uppercase tracking-[0.3em] text-brand-strong">
                 Dibalas oleh
               </span>
-              {replyNames.map((name) => (
-                <span
-                  key={name}
-                  className="rounded-full bg-[#E5E7EB] px-3 py-1 text-slate-600 dark:bg-slate-800/80 dark:text-slate-200"
-                >
-                  {name}
-                </span>
+              {replyNames.map((name, index) => (
+                <span key={index}>{name}</span>
               ))}
             </div>
           )}
         </div>
 
-        <ul className="mt-6 space-y-4">
-          {replies.map((reply) => (
-            <li
+        <div className="mt-6 space-y-4">
+          {sortedReplies.map((reply) => (
+            <div
               key={reply.id}
-              className="rounded-2xl border border-[#E5E7EB] bg-white/90 p-5 dark:border-slate-700/70 dark:bg-slate-900/60"
+              className="rounded-2xl border border-slate-200/60 bg-slate-50/50 p-4 transition-colors hover:bg-slate-100/50 dark:border-slate-700/60 dark:bg-slate-800/30 dark:hover:bg-slate-700/30"
             >
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-                <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {reply.author_name ?? "Member CourtEase"}
-                </span>
-                <span>
-                  {new Date(reply.created_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {reply.authorName}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {new Date(reply.createdAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {reply.body}
+                  </p>
+                </div>
               </div>
-              <p className="mt-3 text-sm text-slate-700 dark:text-slate-200">
-                {reply.body}
-              </p>
-            </li>
+            </div>
           ))}
-          {!replies.length && (
-            <li className="rounded-2xl border border-dashed border-[#E5E7EB] bg-white/80 p-6 text-sm text-slate-500 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-400">
-              Belum ada balasan. Jadi yang pertama memberi masukan untuk thread
-              ini!
-            </li>
-          )}
-        </ul>
-        <div className="mt-6 text-right">
-          <Button
-            type="button"
-            variant="outline"
-            className="border-brand/60 text-brand-strong transition hover:border-brand hover:bg-brand-strong/10 dark:border-brand/60 dark:text-brand"
-            onClick={refreshReplies}
-            disabled={isSyncing}
-          >
-            Segarkan balasan
-          </Button>
         </div>
+
+        {totalReplies === 0 && (
+          <div className="text-center py-8">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Belum ada balasan. Jadilah yang pertama!
+            </p>
+          </div>
+        )}
       </div>
 
-      <ThreadReplyForm
-        threadId={threadId}
-        onReplyCreated={(reply) => {
-          setReplies((prev) => sortReplies([...prev, reply]));
-        }}
-      />
+      <ThreadReplyForm threadId={threadId} onReplyCreated={handleReplyCreated} />
     </section>
   );
 }

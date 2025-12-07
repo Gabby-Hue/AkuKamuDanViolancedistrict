@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import type { ForumReply } from "@/lib/supabase/queries/forum";
+import type { ForumReply } from "@/lib/queries/types";
 
 const textareaClassName =
   "min-h-[120px] w-full rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/40 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100";

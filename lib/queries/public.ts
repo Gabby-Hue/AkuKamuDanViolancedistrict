@@ -87,39 +87,47 @@ export class PublicQueries {
   static async getCourtDetail(slug: string): Promise<CourtDetail | null> {
     const supabase = await createClient();
 
-    // Single optimized query with all needed data
-    const { data, error } = await supabase
-      .from("active_courts")
-      .select(
-        `
-        *,
-        venue:venues(
-          contact_phone,
-          contact_email,
-          address
-        ),
-        reviews:court_reviews(
-          id,
-          rating,
-          comment,
-          created_at,
-          profile:profiles(full_name)
-        )
-      `,
-      )
+    // Get court details using court_summaries_with_stats view
+    const { data: courtData, error: courtError } = await supabase
+      .from("court_summaries_with_stats")
+      .select("*")
       .eq("slug", slug)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching court detail:", error);
+    if (courtError || !courtData) {
+      console.error("Error fetching court detail:", courtError);
       return null;
     }
 
-    if (!data) {
-      return null;
-    }
+    // Get venue contact info separately
+    const { data: venueData, error: venueError } = await supabase
+      .from("venues")
+      .select("contact_phone, contact_email, address, district")
+      .eq("id", courtData.venue_id)
+      .single();
 
-    return this.transformCourtDetail(data);
+    // Get court images using the function
+    const { data: imagesData, error: imagesError } = await supabase.rpc(
+      "get_court_images",
+      { court_uuid: courtData.id },
+    );
+
+    const { data: reviewsData, error: reviewsError } = await supabase
+      .from("court_reviews_with_authors") // <--- MENJADI INI
+      .select("id, rating, comment, created_at, author_name") // <--- Lebih sederhana
+      .eq("court_id", courtData.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    // Combine all data
+    const combinedData = {
+      ...courtData,
+      venue: venueData || {},
+      images: imagesData || [],
+      reviews: reviewsData || [],
+    };
+
+    return this.transformCourtDetail(combinedData);
   }
 
   /**
@@ -262,6 +270,77 @@ export class PublicQueries {
   }
 
   /**
+   * Get forum replies for a thread by slug
+   * Used: forum thread detail page (server-side)
+   */
+  static async getForumRepliesBySlug(
+    threadSlug: string,
+  ): Promise<ForumReply[]> {
+    const supabase = await createClient();
+
+    // First get the thread ID from slug
+    const { data: threadData, error: threadError } = await supabase
+      .from("forum_threads")
+      .select("id")
+      .eq("slug", threadSlug)
+      .single();
+
+    if (threadError || !threadData) {
+      console.error("Error fetching thread ID:", threadError);
+      return [];
+    }
+
+    // Then get replies for that thread
+    const { data, error } = await supabase
+      .from("forum_replies")
+      .select(
+        `
+        *,
+        profiles!forum_replies_author_profile_id_fkey (
+          full_name
+        )
+      `,
+      )
+      .eq("thread_id", threadData.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching forum replies:", error);
+      return [];
+    }
+
+    return this.transformForumReplies(data || []);
+  }
+
+  /**
+   * Get forum replies for a thread
+   * Used: forum thread detail page (client-side)
+   */
+  static async getForumReplies(threadId: string): Promise<ForumReply[]> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from("forum_replies")
+      .select(
+        `
+        *,
+        profiles!forum_replies_author_profile_id_fkey (
+          full_name
+        )
+      `,
+      )
+      .eq("thread_id", threadId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching forum replies:", error);
+      return [];
+    }
+
+    return this.transformForumReplies(data || []);
+  }
+
+  /**
    * Get venue partner applications
    * Used: venue-partner/page.tsx
    */
@@ -318,7 +397,7 @@ export class PublicQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-            venueLatitude: court.venue_latitude,
+      venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
       averageRating: Number(court.average_rating || 0),
       reviewCount: Number(court.review_count || 0),
@@ -336,6 +415,13 @@ export class PublicQueries {
     const court = data;
     const venue = court?.venue;
 
+    // Transform images data from get_court_images function
+    const images = (court.images || []).map((img: any) => ({
+      id: img.id || Math.random().toString(),
+      imageUrl: img.image_url,
+      isPrimary: img.is_primary,
+    }));
+
     return {
       id: court.id,
       slug: court.slug,
@@ -349,17 +435,23 @@ export class PublicQueries {
       venueId: court.venue_id,
       venueName: court.venue_name,
       venueCity: court.venue_city,
-            venueLatitude: court.venue_latitude,
+      venueDistrict: court.venue_district,
+      venueAddress: venue?.address,
+      venueLatitude: court.venue_latitude,
       venueLongitude: court.venue_longitude,
       averageRating: Number(court.average_rating || 0),
       reviewCount: Number(court.review_count || 0),
-      primaryImageUrl: court.primary_image_url,
-      images: court.images || [],
+      primaryImageUrl:
+        court.primary_image_info?.image_url ||
+        images.find((img) => img.isPrimary)?.imageUrl ||
+        null,
+      images: images,
       reviews: (court.reviews || []).map((review: any) => ({
         id: review.id,
         rating: Number(review.rating),
         comment: review.comment,
-        author: review.profile?.full_name || "Anonymous",
+        // Gunakan author_name langsung dari view court_reviews_with_authors
+        author_name: review.author_name || "Member CourtEase",
         createdAt: review.created_at,
         bookingId: review.booking_id,
       })),
@@ -367,10 +459,9 @@ export class PublicQueries {
       todayBookings: Number(court.today_bookings || 0),
       totalRevenue: Number(court.total_revenue || 0),
       isActive: true,
-      // Additional detail fields
+      // Additional detail fields from venue
       venueContactPhone: venue?.contact_phone,
       venueContactEmail: venue?.contact_email,
-      venueAddress: venue?.address,
     };
   }
 
@@ -449,6 +540,18 @@ export class PublicQueries {
           }
         : undefined,
     };
+  }
+
+  private static transformForumReplies(data: any[]): ForumReply[] {
+    return data.map((reply) => ({
+      id: reply.id,
+      threadId: reply.thread_id,
+      authorId: reply.author_profile_id,
+      authorName: reply.profiles?.full_name || "Anonymous",
+      body: reply.body,
+      createdAt: reply.created_at,
+      updatedAt: reply.updated_at,
+    }));
   }
 
   private static transformApplications(data: any[]): VenuePartnerApplication[] {

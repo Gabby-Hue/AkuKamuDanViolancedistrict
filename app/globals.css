@@ -132,6 +132,27 @@
         @apply border-border outline-ring/50;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply text-foreground;
+        background: linear-gradient(135deg,
+            #faf8f0 0%,
+            #ffffff 50%,
+            #f5f2ea 100%
+        );
     }
+    .dark body {
+        background: linear-gradient(135deg,
+            rgb(15 23 42) 0%,
+            rgb(3 7 18) 50%,
+            rgb(15 23 42) 100%
+        );
+    }
+}
+
+/* Scrollbar utilities */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
 }

@@ -1,11 +1,8 @@
 "use client";
 
 import Link from "next/link";
-
-import type { ForumThreadSummary } from "@/lib/supabase/queries/forum";
 import { truncateText } from "@/lib/strings";
-
-import { useRealtimeThreadSummaries } from "@/components/forum/use-realtime-thread-summaries";
+import type { ForumThreadSummary } from "@/lib/queries/types";
 
 type RealtimeThreadHighlightsProps = {
   threads: ForumThreadSummary[];
@@ -16,8 +13,7 @@ export function RealtimeThreadHighlights({
   threads,
   limit,
 }: RealtimeThreadHighlightsProps) {
-  const liveThreads = useRealtimeThreadSummaries(threads);
-  const visible = liveThreads.slice(0, limit);
+  const visible = threads.slice(0, limit); // Use threads directly since realtime hook was removed
 
   if (!visible.length) {
     return (

@@ -317,12 +317,19 @@ export function BookingScheduler({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <CardContent className="space-y-4">
+        {/* Status Message */}
+        <div className="p-3 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground text-center">
+            {selectionMessage}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Calendar Section */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium mb-1.5 block">
                 Pilih Tanggal
               </label>
               <Popover>
@@ -330,16 +337,18 @@ export function BookingScheduler({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal h-10",
                       !selectedDate && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? (
-                      format(selectedDate, "PPP", { locale: localeID })
-                    ) : (
-                      <span>Pilih tanggal booking</span>
-                    )}
+                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">
+                      {selectedDate ? (
+                        format(selectedDate, "PPP", { locale: localeID })
+                      ) : (
+                        <span>Pilih tanggal</span>
+                      )}
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -357,86 +366,81 @@ export function BookingScheduler({
               </Popover>
             </div>
 
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                {selectionMessage}
-              </p>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Time Picker */}
+              <div>
+                <label className="text-sm font-medium mb-1.5 block flex items-center">
+                  <Clock className="mr-1.5 h-3.5 w-3.5 flex-shrink-0" />
+                  Jam
+                </label>
+                <Select
+                  value={selectedHour?.toString()}
+                  onValueChange={(value) => setSelectedHour(parseInt(value))}
+                  disabled={!selectedDate || availableHours.length === 0}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Pilih jam" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableHours.map((hour) => (
+                      <SelectItem key={hour} value={hour.toString()}>
+                        {hour.toString().padStart(2, "0")}:00
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Duration Picker */}
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">
+                  Durasi
+                </label>
+                <Select
+                  value={duration.toString()}
+                  onValueChange={(value) => setDuration(parseInt(value))}
+                  disabled={
+                    !selectedDate ||
+                    selectedHour === null ||
+                    availableDurations.length === 0
+                  }
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Pilih durasi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDurations.map((durationValue) => (
+                      <SelectItem
+                        key={durationValue}
+                        value={durationValue.toString()}
+                      >
+                        {durationValue} jam
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
-          {/* Time and Duration Section */}
-          <div className="space-y-4">
-            {/* Time Picker */}
+          {/* Notes Section */}
+          <div className="space-y-3">
             <div>
-              <label className="text-sm font-medium mb-2 block flex items-center">
-                <Clock className="mr-2 h-4 w-4" />
-                Jam Mulai
-              </label>
-              <Select
-                value={selectedHour?.toString()}
-                onValueChange={(value) => setSelectedHour(parseInt(value))}
-                disabled={!selectedDate || availableHours.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih jam mulai" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableHours.map((hour) => (
-                    <SelectItem key={hour} value={hour.toString()}>
-                      {hour.toString().padStart(2, "0")}:00
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Duration Picker */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Durasi (jam)
-              </label>
-              <Select
-                value={duration.toString()}
-                onValueChange={(value) => setDuration(parseInt(value))}
-                disabled={
-                  !selectedDate ||
-                  selectedHour === null ||
-                  availableDurations.length === 0
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih durasi" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableDurations.map((durationValue) => (
-                    <SelectItem
-                      key={durationValue}
-                      value={durationValue.toString()}
-                    >
-                      {durationValue} jam
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Notes */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium mb-1.5 block">
                 Catatan Tambahan (Opsional)
               </label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Tulis detail seperti format pertandingan atau kebutuhan ekstra..."
-                className="min-h-[100px]"
+                placeholder="Detail kebutuhan atau permintaan khusus..."
+                className="min-h-[80px] resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* Booking Button Section */}
-        <div className="space-y-4 pt-4 border-t">
+        <div className="space-y-3 pt-3 border-t">
           <MidtransBookingButton
             courtId={courtId}
             isConfigured={isConfigured}
@@ -448,9 +452,8 @@ export function BookingScheduler({
             notes={notes}
           />
 
-          <p className="text-xs text-muted-foreground text-center">
-            Jadwal dan pembayaran kamu akan tersimpan otomatis di dashboard
-            CourtEase.
+          <p className="text-xs text-muted-foreground text-center truncate">
+            Jadwal dan pembayaran tersimpan otomatis di dashboard CourtEase.
           </p>
         </div>
       </CardContent>

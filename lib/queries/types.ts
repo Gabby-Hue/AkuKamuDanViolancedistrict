@@ -49,6 +49,7 @@ export interface Court {
   venueId: string;
   venueName: string;
   venueCity?: string;
+  venueDistrict?: string;
   venueAddress?: string;
   venueLatitude?: number;
   venueLongitude?: number;
@@ -81,9 +82,16 @@ export interface CourtReview {
   id: string;
   rating: number;
   comment?: string;
-  author: string;
-  createdAt: string;
+  created_at: string;
+  profile_id: string;
+  profiles?: {
+    full_name?: string;
+  };
+  // Legacy fields for compatibility
+  author_name: string;
+  createdAt?: string;
   bookingId?: string;
+  booking_id?: string;
 }
 
 export interface Venue {
@@ -167,11 +175,36 @@ export interface ForumThread {
   category?: ForumCategory;
 }
 
+export interface ForumThreadSummary {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  reply_count: number;
+  created_at: string;
+  tags: string[];
+  category: ForumCategory | null;
+  author_name: string | null;
+  latestReplyBody: string | null;
+  latestReplyAt: string | null;
+  reviewCourt: any | null; // Add proper type later if needed
+}
+
 export interface ForumCategory {
   id: string;
   slug: string;
   name: string;
   createdAt: string;
+}
+
+export interface ForumReply {
+  id: string;
+  threadId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ReviewData {

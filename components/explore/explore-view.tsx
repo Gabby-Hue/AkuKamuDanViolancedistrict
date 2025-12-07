@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { CourtSummary } from "@/lib/supabase/queries/courts";
-import type { ForumThreadSummary } from "@/lib/supabase/queries/forum";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const priceOptions = [
   { id: "all", label: "Semua harga", predicate: () => true },
@@ -37,17 +44,47 @@ type ExploreViewProps = {
   courts: CourtSummary[];
   threads: ForumThreadSummary[];
   totalReplies: number;
+  selectedSport?: string;
 };
 
 export function ExploreView({
   courts,
   threads,
   totalReplies,
+  selectedSport,
 }: ExploreViewProps) {
-  const [sportFilter, setSportFilter] = useState<string>("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [sportFilter, setSportFilter] = useState<string>(
+    selectedSport || "all",
+  );
   const [priceFilter, setPriceFilter] = useState<string>("all");
   const [ratingFilter, setRatingFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Update sport filter when URL parameter changes
+  useEffect(() => {
+    const currentSport = searchParams.get("sport");
+    setSportFilter(currentSport || "all");
+  }, [searchParams]);
+
+  // Update URL when sport filter changes
+  const handleSportFilterChange = (newSport: string) => {
+    setSportFilter(newSport);
+
+    // Create new URL parameters
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (newSport === "all") {
+      params.delete("sport");
+    } else {
+      params.set("sport", newSport);
+    }
+
+    // Update URL without scrolling
+    router.push(`/explore?${params.toString()}`, { scroll: false });
+  };
 
   const sports = useMemo(() => {
     const unique = new Set<string>();
@@ -56,6 +93,32 @@ export function ExploreView({
     });
     return ["all", ...Array.from(unique)];
   }, [courts]);
+
+  // All available sports - this should include all sports regardless of current filter
+  const allAvailableSports = useMemo(() => {
+    return [
+      "all",
+      "basketball",
+      "volleyball",
+      "futsal",
+      "padel",
+      "badminton",
+      "tennis",
+      "soccer",
+    ];
+  }, []);
+
+  // Sport name mapping for display
+  const sportNames: Record<string, string> = {
+    all: "Semua Olahraga",
+    basketball: "Basket",
+    volleyball: "Voli",
+    futsal: "Futsal",
+    padel: "Padel",
+    badminton: "Badminton",
+    tennis: "Tennis",
+    soccer: "Sepak Bola",
+  };
 
   const filteredCourts = useMemo(() => {
     const pricePredicate = priceOptions.find(
@@ -74,127 +137,141 @@ export function ExploreView({
   }, [courts, sportFilter, priceFilter, ratingFilter]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-14 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-      <header className="rounded-3xl border border-brand-soft/40 bg-gradient-to-br from-[hsl(var(--brand-soft))] via-white to-[hsl(var(--brand))] p-10 text-[hsl(var(--brand-contrast))] shadow-lg dark:border-brand-soft/30 dark:from-[hsl(var(--brand-strong))] dark:via-[hsl(var(--brand))] dark:to-[hsl(var(--brand-soft))]">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-muted">
-              Explore
-            </p>
-            <h1 className="text-3xl font-semibold sm:text-4xl">
-              Temukan lapangan & komunitas favoritmu
-            </h1>
-            <p className="max-w-2xl text-sm text-brand-soft/90">
-              Filter berdasarkan olahraga, budget, dan rating untuk menemukan
-              lapangan yang paling cocok. Aktivitas komunitas forum terbaru juga
-              kami kurasi real-time dari Supabase.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-left text-xs font-semibold uppercase tracking-wider text-brand-soft sm:grid-cols-3">
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Lapangan terdaftar
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {courts.length}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Rata-rata rating
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {courts.length
-                  ? (
-                      courts.reduce(
-                        (acc, court) => acc + court.averageRating,
-                        0,
-                      ) / courts.length
-                    ).toFixed(1)
-                  : "0"}
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-brand-muted/80">
-                Balasan komunitas
-              </p>
-              <p className="mt-1 text-2xl font-bold text-white">
-                {totalReplies}
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="mx-auto max-w-6xl space-y-14 px-4 pb-24 pt-20 sm:px-6 lg:px-8">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <div className="rounded-3xl border border-brand-soft/60 bg-white/95 p-6 shadow-sm backdrop-blur dark:border-brand-soft/20 dark:bg-slate-900/70">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Lapangan pilihan Supabase
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Menampilkan {filteredCourts.length} dari {courts.length}{" "}
-                  lapangan aktif.
-                </p>
+          {/* Simple Elegant Filter Bar - Lebar Horizontal */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/40 p-6 shadow-xs dark:bg-slate-900/80 dark:border-slate-700/30">
+            <div className="flex flex-col gap-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-slate-900 dark:text-white">
+                    {filteredCourts.length} lapangan ditemukan
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("grid")}
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-medium rounded-md transition-all",
+                      viewMode === "grid"
+                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-400",
+                    )}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("list")}
+                    className={cn(
+                      "px-2.5 py-1.5 text-xs font-medium rounded-md transition-all",
+                      viewMode === "list"
+                        ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-400",
+                    )}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2 self-start rounded-full border border-white/70 bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white shadow-sm dark:border-brand-soft/20">
-                <button
-                  type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "rounded-full px-3 py-1 transition",
-                    viewMode === "grid"
-                      ? "bg-brand/90 text-white shadow"
-                      : "text-slate-300 hover:text-white",
-                  )}
-                >
-                  Grid
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "rounded-full px-3 py-1 transition",
-                    viewMode === "list"
-                      ? "bg-brand/90 text-white shadow"
-                      : "text-slate-300 hover:text-white",
-                  )}
-                >
-                  List
-                </button>
-              </div>
-            </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <FilterGroup
-                label="Olahraga"
-                options={sports.map((sport) => ({
-                  id: sport,
-                  label: sport === "all" ? "Semua" : sport,
-                }))}
-                value={sportFilter}
-                onChange={setSportFilter}
-              />
-              <FilterGroup
-                label="Budget per jam"
-                options={priceOptions.map((option) => ({
-                  id: option.id,
-                  label: option.label,
-                }))}
-                value={priceFilter}
-                onChange={setPriceFilter}
-              />
-              <FilterGroup
-                label="Rating"
-                options={ratingOptions.map((option) => ({
-                  id: option.id,
-                  label: option.label,
-                }))}
-                value={ratingFilter}
-                onChange={setRatingFilter}
-              />
+              {/* Filter Pills - Layout Lebar */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* Sport Filter */}
+                <Select
+                  value={sportFilter}
+                  onValueChange={handleSportFilterChange}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Semua Olahraga">
+                      {sportNames[sportFilter] || sportFilter}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allAvailableSports.map((sport) => (
+                      <SelectItem key={sport} value={sport}>
+                        {sportNames[sport] || sport}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Price Filter */}
+                <Select value={priceFilter} onValueChange={setPriceFilter}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Budget per jam" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {priceOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Rating Filter */}
+                <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder="Rating minimum" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ratingOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Clear Filters Button */}
+                {(sportFilter !== "all" ||
+                  priceFilter !== "all" ||
+                  ratingFilter !== "all") && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      // Reset local state
+                      setSportFilter("all");
+                      setPriceFilter("all");
+                      setRatingFilter("all");
+
+                      // Clear URL parameters and navigate to clean URL
+                      router.push("/explore", { scroll: false });
+                    }}
+                    className="h-9 text-sm justify-start"
+                  >
+                    Reset filter
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -208,22 +285,43 @@ export function ExploreView({
               <CourtCard key={court.id} court={court} viewMode={viewMode} />
             ))}
             {!filteredCourts.length && (
-              <div className="rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-8 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
-                Kombinasi filter saat ini belum menemukan lapangan yang cocok.
-                Coba ubah filter untuk melihat opsi lainnya.
+              <div className="col-span-full rounded-3xl border border-dashed border-brand-soft/60 bg-white/80 p-12 text-center text-sm text-slate-500 dark:border-brand-soft/20 dark:bg-slate-900/60 dark:text-slate-400">
+                <div className="space-y-3">
+                  <svg
+                    className="h-12 w-12 mx-auto text-brand/30"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <p className="font-medium">
+                    Kombinasi filter saat ini belum menemukan lapangan yang
+                    cocok.
+                  </p>
+                  <p className="text-xs">
+                    Coba ubah filter untuk melihat opsi lainnya.
+                  </p>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         <aside className="space-y-6">
-          <div className="space-y-4 rounded-3xl border border-brand-soft/60 bg-white/95 p-6 shadow-sm backdrop-blur dark:border-brand-soft/20 dark:bg-slate-900/70">
+          {/* Forum Card dengan jarak ke bawah yang sama dengan court cards */}
+          <div className="space-y-6 rounded-3xl border border-brand-soft/60 bg-white/95 p-6 shadow-sm backdrop-blur dark:border-brand-soft/20 dark:bg-slate-900/70">
             <h3 className="text-sm font-semibold uppercase tracking-widest text-brand-muted">
               Forum terbaru
             </h3>
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-6 text-sm">
               {threads.map((thread) => (
-                <li key={thread.id} className="space-y-1">
+                <li key={thread.id} className="space-y-2">
                   <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-brand-muted">
                     <span>{thread.category?.name ?? "Forum"}</span>
                     <span className="text-slate-400">•</span>
@@ -241,7 +339,7 @@ export function ExploreView({
                     {thread.title}
                   </Link>
                   {thread.excerpt && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
                       {thread.excerpt}
                     </p>
                   )}
@@ -265,65 +363,17 @@ export function ExploreView({
                 </li>
               )}
             </ul>
-            <Link
-              href="/forum"
-              className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-brand"
-            >
-              Buka forum lengkap
-            </Link>
-          </div>
-
-          <div className="space-y-3 rounded-3xl border border-brand-soft/60 bg-gradient-to-br from-[hsl(var(--brand-soft))] via-[hsl(var(--brand))] to-[hsl(var(--brand-strong))] p-6 text-[hsl(var(--brand-contrast))] shadow-sm dark:border-brand-soft/30 dark:from-[hsl(var(--brand-strong))] dark:via-[hsl(var(--brand))] dark:to-[hsl(var(--brand-muted))]">
-            <h3 className="text-base font-semibold">
-              Tips: tarik traffic komunitas
-            </h3>
-            <p className="text-sm text-brand-soft/90">
-              Simpan highlight event atau promo venue di dashboard. Data
-              tersebut otomatis tampil di halaman Explore ketika sudah siap.
-            </p>
-            <Link
-              href="/dashboard/venue"
-              className="inline-flex items-center justify-center rounded-full bg-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white/30"
-            >
-              Kelola venue sekarang
-            </Link>
+            <div className="pt-4">
+              <Link
+                href="/forum"
+                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-brand"
+              >
+                Buka forum lengkap
+              </Link>
+            </div>
           </div>
         </aside>
       </section>
-    </div>
-  );
-}
-
-type FilterGroupProps = {
-  label: string;
-  options: Array<{ id: string; label: string }>;
-  value: string;
-  onChange: (value: string) => void;
-};
-
-function FilterGroup({ label, options, value, onChange }: FilterGroupProps) {
-  return (
-    <div className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-        {label}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            onClick={() => onChange(option.id)}
-            className={cn(
-              "rounded-full border px-3 py-1 text-xs font-semibold transition",
-              value === option.id
-                ? "border-brand bg-brand/10 text-brand dark:border-brand dark:text-brand"
-                : "border-brand-soft/60 text-slate-500 hover:border-brand hover:text-brand dark:border-brand-soft/30 dark:text-slate-400",
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

@@ -45,10 +45,20 @@ function adaptThreadToSummary(thread: ForumThread) {
   };
 }
 
-export default async function ExplorePage() {
-  // Fetch courts and threads in parallel for optimal performance
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sport?: string }>;
+}) {
+  // Get sport filter from URL parameters
+  const params = await searchParams;
+  const sportFilter = params.sport;
+
+  // Fetch ALL courts and threads (no server-side filtering)
   const [courts, threads] = await Promise.all([
-    PublicQueries.getActiveCourts({ limit: 100 }), // Get more courts for explore page
+    PublicQueries.getActiveCourts({
+      limit: 100
+    }), // Get ALL courts for client-side filtering
     PublicQueries.getForumThreads({ limit: 20 })   // Get recent forum threads
   ]);
 
@@ -64,6 +74,7 @@ export default async function ExplorePage() {
       courts={adaptedCourts}
       threads={adaptedThreads}
       totalReplies={totalReplies}
+      selectedSport={sportFilter}
     />
   );
 }

@@ -4,10 +4,34 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import type { ForumCategory, ForumThreadSummary } from "@/lib/supabase/queries";
-import { CheckCircle2, ChevronDown, PenSquare } from "lucide-react";
+import type { ForumCategory, ForumThreadSummary } from "@/lib/queries/types";
+import {
+  CheckCircle2,
+  ChevronDown,
+  PenSquare,
+  MessageSquarePlus,
+  Sparkles,
+} from "lucide-react";
 
 function slugify(input: string) {
   return input
@@ -22,7 +46,10 @@ type ForumThreadComposerProps = {
   onThreadCreated?: (thread: ForumThreadSummary) => void;
 };
 
-export function ForumThreadComposer({ categories, onThreadCreated }: ForumThreadComposerProps) {
+export function ForumThreadComposer({
+  categories,
+  onThreadCreated,
+}: ForumThreadComposerProps) {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -82,62 +109,74 @@ export function ForumThreadComposer({ categories, onThreadCreated }: ForumThread
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-200/80 bg-white/80 p-6 text-sm text-slate-600 dark:border-slate-700/80 dark:bg-slate-900/60 dark:text-slate-300">
-        <p className="font-semibold text-slate-800 dark:text-slate-100">Mulai diskusi baru</p>
-        <p className="mt-1">
-          Masuk sebagai member untuk membuat thread baru, menandai favorit, dan mengikuti topik komunitas.
-        </p>
-        <Link
-          href="/auth/login"
-          className="mt-4 inline-flex items-center rounded-full bg-brand px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-brand"
-        >
-          Login & mulai diskusi
-        </Link>
-      </div>
+      <Card className="border-dashed">
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <MessageSquarePlus className="h-12 w-12 text-brand" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Mulai Diskusi Baru</CardTitle>
+              <CardDescription className="mt-2">
+                Masuk sebagai member untuk membuat thread baru, menandai
+                favorit, dan mengikuti topik komunitas.
+              </CardDescription>
+            </div>
+            <Link href="/auth/login">
+              <Button className="rounded-full">Login & Mulai Diskusi</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   const guidelinesItems = [
     {
       title: "Mulai dengan konteks jelas",
-      description: "Tulis satu kalimat pembuka yang menjelaskan situasi tim atau pertanyaan utama kamu.",
+      description:
+        "Tulis satu kalimat pembuka yang menjelaskan situasi tim atau pertanyaan utama kamu.",
     },
     {
       title: "Gunakan kategori & tag",
-      description: "Pilih kategori paling relevan dan tambahkan 2-3 tag agar diskusi mudah ditemukan.",
+      description:
+        "Pilih kategori paling relevan dan tambahkan 2-3 tag agar diskusi mudah ditemukan.",
     },
     {
       title: "Beri detail actionable",
-      description: "Ceritakan pengalaman, jadwal latihan, atau hambatan supaya komunitas bisa memberi jawaban spesifik.",
+      description:
+        "Ceritakan pengalaman, jadwal latihan, atau hambatan supaya komunitas bisa memberi jawaban spesifik.",
     },
   ];
 
   const guidelinesPanel = (
-    <div className="space-y-5 rounded-3xl border border-brand/20 bg-gradient-to-br from-white via-white/90 to-[hsl(var(--brand-soft))]/25 p-6 shadow-sm backdrop-blur-sm transition dark:border-brand/30 dark:from-slate-900 dark:via-slate-900/80 dark:to-slate-900/40">
-      <div className="flex items-start gap-3">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-strong shadow-sm shadow-brand/10 dark:bg-slate-800/80 dark:text-brand">
-          <PenSquare className="h-5 w-5" />
-        </span>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong dark:text-brand">Panduan thread cepat</p>
-          <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">Buat diskusi yang langsung menarik respon</h3>
-        </div>
-      </div>
-      <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+    <Card className="border-brand/20 bg-gradient-to-br from-white via-white/90 to-[hsl(var(--brand-soft))]/25">
+      <CardHeader>
+        <div className="flex items-start gap-3"></div>
+      </CardHeader>
+      <CardContent className="space-y-4">
         {guidelinesItems.map((item) => (
-          <li key={item.title} className="flex gap-3 rounded-2xl bg-white/70 p-3 shadow-inner shadow-slate-200/40 dark:bg-slate-900/60 dark:shadow-none">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 text-brand-strong dark:text-brand" />
+          <div
+            key={item.title}
+            className="flex gap-3 rounded-2xl bg-white/70 p-3 shadow-inner shadow-slate-200/40 dark:bg-slate-900/60"
+          >
+            <CheckCircle2 className="mt-0.5 h-5 w-5 text-brand flex-shrink-0" />
             <div>
-              <p className="font-semibold text-slate-900 dark:text-white">{item.title}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{item.description}</p>
+              <p className="font-semibold text-slate-900 dark:text-white">
+                {item.title}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {item.description}
+              </p>
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
-      <p className="text-xs text-slate-500 dark:text-slate-400">
-        Setelah dipublikasikan, thread akan dipantau oleh moderator. Revisi bisa dilakukan melalui komentar lanjutan.
-      </p>
-    </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400 pt-2">
+          Setelah dipublikasikan, thread akan dipantau moderator. Revisi bisa
+          dilakukan melalui komentar.
+        </p>
+      </CardContent>
+    </Card>
   );
 
   return (
@@ -202,7 +241,7 @@ export function ForumThreadComposer({ categories, onThreadCreated }: ForumThread
               .select(
                 `id, slug, title, excerpt, created_at, reply_count, tags,
                  category:forum_categories(id, slug, name),
-                 author:profiles(full_name)`
+                 author:profiles(full_name)`,
               )
               .maybeSingle();
 
@@ -227,7 +266,11 @@ export function ForumThreadComposer({ categories, onThreadCreated }: ForumThread
               created_at: threadRow.created_at,
               tags: Array.isArray(threadRow.tags) ? threadRow.tags : [],
               category: threadRow.category
-                ? { id: threadRow.category.id, slug: threadRow.category.slug, name: threadRow.category.name }
+                ? {
+                    id: threadRow.category.id,
+                    slug: threadRow.category.slug,
+                    name: threadRow.category.name,
+                  }
                 : null,
               author_name: threadRow.author?.full_name ?? null,
               latestReplyBody: null,
@@ -252,105 +295,112 @@ export function ForumThreadComposer({ categories, onThreadCreated }: ForumThread
           isLoading={isSubmitting}
         />
       )}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6 rounded-3xl border border-[#E5E7EB] bg-white/95 p-5 shadow-sm backdrop-blur transition dark:border-slate-700/70 dark:bg-slate-900/70 sm:p-8"
-        >
-          <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong">Mulai diskusi</p>
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Bagikan pertanyaan atau tips kamu</h2>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              className="self-start rounded-full border border-transparent px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-brand transition hover:border-brand/40 hover:bg-brand/10 hover:text-brand"
-              onClick={() => setExpanded((prev) => !prev)}
-            >
-              {expanded ? "Sembunyikan detail" : "Atur detail lanjutan"}
-            </Button>
-          </header>
-
-          <div className="space-y-5">
-            <label className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                Judul thread
-              </span>
-              <input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                onFocus={() => setExpanded(true)}
-                placeholder="Contoh: Strategi conditioning futsal menjelang turnamen"
-                className="w-full rounded-2xl border border-[#E5E7EB] bg-white/95 px-4 py-2 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100"
-              />
-            </label>
-
-            {expanded && (
-              <div className="space-y-5">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label className="space-y-2">
-                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                      Kategori
-                    </span>
-                    <select
-                      value={categoryId}
-                      onChange={(event) => setCategoryId(event.target.value)}
-                      className="w-full rounded-2xl border border-[#E5E7EB] bg-white/95 px-4 py-2 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100"
-                    >
-                      <option value="">Pilih kategori</option>
-                      {categoryOptions.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                      Tag (pisahkan dengan koma)
-                    </span>
-                    <input
-                      type="text"
-                      value={tags}
-                      onChange={(event) => setTags(event.target.value)}
-                      placeholder="futsal, conditioning, latihan"
-                      className="w-full rounded-2xl border border-[#E5E7EB] bg-white/95 px-4 py-2 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100"
-                    />
-                  </label>
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <Card className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <Badge variant="secondary" className="w-fit text-xs">
+                    Mulai Diskusi
+                  </Badge>
+                  <CardTitle className="text-xl">
+                    Bagikan Pertanyaan atau Tips Kamu
+                  </CardTitle>
                 </div>
-
-                <label className="space-y-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-                    Ceritakan detailnya
-                  </span>
-                  <textarea
-                    value={body}
-                    onChange={(event) => setBody(event.target.value)}
-                    placeholder="Tulis penjelasan lengkap supaya komunitas bisa membantu dengan maksimal..."
-                    className="min-h-[140px] w-full rounded-2xl border border-[#E5E7EB] bg-white/95 px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-100"
-                  />
-                </label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExpanded((prev) => !prev)}
+                  className="rounded-full"
+                >
+                  {expanded ? "Sembunyikan Detail" : "Atur Detail Lanjutan"}
+                  <Sparkles className="ml-2 h-4 w-4" />
+                </Button>
               </div>
-            )}
-          </div>
+            </CardHeader>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
-            <span>
-              {expanded
-                ? `${body.trim().length} karakter`
-                : "Judul yang jelas membantu diskusi lebih fokus."}
-            </span>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-full bg-brand-strong px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-brand disabled:opacity-60"
-            >
-              {isSubmitting ? "Menerbitkan..." : "Terbitkan thread"}
-            </Button>
-          </div>
-        </form>
+            <CardContent className="px-0 pb-0 space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Judul Thread
+                </label>
+                <Input
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  onFocus={() => setExpanded(true)}
+                  placeholder="Contoh: Strategi conditioning futsal menjelang turnamen"
+                  className="text-base"
+                />
+              </div>
+
+              {expanded && (
+                <div className="space-y-6 animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Kategori
+                      </label>
+                      <Select value={categoryId} onValueChange={setCategoryId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih kategori" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categoryOptions.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Tag (pisahkan dengan koma)
+                      </label>
+                      <Input
+                        type="text"
+                        value={tags}
+                        onChange={(event) => setTags(event.target.value)}
+                        placeholder="futsal, conditioning, latihan"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Ceritakan Detailnya
+                    </label>
+                    <Textarea
+                      value={body}
+                      onChange={(event) => setBody(event.target.value)}
+                      placeholder="Tulis penjelasan lengkap supaya komunitas bisa membantu dengan maksimal..."
+                      className="min-h-[140px] resize-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t">
+                <span className="text-sm text-slate-500 dark:text-slate-400">
+                  {expanded
+                    ? `${body.trim().length} karakter`
+                    : "Judul yang jelas membantu diskusi lebih fokus."}
+                </span>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="rounded-full"
+                >
+                  {isSubmitting ? "Menerbitkan..." : "Terbitkan Thread"}
+                </Button>
+              </div>
+            </CardContent>
+          </form>
+        </Card>
+
         <div className="hidden lg:block">{guidelinesPanel}</div>
       </div>
       <div className="lg:hidden">
@@ -383,7 +433,9 @@ function PublishConfirmDialog({
   onCancel: () => void;
   isLoading: boolean;
 }) {
-  const previewBody = body.trim() || "Bagikan detail lengkapmu agar komunitas dapat merespons dengan tepat.";
+  const previewBody =
+    body.trim() ||
+    "Bagikan detail lengkapmu agar komunitas dapat merespons dengan tepat.";
   const normalizedTags = tags
     .split(",")
     .map((tag) => tag.trim())
@@ -391,62 +443,78 @@ function PublishConfirmDialog({
     .map((tag) => tag.replace(/^#/g, ""));
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center px-4 py-10">
-      <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-lg space-y-6 rounded-3xl border border-brand/30 bg-white/95 p-6 shadow-2xl transition dark:border-brand/40 dark:bg-slate-950/90">
-        <div className="flex items-start gap-4">
-          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[hsl(var(--brand-strong))] to-[hsl(var(--brand))] text-white shadow-lg shadow-brand/30">
-            <PenSquare className="h-5 w-5" />
-          </span>
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Terbitkan thread sekarang?</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Thread yang diterbitkan tidak bisa dihapus, tetapi kamu dapat menambahkan klarifikasi lewat balasan lanjutan.
-            </p>
-          </div>
-        </div>
-        <div className="space-y-4 rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-sm text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/70 dark:text-slate-300">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong dark:text-brand">Judul</p>
-            <p className="font-semibold text-slate-900 dark:text-white">{title.trim() || "Tanpa judul"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong dark:text-brand">Ringkasan</p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">{previewBody.slice(0, 200)}</p>
-          </div>
-          {normalizedTags.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-strong dark:text-brand">Tag</p>
-              <div className="flex flex-wrap gap-2 text-xs">
-                {normalizedTags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-brand-strong/10 px-3 py-1 font-semibold text-brand-strong dark:bg-brand/20 dark:text-brand">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-10">
+      <div
+        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+      <Card className="relative w-full max-w-lg border-brand/30 bg-white/95 shadow-2xl dark:bg-slate-950/90">
+        <CardHeader>
+          <div className="flex items-start gap-4">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-brand-strong text-white shadow-lg shadow-brand/30">
+              <PenSquare className="h-5 w-5" />
             </div>
-          )}
-        </div>
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <div>
+              <CardTitle>Terbitkan Thread Sekarang?</CardTitle>
+              <CardDescription>
+                Thread yang diterbitkan tidak bisa dihapus, tetapi kamu dapat
+                menambahkan klarifikasi lewat balasan.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3 rounded-2xl border border-slate-200/60 bg-slate-50/60 p-4 dark:border-slate-700/40 dark:bg-slate-900/60">
+            <div>
+              <Badge variant="secondary" className="text-xs">
+                Judul
+              </Badge>
+              <p className="mt-1 font-semibold text-slate-900 dark:text-white">
+                {title.trim() || "Tanpa Judul"}
+              </p>
+            </div>
+            <div>
+              <Badge variant="secondary" className="text-xs">
+                Ringkasan
+              </Badge>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                {previewBody.slice(0, 200)}
+              </p>
+            </div>
+            {normalizedTags.length > 0 && (
+              <div>
+                <Badge variant="secondary" className="text-xs mb-2">
+                  Tag
+                </Badge>
+                <div className="flex flex-wrap gap-2">
+                  {normalizedTags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      #{tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Button
-            type="button"
             variant="outline"
-            className="rounded-full border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand hover:text-brand dark:border-slate-700 dark:text-slate-300"
             onClick={onCancel}
             disabled={isLoading}
+            className="rounded-full"
           >
             Batal
           </Button>
           <Button
-            type="button"
-            className="rounded-full bg-brand-strong px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand disabled:opacity-60"
             onClick={onConfirm}
             disabled={isLoading}
+            className="rounded-full"
           >
-            {isLoading ? "Menerbitkan..." : "Ya, terbitkan"}
+            {isLoading ? "Menerbitkan..." : "Ya, Terbitkan"}
           </Button>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

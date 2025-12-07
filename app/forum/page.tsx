@@ -1,6 +1,6 @@
 import { ForumView } from "@/components/forum/forum-view";
 import { PublicQueries } from "@/lib/queries/public";
-import type { ForumThread, ForumCategory } from "@/lib/queries/types";
+import type { ForumThread, ForumCategory, ForumThreadSummary } from "@/lib/queries/types";
 
 // Adapter function to transform ForumThread to ForumThreadSummary interface
 function adaptThreadToSummary(thread: ForumThread) {
@@ -23,7 +23,7 @@ function adaptThreadToSummary(thread: ForumThread) {
 export default async function ForumPage() {
   const [categories, threads] = await Promise.all([
     PublicQueries.getForumCategories(),
-    PublicQueries.getForumThreads({ limit: 50 }), // Get more threads for forum page
+    PublicQueries.getForumThreads({ limit: 50 }),
   ]);
 
   // Transform threads to match component expectations

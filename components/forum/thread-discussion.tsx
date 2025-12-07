@@ -2,22 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
 import { MapPin } from "lucide-react";
-
 import { ThreadReplies } from "@/components/forum/thread-replies";
-import type { ForumThreadDetail } from "@/lib/supabase/queries/forum";
+import type { ForumThread, ForumReply } from "@/lib/queries/types";
 
-export function ThreadDiscussion({ thread }: { thread: ForumThreadDetail }) {
+export function ThreadDiscussion({ thread, replies }: { thread: ForumThread; replies: ForumReply[] }) {
   const [liveReplyCount, setLiveReplyCount] = useState(
-    () => thread.replies.length || thread.reply_count,
+    () => thread.replyCount,
   );
 
   useEffect(() => {
-    setLiveReplyCount(thread.replies.length || thread.reply_count);
-  }, [thread.replies, thread.reply_count]);
+    setLiveReplyCount(thread.replyCount);
+  }, [thread.replyCount]);
 
-  const createdAt = new Date(thread.created_at).toLocaleDateString("id-ID", {
+  const createdAt = new Date(thread.createdAt).toLocaleDateString("id-ID", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -91,7 +89,7 @@ export function ThreadDiscussion({ thread }: { thread: ForumThreadDetail }) {
 
       <ThreadReplies
         threadId={thread.id}
-        initialReplies={thread.replies}
+        initialReplies={replies}
         onTotalChange={setLiveReplyCount}
       />
     </div>
