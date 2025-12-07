@@ -45,22 +45,27 @@ export async function approveApplication(
     if (!finalUserProfile) {
       // Find from auth.users and create profile if needed
       const { data: authUsers } = await adminSupabase.auth.admin.listUsers();
-      const authUser = authUsers.users.find(user =>
-        user.email?.toLowerCase() === application.contact_email?.toLowerCase()
+      const authUser = authUsers.users.find(
+        (user) =>
+          user.email?.toLowerCase() ===
+          application.contact_email?.toLowerCase(),
       );
 
       if (authUser) {
         // Create or update profile
         const { data: newProfile, error: upsertError } = await adminSupabase
           .from("profiles")
-          .upsert({
-            id: authUser.id,
-            email: authUser.email!,
-            full_name: application.contact_name,
-            role: "user",
-          }, {
-            onConflict: "id"
-          })
+          .upsert(
+            {
+              id: authUser.id,
+              email: authUser.email!,
+              full_name: application.contact_name,
+              role: "user",
+            },
+            {
+              onConflict: "id",
+            },
+          )
           .select("id, email, role")
           .single();
 
@@ -80,7 +85,7 @@ export async function approveApplication(
         .from("venue_partner_applications")
         .update({
           status: "accepted",
-          handled_by: adminUser?.id || null,
+          handled_by: adminUser?.email || null,
           reviewed_at: new Date().toISOString(),
         })
         .eq("id", applicationId);
@@ -104,7 +109,7 @@ export async function approveApplication(
         .from("venue_partner_applications")
         .update({
           status: "accepted",
-          handled_by: adminUser?.id || null,
+          handled_by: adminUser?.email || null,
           reviewed_at: new Date().toISOString(),
         })
         .eq("id", applicationId);
@@ -131,9 +136,6 @@ export async function approveApplication(
         contact_phone: application.contact_phone,
         contact_email: application.contact_email,
         city: application.city,
-        facility_types: application.facility_types,
-        facility_count: application.facility_count,
-        existing_system: application.existing_system,
         website: null, // bisa diisi nanti
         business_license_url: null, // bisa diisi nanti
         venue_status: "active",
@@ -181,8 +183,7 @@ export async function rejectApplication(
       .from("venue_partner_applications")
       .update({
         status: "rejected",
-        decision_note: reason || null,
-        handled_by: user?.id || null,
+        handled_by: user?.email || null,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", applicationId);
@@ -235,8 +236,6 @@ export async function submitPartnerApplication(
     .toLowerCase();
   const contactPhone = (formData.get("contactPhone") ?? "").toString().trim();
   const city = (formData.get("city") ?? "").toString().trim();
-  const facilityTypesRaw = (formData.get("facilityTypes") ?? "").toString();
-  const facilityCountRaw = (formData.get("facilityCount") ?? "").toString();
   const existingSystem = (formData.get("existingSystem") ?? "")
     .toString()
     .trim();
@@ -254,30 +253,21 @@ export async function submitPartnerApplication(
     return { status: "error", message: "Masukkan email yang valid." };
   }
 
-  const facilityTypes = facilityTypesRaw
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-  const facilityCount = Number.parseInt(facilityCountRaw, 10);
-  const parsedFacilityCount = Number.isFinite(facilityCount)
-    ? facilityCount
-    : null;
-
   try {
     const adminSupabase = await createAdminClient();
 
     // Ensure user profile exists
-    await adminSupabase
-      .from("profiles")
-      .upsert({
+    await adminSupabase.from("profiles").upsert(
+      {
         id: user.id,
         email: user.email,
         full_name: contactName,
         role: "user",
-      }, {
-        onConflict: "id"
-      });
+      },
+      {
+        onConflict: "id",
+      },
+    );
 
     const { error } = await adminSupabase
       .from("venue_partner_applications")
@@ -287,8 +277,6 @@ export async function submitPartnerApplication(
         contact_email: user.email, // Use authenticated user's email
         contact_phone: contactPhone || null,
         city: city || null,
-        facility_types: facilityTypes.length ? facilityTypes : null,
-        facility_count: parsedFacilityCount,
         existing_system: existingSystem || null,
         notes: notes || null,
         status: "pending",

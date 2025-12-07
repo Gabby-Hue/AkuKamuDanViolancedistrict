@@ -2,7 +2,6 @@
 
 import { useCallback, useState } from "react";
 import Script from "next/script";
-
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -115,7 +114,7 @@ export function MidtransBookingButton({
         };
       };
 
-      const successRedirectUrl = `${window.location.origin}/dashboard/user/bookings/${bookingId}`;
+      const successRedirectUrl = `${window.location.origin}/dashboard/user/bookings/${bookingId}?check_payment=true`;
 
       if (window.snap && typeof window.snap.pay === "function" && snapReady) {
         window.snap.pay(token, {
@@ -151,7 +150,7 @@ export function MidtransBookingButton({
         description:
           error instanceof Error
             ? error.message
-            : "Terjadi kesalahan tak terduga.",
+            : "Terjadi kesalahan tidak terduga.",
       });
     } finally {
       setIsLoading(false);
@@ -184,7 +183,7 @@ export function MidtransBookingButton({
           isLoading || !isConfigured || !isBookingAllowed || !selectedSlot
         }
       >
-        {isLoading ? "Menghubungkan Midtrans..." : "Bayar via Midtrans"}
+        {isLoading ? "Memproses..." : "Bayar"}
       </Button>
       {!isConfigured && (
         <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">

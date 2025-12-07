@@ -22,7 +22,6 @@ export type {
   BookingRow,
   ProfileRow,
   CourtSummaryRow,
-  CourtBlackoutRow,
   CourtWithVenue,
   BookingWithCourt,
 } from "./types";

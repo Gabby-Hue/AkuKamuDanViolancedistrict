@@ -2,41 +2,15 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { Gauge, MapPin, ShieldCheck, Sparkles, Waves } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fetchCourtSummaries, fetchForumThreads } from "@/lib/supabase/queries";
+import { PublicQueries } from "@/lib/queries/public";
+import type { Court, ForumThread } from "@/lib/queries/types";
 import { RealtimeThreadHighlights } from "@/components/forum/realtime-thread-highlights";
-import {
-  NearestCourtSpotlight,
-} from "@/components/venues/nearest-courts";
+import { NearestCourtSpotlight } from "@/components/venues/nearest-courts";
 import { HeroCarousel } from "@/components/landing/hero-carousel";
 import {
   SportsTabs,
   type SportCategory,
 } from "@/components/landing/sports-tabs";
-
-const automationHighlights: {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}[] = [
-  {
-    title: "Pembayaran Midtrans otomatis",
-    description:
-      "Link pembayaran terbit instan, statusnya sinkron ke dashboard operator dan pemain tanpa perlu rekonsiliasi manual.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Laporan realtime",
-    description:
-      "Metrik pendapatan, okupansi, dan jam sibuk disusun otomatis sehingga tim bisa melihat progres layaknya live dashboard.",
-    icon: Gauge,
-  },
-  {
-    title: "Koordinasi tim praktis",
-    description:
-      "Bagikan jadwal, catatan latihan, dan broadcast komunitas dalam sekali klik. Semua pemain langsung mendapat konteks.",
-    icon: Waves,
-  },
-];
 
 const partnerBenefits: {
   label: string;
@@ -108,15 +82,60 @@ const sportsCategories: SportCategory[] = [
   },
 ];
 
+// Adapter function to transform Court to CourtSummary-like interface
+function adaptCourtToSummary(court: Court) {
+  return {
+    id: court.id,
+    slug: court.slug,
+    name: court.name,
+    sport: court.sport,
+    surface: court.surface || null,
+    pricePerHour: court.pricePerHour,
+    capacity: court.capacity || null,
+    facilities: court.facilities,
+    description: court.description || null,
+    venueName: court.venueName,
+    venueCity: court.venueCity || null,
+    venueDistrict: court.venueDistrict || null,
+    venueLatitude: court.venueLatitude || null,
+    venueLongitude: court.venueLongitude || null,
+    primaryImageUrl: court.primaryImageUrl || null,
+    averageRating: court.averageRating,
+    reviewCount: court.reviewCount,
+  };
+}
+
+// Adapter function to transform ForumThread to ForumThreadSummary-like interface
+function adaptThreadToSummary(thread: ForumThread) {
+  return {
+    id: thread.id,
+    slug: thread.slug,
+    title: thread.title,
+    excerpt: thread.excerpt || null,
+    reply_count: thread.replyCount,
+    created_at: thread.createdAt,
+    tags: thread.tags,
+    category: thread.category || null,
+    author_name: thread.author || null,
+    latestReplyBody: null, // Would need additional data fetching
+    latestReplyAt: null,   // Would need additional data fetching
+    reviewCourt: null,     // Would need additional data fetching
+  };
+}
+
 export default async function Home() {
   const [courts, threads] = await Promise.all([
-    fetchCourtSummaries(),
-    fetchForumThreads(),
+    PublicQueries.getActiveCourts({ limit: 50 }), // Fetch courts for spotlight
+    PublicQueries.getForumThreads({ limit: 20 }), // Fetch forum threads for highlights
   ]);
+
+  // Transform data to match component expectations
+  const adaptedCourts = courts.map(adaptCourtToSummary);
+  const adaptedThreads = threads.map(adaptThreadToSummary);
 
   return (
     <main className="space-y-24 pb-24">
-      <HeroCarousel courts={courts} />
+      <HeroCarousel />
 
       <section className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
         <SportsTabs sports={sportsCategories} />
@@ -140,7 +159,7 @@ export default async function Home() {
             Lihat semua venue →
           </Link>
         </div>
-        <NearestCourtSpotlight courts={courts} limit={6} />
+        <NearestCourtSpotlight courts={adaptedCourts} limit={6} />
       </section>
 
       <section className="mx-auto max-w-6xl space-y-12 px-4 sm:px-6 lg:px-8">
@@ -161,20 +180,20 @@ export default async function Home() {
                 return (
                   <li
                     key={benefit.label}
-                  className="rounded-2xl border border-brand/25 bg-white/90 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 dark:border-brand/35 dark:bg-brand/20"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand/15 text-brand-strong shadow-brand/10 dark:bg-brand/30 dark:text-brand-contrast">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div className="space-y-1">
-                      <p className="font-semibold text-brand dark:text-brand-contrast">
-                        {benefit.label}
-                      </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-200">
-                        {benefit.detail}
-                      </p>
-                    </div>
+                    className="rounded-2xl border border-brand/25 bg-white/90 p-4 shadow-sm shadow-brand/10 transition hover:-translate-y-0.5 hover:border-brand/60 dark:border-brand/35 dark:bg-brand/20"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-brand/15 text-brand-strong shadow-brand/10 dark:bg-brand/30 dark:text-brand-contrast">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-brand dark:text-brand-contrast">
+                          {benefit.label}
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-200">
+                          {benefit.detail}
+                        </p>
+                      </div>
                     </div>
                   </li>
                 );
@@ -191,7 +210,7 @@ export default async function Home() {
             <h3 className="text-lg font-semibold text-brand dark:text-brand-contrast">
               Diskusi terbaru komunitas
             </h3>
-            <RealtimeThreadHighlights threads={threads} limit={4} />
+            <RealtimeThreadHighlights threads={adaptedThreads} limit={4} />
             <div className="flex justify-center">
               <Link
                 href="/forum"

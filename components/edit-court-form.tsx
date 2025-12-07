@@ -1,17 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -20,12 +13,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { updateCourt } from "@/lib/supabase/queries/venue-courts";
+import { toast } from "sonner";
 import type { SportType, SurfaceType } from "@/lib/api/types";
-import type { VenueCourtDetail } from "@/lib/supabase/queries/venue-courts";
 
 interface EditCourtFormProps {
-  court: VenueCourtDetail;
+  court: any; // Using any to accommodate both API and direct query types
   onSuccess: () => void;
   onClose: () => void;
 }
@@ -53,7 +45,12 @@ const surfaceOptions = [
   { value: "clay", label: "Clay" },
 ];
 
-export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps) {
+export function EditCourtForm({
+  court,
+  onSuccess,
+  onClose,
+}: EditCourtFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     sport: "",
@@ -69,15 +66,16 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Handle both API format (pricePerHour, isActive) and direct query format (price_per_hour, is_active)
     setFormData({
-      name: court.name,
-      sport: court.sport,
+      name: court.name || "",
+      sport: court.sport || "",
       surface: court.surface || "",
-      pricePerHour: court.pricePerHour.toString(),
-      capacity: court.capacity?.toString() || "",
-      facilities: court.facilities.length > 0 ? court.facilities : [""],
+      pricePerHour: ((court.price_per_hour || court.pricePerHour) ?? 0).toString(),
+      capacity: (court.capacity?.toString() || ""),
+      facilities: (court.facilities && court.facilities.length > 0) ? court.facilities : [""],
       description: court.description || "",
-      isActive: court.isActive,
+      isActive: court.is_active !== undefined ? court.is_active : (court.isActive ?? true),
     });
   }, [court]);
 
@@ -103,24 +101,33 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
     setError(null);
 
     try {
-      const result = await updateCourt(court.id, {
+      // Use server action for direct query update
+      const { updateCourtAction } = await import("@/app/dashboard/venue/courts/court-actions");
+      const result = await updateCourtAction(court.id, {
         name: formData.name.trim(),
         sport: formData.sport as SportType,
         surface: formData.surface || undefined,
-        pricePerHour: Number(formData.pricePerHour),
+        price_per_hour: Number(formData.pricePerHour),
         capacity: formData.capacity ? Number(formData.capacity) : undefined,
-        facilities: formData.facilities.filter(f => f.trim()),
+        facilities: formData.facilities.filter((f) => f.trim()),
         description: formData.description.trim() || undefined,
-        isActive: formData.isActive,
+        is_active: formData.isActive,
       });
 
       if (result.success) {
+        toast.success("Lapangan berhasil diperbarui.");
         onSuccess();
+        // Redirect to courts page after successful update
+        setTimeout(() => {
+          router.push("/dashboard/venue/courts");
+        }, 1500);
       } else {
         setError(result.error || "Terjadi kesalahan saat mengubah lapangan");
+        toast.error(result.error || "Terjadi kesalahan saat mengubah lapangan");
       }
     } catch (err) {
       setError("Terjadi kesalahan. Silakan coba lagi.");
+      toast.error("Terjadi kesalahan. Silakan coba lagi.");
       console.error("Update court error:", err);
     } finally {
       setIsSubmitting(false);
@@ -128,69 +135,76 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
   };
 
   const addFacility = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      facilities: [...prev.facilities, ""]
+      facilities: [...prev.facilities, ""],
     }));
   };
 
   const removeFacility = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      facilities: prev.facilities.filter((_, i) => i !== index)
+      facilities: prev.facilities.filter((_, i) => i !== index),
     }));
   };
 
   const updateFacility = (index: number, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      facilities: prev.facilities.map((f, i) => i === index ? value : f)
+      facilities: prev.facilities.map((f, i) => (i === index ? value : f)),
     }));
   };
 
   return (
-    <DialogContent className="sm:max-w-[600px]">
-      <DialogHeader>
-        <DialogTitle>Edit Lapangan</DialogTitle>
-        <DialogDescription>
-          Ubah detail lapangan {court.name}.
-        </DialogDescription>
-      </DialogHeader>
+    <div className="max-w-3xl">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-2">
+          <p className="text-muted-foreground">
+            Ubah detail lapangan "{court.name}".
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid gap-6 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nama Lapangan</Label>
-            <Input
-              id="name"
-              placeholder="Lapangan Futsal 1"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              disabled={isSubmitting}
-            />
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nama Lapangan</Label>
+              <Input
+                id="name"
+                placeholder="Lapangan Futsal 1"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sport">Tipe Lapangan</Label>
+              <Select
+                value={formData.sport}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, sport: value }))
+                }
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih tipe" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sportOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="sport">Tipe Lapangan</Label>
-            <Select
-              value={formData.sport}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, sport: value }))}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih tipe" />
-              </SelectTrigger>
-              <SelectContent>
-                {sportOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="price">Harga per Jam</Label>
               <Input
@@ -198,7 +212,12 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
                 type="number"
                 placeholder="150000"
                 value={formData.pricePerHour}
-                onChange={(e) => setFormData(prev => ({ ...prev, pricePerHour: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    pricePerHour: e.target.value,
+                  }))
+                }
                 disabled={isSubmitting}
               />
             </div>
@@ -210,41 +229,52 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
                 type="number"
                 placeholder="10"
                 value={formData.capacity}
-                onChange={(e) => setFormData(prev => ({ ...prev, capacity: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, capacity: e.target.value }))
+                }
                 disabled={isSubmitting}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="surface">Permukaan</Label>
-            <Select
-              value={formData.surface}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, surface: value }))}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih permukaan" />
-              </SelectTrigger>
-              <SelectContent>
-                {surfaceOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="surface">Permukaan</Label>
+              <Select
+                value={formData.surface}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, surface: value }))
+                }
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih permukaan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {surfaceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Deskripsi</Label>
-            <Input
-              id="description"
-              placeholder="Deskripsi lapangan..."
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              disabled={isSubmitting}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="description">Deskripsi</Label>
+              <Input
+                id="description"
+                placeholder="Deskripsi lapangan..."
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -286,7 +316,9 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
             <Switch
               id="isActive"
               checked={formData.isActive}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({ ...prev, isActive: checked }))
+              }
               disabled={isSubmitting}
             />
             <Label htmlFor="isActive">Lapangan Aktif</Label>
@@ -297,25 +329,38 @@ export function EditCourtForm({ court, onSuccess, onClose }: EditCourtFormProps)
               {error}
             </div>
           )}
-        </div>
 
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            Batal
-          </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between sm:items-center">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+              className="sm:w-auto w-full"
+            >
+              ← Kembali
+            </Button>
+            <div className="flex gap-2 sm:w-auto w-full">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (confirm("Apakah Anda yakin ingin membatalkan perubahan?")) {
+                    router.back();
+                  }
+                }}
+                disabled={isSubmitting}
+                className="flex-1 sm:flex-none"
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none">
+                {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

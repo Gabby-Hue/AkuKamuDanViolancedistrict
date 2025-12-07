@@ -52,11 +52,9 @@ export async function GET(request: NextRequest) {
         name: booking.court.name,
         sport: booking.court.sport,
         price_per_hour: booking.court.price_per_hour,
-        venue: booking.court.venue ? {
-          name: booking.court.venue.name,
-          city: booking.court.venue.city,
-          address: booking.court.venue.address,
-        } : null,
+        venue_name: booking.court.venue_name,
+        venue_city: booking.court.venue_city,
+        venue_address: booking.court.venue_address,
       } : null,
     }));
 
@@ -144,11 +142,9 @@ export async function POST(request: NextRequest) {
         name: booking.court.name,
         sport: booking.court.sport,
         price_per_hour: booking.court.price_per_hour,
-        venue: booking.court.venue ? {
-          name: booking.court.venue.name,
-          city: booking.court.venue.city,
-          address: booking.court.venue.address,
-        } : null,
+        venue_name: booking.court.venue_name,
+        venue_city: booking.court.venue_city,
+        venue_address: booking.court.venue_address,
       } : null,
     } : null;
 

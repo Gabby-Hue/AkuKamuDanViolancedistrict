@@ -16,10 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
-import {
-  getAdminDashboardData,
-  type AdminDashboardData,
-} from "@/lib/supabase/queries/dashboard";
+import { AdminQueries } from "@/lib/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import {
@@ -29,96 +26,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createAdminClient } from "@/lib/supabase/server";
 import { ApplicationsClient } from "./applications-client";
-
-function getDefaultAdminDashboardData(): AdminDashboardData {
-  return {
-    metrics: {
-      totalVenues: 0,
-      totalCourts: 0,
-      totalBookings: 0,
-      totalUsers: 0,
-      totalRevenue: 0,
-      pendingApplications: 0,
-      totalThreads: 0,
-    },
-    revenueTrend: [],
-    sportBreakdown: [],
-    venueLeaders: [],
-    partnerApplications: {
-      pending: [],
-      accepted: [],
-      rejected: [],
-    },
-  };
-}
 
 export default async function Page() {
   const profile = await requireRole("admin");
   const identity = await getAuthenticatedProfile();
 
-  let dashboardData = getDefaultAdminDashboardData();
+  // Fetch all partner applications using new query
+  const applications = await AdminQueries.getVenuePartnerApplications();
 
-  try {
-    dashboardData = await getAdminDashboardData();
-  } catch (error) {
-    console.error("Failed to load admin dashboard data:", error);
-  }
+  const {
+    allApplications,
+    pending,
+    accepted,
+    rejected
+  } = applications;
 
-  // Fetch all partner applications
-  let allApplications: any[] = [];
-  try {
-    const supabase = await createAdminClient();
-    const { data, error } = await supabase
-      .from("venue_partner_applications")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (data) {
-      allApplications = data.map((app) => ({
-        id: app.id,
-        name: app.organization_name,
-        owner: app.contact_name,
-        email: app.contact_email,
-        phone: app.contact_phone,
-        city: app.city || "Unknown",
-        sport: app.facility_types
-          ? app.facility_types.join(", ")
-          : "Multi-sport",
-        status: app.status || "pending",
-        submittedDate: app.created_at,
-        description: app.notes || "No description provided",
-        facilities: app.facility_types || [],
-        operatingHours: "Not specified",
-        courts: app.facility_count || 1,
-        businessName: app.organization_name,
-        address: null,
-        decisionNote: app.decision_note,
-        facilityCount: app.facility_count,
-        existingSystem: app.existing_system,
-        notes: app.notes,
-        reviewedAt: app.reviewed_at,
-        handledBy: app.handled_by,
-      }));
-    }
-  } catch (error) {
-    console.error("Failed to load partner applications:", error);
-  }
-
-  const pendingApplications = allApplications.filter(
-    (app) => app.status === "pending",
-  );
-  const acceptedApplications = allApplications.filter(
-    (app) => app.status === "accepted",
-  );
-  const rejectedApplications = allApplications.filter(
-    (app) => app.status === "rejected",
-  );
-
-  const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
+  const displayName = profile.full_name ?? "Admin";
   const email = identity?.email ?? "admin@courtease.id";
-  const avatarUrl = null;
 
   const navMain: NavMainItem[] = [
     {
@@ -204,9 +129,9 @@ export default async function Page() {
 
           <ApplicationsClient
             allApplications={allApplications}
-            pendingApplications={pendingApplications}
-            acceptedApplications={acceptedApplications}
-            rejectedApplications={rejectedApplications}
+            pendingApplications={pending}
+            acceptedApplications={accepted}
+            rejectedApplications={rejected}
           />
         </div>
       </SidebarInset>

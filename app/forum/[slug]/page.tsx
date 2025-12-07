@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { ThreadDiscussion } from "@/components/forum/thread-discussion";
-import { fetchForumThreadDetail } from "@/lib/supabase/queries";
+import { PublicQueries } from "@/lib/queries/public";
 
 export default async function ForumThreadDetailPage({
   params,
@@ -9,7 +9,7 @@ export default async function ForumThreadDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const thread = await fetchForumThreadDetail(slug);
+  const thread = await PublicQueries.getForumThreadDetail(slug);
 
   if (!thread) {
     notFound();

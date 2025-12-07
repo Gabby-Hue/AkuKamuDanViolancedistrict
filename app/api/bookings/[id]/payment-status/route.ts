@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
+import type { PaymentStatus, BookingStatus } from "@/lib/supabase/status";
 import {
   getMidtransTransactionStatus,
-  mapMidtransStatusToBooking
+  mapMidtransStatusToBooking,
 } from "@/lib/payments/midtrans";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const bookingId = (await params).id;
@@ -17,7 +18,7 @@ export async function GET(
     if (!profile) {
       return NextResponse.json(
         { error: "Unauthorized - Please login first" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -26,7 +27,8 @@ export async function GET(
     // Get booking details
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
-      .select(`
+      .select(
+        `
         id,
         payment_reference,
         payment_status,
@@ -35,7 +37,8 @@ export async function GET(
         payment_completed_at,
         created_at,
         updated_at
-      `)
+      `,
+      )
       .eq("id", bookingId)
       .eq("profile_id", profile.id)
       .maybeSingle();
@@ -43,69 +46,82 @@ export async function GET(
     if (bookingError || !booking) {
       return NextResponse.json(
         { error: "Booking not found or access denied" },
-        { status: 404 }
+        { status: 404 },
       );
     }
-
-    console.log("Checking payment status for booking:", {
-      bookingId,
-      payment_reference: booking.payment_reference,
-      current_payment_status: booking.payment_status,
-      current_status: booking.status,
-    });
 
     // Check Midtrans status if we have a payment reference
     if (booking.payment_reference) {
       try {
         const midtransStatus = await getMidtransTransactionStatus(
-          booking.payment_reference
+          booking.payment_reference,
         );
 
         if (midtransStatus) {
-          console.log("Midtrans status retrieved:", {
-            order_id: midtransStatus.order_id,
-            transaction_status: midtransStatus.transaction_status,
-            fraud_status: midtransStatus.fraud_status,
-            payment_type: midtransStatus.payment_type,
-            status_message: midtransStatus.status_message,
-          });
+          console.log("Midtrans status retrieved:");
 
           // Map Midtrans status to application status
-          const transactionStatus = (midtransStatus.transaction_status || "").toLowerCase();
+          const transactionStatus = (
+            midtransStatus.transaction_status || ""
+          ).toLowerCase();
           const fraudStatus = (midtransStatus.fraud_status || "").toLowerCase();
 
           let statusMapping = null;
           switch (transactionStatus) {
             case "settlement":
-              statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "pending" as BookingStatus };
+              statusMapping = {
+                payment_status: "paid" as PaymentStatus,
+                booking_status: "pending" as BookingStatus,
+              };
               break;
             case "capture":
               if (fraudStatus === "challenge") {
-                statusMapping = { payment_status: "waiting_confirmation" as PaymentStatus, booking_status: "pending" as BookingStatus };
+                statusMapping = {
+                  payment_status: "waiting_confirmation" as PaymentStatus,
+                  booking_status: "pending" as BookingStatus,
+                };
               } else {
-                statusMapping = { payment_status: "paid" as PaymentStatus, booking_status: "pending" as BookingStatus };
+                statusMapping = {
+                  payment_status: "paid" as PaymentStatus,
+                  booking_status: "pending" as BookingStatus,
+                };
               }
               break;
             case "authorize":
-              statusMapping = { payment_status: "waiting_confirmation" as PaymentStatus, booking_status: "pending" as BookingStatus };
+              statusMapping = {
+                payment_status: "waiting_confirmation" as PaymentStatus,
+                booking_status: "pending" as BookingStatus,
+              };
               break;
             case "pending":
-              statusMapping = { payment_status: "pending" as PaymentStatus, booking_status: "pending" as BookingStatus };
+              statusMapping = {
+                payment_status: "pending" as PaymentStatus,
+                booking_status: "pending" as BookingStatus,
+              };
               break;
             case "expire":
             case "expired":
-              statusMapping = { payment_status: "cancelled" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
+              statusMapping = {
+                payment_status: "cancelled" as PaymentStatus,
+                booking_status: "cancelled" as BookingStatus,
+              };
               break;
             case "deny":
             case "cancel":
             case "failure":
-              statusMapping = { payment_status: "cancelled" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
+              statusMapping = {
+                payment_status: "cancelled" as PaymentStatus,
+                booking_status: "cancelled" as BookingStatus,
+              };
               break;
             case "refund":
             case "partial_refund":
             case "chargeback":
             case "partial_chargeback":
-              statusMapping = { payment_status: "expired" as PaymentStatus, booking_status: "cancelled" as BookingStatus };
+              statusMapping = {
+                payment_status: "expired" as PaymentStatus,
+                booking_status: "cancelled" as BookingStatus,
+              };
               break;
             default:
               statusMapping = null;
@@ -151,7 +167,7 @@ export async function GET(
                     midtrans_status: midtransStatus,
                     current_booking: booking,
                   },
-                  { status: 500 }
+                  { status: 500 },
                 );
               }
 
@@ -160,14 +176,16 @@ export async function GET(
               // Return updated booking data
               const { data: updatedBooking } = await supabase
                 .from("bookings")
-                .select(`
+                .select(
+                  `
                   id,
                   payment_reference,
                   payment_status,
                   status,
                   payment_completed_at,
                   updated_at
-                `)
+                `,
+                )
                 .eq("id", bookingId)
                 .single();
 
@@ -191,7 +209,10 @@ export async function GET(
             status_updated: false, // No update needed
           });
         } else {
-          console.warn("Could not retrieve Midtrans status for:", booking.payment_reference);
+          console.warn(
+            "Could not retrieve Midtrans status for:",
+            booking.payment_reference,
+          );
 
           return NextResponse.json({
             success: false,
@@ -219,7 +240,6 @@ export async function GET(
         midtrans_status: null,
       });
     }
-
   } catch (error) {
     console.error("Error in payment status check:", error);
     return NextResponse.json(
@@ -227,7 +247,7 @@ export async function GET(
         error: "Failed to check payment status",
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

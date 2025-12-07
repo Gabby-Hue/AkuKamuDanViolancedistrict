@@ -6,7 +6,7 @@ import { InfoGrid } from "@/components/ui/info-grid";
 import { PhotoGallery } from "@/components/ui/photo-gallery";
 import { BookingSidebar } from "@/components/ui/booking-sidebar";
 import { VenueLocationMap } from "@/components/venues/venue-location-map";
-import { fetchCourtDetail } from "@/lib/supabase/queries";
+import { PublicQueries } from "@/lib/queries/public";
 import { getProfileWithRole } from "@/lib/supabase/roles";
 
 export default async function CourtDetailPage({
@@ -15,7 +15,7 @@ export default async function CourtDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const court = await fetchCourtDetail(slug);
+  const court = await PublicQueries.getCourtDetail(slug);
   const profile = await getProfileWithRole();
 
   if (!court) {
@@ -41,12 +41,14 @@ export default async function CourtDetailPage({
 
   const images = court.images ?? [];
   const heroImage =
-    images.find((image) => image.is_primary)?.image_url ??
-    images[0]?.image_url ??
+    images.find((image) => image.isPrimary)?.imageUrl ??
+    images[0]?.imageUrl ??
     null;
-  const otherImages = images.filter((image) => image.image_url !== heroImage);
+  const otherImages = images
+    .filter((image) => image.imageUrl !== heroImage)
+    .map((image) => ({ image_url: image.imageUrl }));
 
-  const subtitle = `${court.venueName}${court.venueCity ? ` • ${court.venueCity}` : ""}${court.venueDistrict ? `, ${court.venueDistrict}` : ""}`;
+  const subtitle = `${court.venueName}${court.venueCity ? ` • ${court.venueCity}` : ""}`;
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 pb-24 pt-16 sm:px-6 lg:px-8">
@@ -131,7 +133,7 @@ export default async function CourtDetailPage({
                       {review.author ?? "Member CourtEase"}
                     </span>
                     <span className="text-sm text-gray-500">
-                      {new Date(review.created_at).toLocaleDateString("id-ID", {
+                      {new Date(review.createdAt).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",

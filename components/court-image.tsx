@@ -13,6 +13,17 @@ export default function CourtImage({ src, alt, fallbackId }: CourtImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
 
+  // Don't render img if src is empty or null
+  if (!src || src.trim() === '') {
+    return (
+      <div className="aspect-video bg-muted relative">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <ImageIcon className="w-12 h-12 text-muted-foreground/50" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="aspect-video bg-muted relative">
       <img

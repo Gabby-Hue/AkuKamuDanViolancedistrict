@@ -115,21 +115,6 @@ export type CourtImageRow = {
   updated_at: string;
 };
 
-export type CourtBlackoutRow = {
-  id: string;
-  court_id: string;
-  title: string | null;
-  notes: string | null;
-  scope: string | null;
-  frequency: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-  repeat_day_of_week: number | null;
-  created_at: string;
-  updated_at: string;
-};
 
 // Helper types for Supabase queries
 export type CourtWithVenue = CourtRow & {

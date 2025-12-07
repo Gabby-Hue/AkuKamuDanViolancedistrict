@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
-import { getBookingDetail } from "@/lib/services/booking.service";
+import { getBookingDetail, updateBookingStatus } from "@/lib/services/booking.service";
 
 export async function POST(
   request: NextRequest,

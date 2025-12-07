@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/supabase/roles";
-import { bookingService } from "@/lib/services/booking.service";
-import { fetchCourtDetail } from "@/lib/supabase/queries";
-import type { BookingStatus, PaymentStatus } from "@/lib/supabase/status";
+import { UserQueries } from "@/lib/queries/user";
+import { PublicQueries } from "@/lib/queries/public";
+import type {
+  BookingStatus,
+  PaymentStatus,
+  ReviewData,
+} from "@/lib/queries/types";
 import {
   Card,
   CardContent,
@@ -35,7 +39,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import TicketModal from "./ticket-modal";
-import ReviewSection from "./review-section";
+import ReviewForm from "./review-form-server-action";
 
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
@@ -47,7 +51,7 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
 
 const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   pending: "Belum Dibayar",
-  processing: "Diproses",
+  waiting_confirmation: "Diproses",
   paid: "Berhasil",
   expired: "Kedaluwarsa",
   cancelled: "Dibatalkan",
@@ -76,7 +80,7 @@ const getPaymentStatusVariant = (status: PaymentStatus) => {
       return "default";
     case "pending":
       return "destructive";
-    case "processing":
+    case "waiting_confirmation":
       return "secondary";
     case "expired":
       return "destructive";
@@ -98,26 +102,31 @@ export default async function BookingDetailPage({
   const { id } = await params;
   const { check_payment } = await searchParams;
 
-  const booking = await bookingService.getBookingDetail(id, profile.id);
+  // Fetch booking detail and review data in parallel
+  const [booking, reviewData] = await Promise.all([
+    UserQueries.getBookingDetail(id, profile.id),
+    PublicQueries.getBookingReview(id, profile.id),
+  ]);
 
   if (!booking) {
     notFound();
   }
 
+  // Check review availability
+  const hasExistingReview = !!booking.review || !!reviewData;
+  const canReview =
+    booking.status === "completed" &&
+    booking.completedAt &&
+    !hasExistingReview &&
+    !booking.reviewSubmittedAt;
+
   const shouldCheckPayment =
-    check_payment === "true" && booking.payment_status === "pending";
+    check_payment === "true" && booking.paymentStatus === "pending";
 
-  const court = await fetchCourtDetail(booking.court.slug);
-
-  const heroImage =
-    court?.images?.find((image) => image.is_primary)?.image_url ??
-    court?.images?.[0]?.image_url ??
-    null;
-
-  const startTime = new Date(booking.start_time);
-  const endTime = new Date(booking.end_time);
-  const paymentExpiresAt = booking.payment_expired_at
-    ? new Date(booking.payment_expired_at)
+  const startTime = new Date(booking.startTime);
+  const endTime = new Date(booking.endTime);
+  const paymentExpiresAt = booking.paymentExpiredAt
+    ? new Date(booking.paymentExpiredAt)
     : null;
 
   return (
@@ -138,21 +147,24 @@ export default async function BookingDetailPage({
                 <Badge variant={getBookingStatusVariant(booking.status)}>
                   {BOOKING_STATUS_LABEL[booking.status] ?? booking.status}
                 </Badge>
-                <Badge
-                  variant={getPaymentStatusVariant(booking.payment_status)}
-                >
-                  {PAYMENT_STATUS_LABEL[booking.payment_status] ??
-                    booking.payment_status}
+                <Badge variant={getPaymentStatusVariant(booking.paymentStatus)}>
+                  {PAYMENT_STATUS_LABEL[booking.paymentStatus] ??
+                    booking.paymentStatus}
                 </Badge>
-                <Badge variant="outline">{booking.court.sport}</Badge>
+                <Badge variant="outline">{booking.court?.sport}</Badge>
               </div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-                {booking.court.name}
+                {booking.court?.name}
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
-                {booking.court.venue?.name || booking.court.name}
-                {booking.court.venue?.city && ` • ${booking.court.venue.city}`}
+                {booking.venueName || booking.court?.venueName}
+                {booking.venueCity || booking.court?.venueCity && `, ${booking.venueCity || booking.court?.venueCity}`}
               </p>
+              {booking.venueAddress || booking.court?.venueAddress ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  {booking.venueAddress || booking.court?.venueAddress}
+                </p>
+              ) : null}
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -160,22 +172,24 @@ export default async function BookingDetailPage({
                 <Share2 className="mr-2 h-4 w-4" />
                 Bagikan
               </Button>
-              <TicketModal
-                booking={booking}
-                startTime={startTime}
-                endTime={endTime}
-              />
-              {booking.payment_status === "pending" &&
-                booking.payment_token && (
-                  <ContinuePaymentButton
-                    snapToken={booking.payment_token}
-                    redirectUrl={booking.payment_redirect_url}
-                    clientKey={
-                      process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null
-                    }
-                    snapScriptUrl="https://app.sandbox.midtrans.com/snap/snap.js"
-                  />
-                )}
+              {booking.court && (
+                <TicketModal
+                  booking={booking}
+                  court={booking.court}
+                  startTime={startTime}
+                  endTime={endTime}
+                />
+              )}
+              {booking.paymentStatus === "pending" && booking.paymentToken && (
+                <ContinuePaymentButton
+                  snapToken={booking.paymentToken}
+                  redirectUrl={booking.paymentRedirectUrl}
+                  clientKey={
+                    process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || null
+                  }
+                  snapScriptUrl="https://app.sandbox.midtrans.com/snap/snap.js"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -183,19 +197,6 @@ export default async function BookingDetailPage({
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Hero Image */}
-            {heroImage && (
-              <Card className="overflow-hidden">
-                <div className="aspect-video relative">
-                  <img
-                    src={heroImage}
-                    alt={booking.court.name}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              </Card>
-            )}
-
             {/* Booking Details */}
             <Card>
               <CardHeader>
@@ -252,12 +253,12 @@ export default async function BookingDetailPage({
                       Total Harga
                     </label>
                     <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                      Rp {booking.price_total.toLocaleString("id-ID")}
+                      Rp {(booking.priceTotal || 0).toLocaleString("id-ID")}
                     </p>
                   </div>
                 </div>
 
-                {booking.payment_reference && (
+                {booking.paymentReference && (
                   <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
@@ -265,7 +266,7 @@ export default async function BookingDetailPage({
                           Invoice
                         </label>
                         <p className="font-mono text-slate-900 dark:text-white">
-                          #{booking.payment_reference}
+                          #{booking.paymentReference || "N/A"}
                         </p>
                       </div>
                       <Button size="sm" variant="outline">
@@ -275,14 +276,140 @@ export default async function BookingDetailPage({
                     </div>
                   </div>
                 )}
+
+                {booking.paymentCompletedAt && (
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="text-sm font-medium text-green-600 dark:text-green-400">
+                          Pembayaran Selesai
+                        </label>
+                        <p className="text-slate-900 dark:text-white">
+                          {new Date(booking.paymentCompletedAt).toLocaleString("id-ID", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-green-600 dark:text-green-400">
+                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Review Section */}
-            <ReviewSection
-              booking={booking}
-              hasExistingReview={!!booking.review}
-            />
+            {hasExistingReview ? (
+              // Display existing review
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Review Anda
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-6">
+                    <div className="flex items-center justify-center gap-1 mb-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-8 w-8 ${
+                            star <=
+                            Math.round(
+                              (booking.review || reviewData)?.rating || 0,
+                            )
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "fill-gray-200 text-gray-400"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {(booking.review || reviewData)?.rating.toFixed(1)} / 5.0
+                    </p>
+                    <p className="text-sm text-green-600 font-medium mb-3">
+                      Review Anda telah dikirim
+                    </p>
+                    {(booking.review || reviewData)?.comment && (
+                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left">
+                        <p className="text-gray-700 dark:text-gray-300 italic">
+                          "{(booking.review || reviewData)?.comment}"
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                      Terima kasih telah memberikan feedback untuk lapangan ini
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : booking.reviewSubmittedAt ? (
+              // Show submitted message if review_submitted_at exists but no review data yet
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Review Anda
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-6">
+                    <div className="flex items-center justify-center gap-1 mb-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className="h-8 w-8 fill-gray-200 text-gray-400"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      - / 5.0
+                    </p>
+                    <p className="text-sm text-green-600 font-medium mb-3">
+                      Review Anda telah dikirim
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                      Review sedang diproses oleh sistem
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : !canReview ? (
+              // Show cannot review message
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Review Lapangan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-6">
+                    <Star className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {booking.status !== "completed"
+                        ? "Review dapat ditulis setelah sesi bermain selesai"
+                        : "Loading review data..."}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              // Show review form
+              <ReviewForm
+                bookingId={booking.id}
+                profileId={profile.id}
+                courtName={booking.court?.name}
+              />
+            )}
 
             {/* Venue Information */}
             <Card>
@@ -295,13 +422,16 @@ export default async function BookingDetailPage({
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-slate-900 dark:text-white">
-                    {booking.court.venue?.name || booking.court.name}
+                    {booking.venueName || booking.court?.venueName}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-300">
-                    {booking.court.venue?.address || "Alamat venue"}
-                    {booking.court.venue?.city &&
-                      `, ${booking.court.venue.city}`}
-                  </p>
+                  <div className="text-slate-600 dark:text-slate-300">
+                    {booking.venueAddress || booking.court?.venueAddress ? (
+                      <p>{booking.venueAddress || booking.court?.venueAddress}</p>
+                    ) : null}
+                    {booking.venueCity || booking.court?.venueCity ? (
+                      <p>{booking.venueCity || booking.court?.venueCity}</p>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -310,7 +440,7 @@ export default async function BookingDetailPage({
                       Lapangan
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {booking.court.name}
+                      {booking.court?.name}
                     </p>
                   </div>
                   <div>
@@ -318,7 +448,7 @@ export default async function BookingDetailPage({
                       Tipe Olahraga
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {booking.court.sport}
+                      {booking.court?.sport}
                     </p>
                   </div>
                 </div>
@@ -347,10 +477,10 @@ export default async function BookingDetailPage({
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Status</span>
                     <Badge
-                      variant={getPaymentStatusVariant(booking.payment_status)}
+                      variant={getPaymentStatusVariant(booking.paymentStatus)}
                     >
-                      {PAYMENT_STATUS_LABEL[booking.payment_status] ??
-                        booking.payment_status}
+                      {PAYMENT_STATUS_LABEL[booking.paymentStatus] ??
+                        booking.paymentStatus}
                     </Badge>
                   </div>
 
@@ -359,23 +489,22 @@ export default async function BookingDetailPage({
                       Total Pembayaran
                     </span>
                     <span className="font-bold text-lg text-slate-900 dark:text-white">
-                      Rp {booking.price_total.toLocaleString("id-ID")}
+                      Rp {(booking.priceTotal || 0).toLocaleString("id-ID")}
                     </span>
                   </div>
 
-                  {booking.payment_reference && (
+                  {booking.paymentReference && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">No. Invoice</span>
                         <span className="font-mono text-xs text-slate-600 dark:text-slate-300">
-                          #{booking.payment_reference}
+                          #{booking.paymentReference || "N/A"}
                         </span>
                       </div>
                     </div>
                   )}
 
-                  {booking.payment_status === "paid" &&
-                    booking.completed_at && (
+                  {booking.paymentStatus === "paid" && booking.paymentCompletedAt && (
                       <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
                         <div className="flex items-center text-green-800 dark:text-green-200">
                           <CheckCircle className="h-4 w-4 mr-2" />
@@ -387,15 +516,14 @@ export default async function BookingDetailPage({
                           <div className="flex justify-between">
                             <span>Waktu Bayar:</span>
                             <span>
-                              {new Date(booking.completed_at).toLocaleString(
-                                "id-ID",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
+                              {new Date(
+                                booking.paymentCompletedAt,
+                              ).toLocaleString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </span>
                           </div>
                           {/* Payment method would need to be tracked separately if needed */}
@@ -403,7 +531,7 @@ export default async function BookingDetailPage({
                       </div>
                     )}
 
-                  {paymentExpiresAt && booking.payment_status === "pending" && (
+                  {paymentExpiresAt && booking.paymentStatus === "pending" && (
                     <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                       <div className="flex items-center text-orange-800 dark:text-orange-200">
                         <Timer className="h-4 w-4 mr-2" />
@@ -436,7 +564,7 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "waiting_confirmation" && (
+                  {booking.paymentStatus === "waiting_confirmation" && (
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
                       <div className="flex items-center text-blue-800 dark:text-blue-200">
                         <Clock className="h-4 w-4 mr-2" />
@@ -450,7 +578,7 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.payment_status === "cancelled" &&
+                  {booking.paymentStatus === "cancelled" &&
                     paymentExpiresAt &&
                     new Date() > paymentExpiresAt && (
                       <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg space-y-2">
@@ -478,7 +606,7 @@ export default async function BookingDetailPage({
                       </div>
                     )}
 
-                  {booking.payment_status === "cancelled" &&
+                  {booking.paymentStatus === "cancelled" &&
                     (!paymentExpiresAt || new Date() <= paymentExpiresAt) && (
                       <div className="p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg space-y-2">
                         <div className="flex items-center text-gray-800 dark:text-gray-200">
@@ -502,20 +630,19 @@ export default async function BookingDetailPage({
                 <CardTitle>Aksi Cepat</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Bagikan ke Tim
-                </Button>
-                <Button variant="outline" className="w-full" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download PDF
-                </Button>
-                <Button variant="outline" className="w-full" size="sm" asChild>
-                  <Link href={`/court/${booking.court.slug}`}>
+                {booking.court?.slug ? (
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link href={`/court/${booking.court?.slug || booking.courtId}`}>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Lihat Court
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" size="sm" disabled>
                     <MapPin className="mr-2 h-4 w-4" />
-                    Lihat Venue
-                  </Link>
-                </Button>
+                    Court tidak tersedia
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -557,7 +684,7 @@ export default async function BookingDetailPage({
       <PaymentStatusChecker bookingId={id} enabled={shouldCheckPayment} />
 
       {/* Booking Expiry Monitor - auto-cancel after 30 minutes */}
-      <BookingExpiryMonitor createdAt={booking.created_at} />
+      <BookingExpiryMonitor createdAt={booking.createdAt} />
     </div>
   );
 }

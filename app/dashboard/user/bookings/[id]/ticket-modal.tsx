@@ -5,8 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, X } from "lucide-react";
 import Image from "next/image";
-import type { BookingStatus } from "@/lib/supabase/status";
-import type { BookingDetail } from "@/lib/supabase/queries";
+import type { BookingStatus, PaymentStatus, BookingDetail, Court } from "@/lib/queries/types";
 
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
@@ -35,16 +34,21 @@ const getBookingStatusVariant = (status: BookingStatus) => {
 
 interface TicketModalProps {
   booking: BookingDetail;
+  court: Court;
   startTime: Date;
   endTime: Date;
 }
 
 export default function TicketModal({
   booking,
+  court,
   startTime,
   endTime,
 }: TicketModalProps) {
   const [showTicketModal, setShowTicketModal] = useState(false);
+
+  // Calculate heroImage using the same logic as page.tsx
+  const heroImage = court?.primaryImageUrl ?? null;
 
   // Load Google Font when modal opens
   useEffect(() => {
@@ -90,8 +94,6 @@ export default function TicketModal({
   const duration = Math.round(
     (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60),
   );
-  const imageUrl =
-    "https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&h=450&fit=crop";
 
   return (
     <>
@@ -180,7 +182,7 @@ export default function TicketModal({
                   fill="hsl(var(--brand-muted))"
                   fontSize="13"
                 >
-                  SPORTIVO ARENA PRESENTS
+                  {court?.venueName || ""}
                 </text>
                 <text
                   x="140"
@@ -194,17 +196,38 @@ export default function TicketModal({
                 </text>
 
                 {/* Info Table 1 */}
-                <text x="25" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="25"
+                  y="285"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   LAPANGAN
                 </text>
-                <text x="120" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="120"
+                  y="285"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   TANGGAL
                 </text>
-                <text x="233" y="285" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="233"
+                  y="285"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   JAM
                 </text>
 
-                <text x="25" y="310" fontSize="20" fontWeight="600" fill="hsl(var(--brand-strong))">
+                <text
+                  x="25"
+                  y="310"
+                  fontSize="20"
+                  fontWeight="600"
+                  fill="hsl(var(--brand-strong))"
+                >
                   {"Futsal"}
                 </text>
                 <text
@@ -232,24 +255,54 @@ export default function TicketModal({
                 </text>
 
                 {/* Info Table 2 */}
-                <text x="25" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="25"
+                  y="345"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   HARGA
                 </text>
-                <text x="120" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="120"
+                  y="345"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   DURASI
                 </text>
-                <text x="210" y="345" fontSize="19" fill="hsl(var(--brand-muted))">
+                <text
+                  x="210"
+                  y="345"
+                  fontSize="19"
+                  fill="hsl(var(--brand-muted))"
+                >
                   DIPESAN
                 </text>
 
-                <text x="27" y="360" fontSize="14" fill="hsl(var(--brand-strong))">
-                  {formatPrice(booking.price_total)}
+                <text
+                  x="27"
+                  y="360"
+                  fontSize="14"
+                  fill="hsl(var(--brand-strong))"
+                >
+                  {formatPrice(booking.priceTotal || 0)}
                 </text>
-                <text x="127" y="365" fontSize="14" fill="hsl(var(--brand-strong))">
+                <text
+                  x="127"
+                  y="365"
+                  fontSize="14"
+                  fill="hsl(var(--brand-strong))"
+                >
                   {duration} Jam
                 </text>
-                <text x="223" y="365" fontSize="14" fill="hsl(var(--brand-strong))">
-                  {booking.profile?.full_name || "User"}
+                <text
+                  x="223"
+                  y="365"
+                  fontSize="14"
+                  fill="hsl(var(--brand-strong))"
+                >
+                  {booking.customer?.fullName || "User"}
                 </text>
 
                 {/* Dashed line */}
@@ -289,26 +342,32 @@ export default function TicketModal({
             </svg>
 
             {/* Poster Image Overlay */}
-            <div
-              style={{
-                position: "absolute",
-                top: "110px",
-                left: "10px",
-                width: "260px",
-                height: "146px",
-                borderRadius: "4px",
-                overflow: "hidden",
-                zIndex: 5,
-              }}
-            >
-              <Image
-                src={imageUrl}
-                alt={booking.court?.name || ""}
-                fill
-                style={{ objectFit: "cover" }}
-                sizes="(max-width: 280px) 100vw"
-              />
-            </div>
+            {heroImage && heroImage !== "" && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "110px",
+                  left: "10px",
+                  width: "260px",
+                  height: "146px",
+                  borderRadius: "4px",
+                  overflow: "hidden",
+                  zIndex: 5,
+                }}
+              >
+                <Image
+                  src={heroImage}
+                  alt={booking.court?.name || ""}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  sizes="(max-width: 280px) 100vw"
+                  onError={(e) => {
+                    // Fallback to placeholder if image fails to load
+                    e.currentTarget.src = "/placeholder-court.jpg";
+                  }}
+                />
+              </div>
+            )}
 
             {/* Status Badge Overlay */}
             <div

@@ -84,20 +84,34 @@ export type Booking = {
   payment_redirect_url: string | null;
   payment_token: string | null;
   payment_expired_at: string | null;
+  payment_expires_at: string | null;
+  payment_completed_at: string | null;
   price_total: number;
   notes: string | null;
-  created_at: string;
-  updated_at: string;
   checked_in_at: string | null;
   completed_at: string | null;
   review_submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type BookingDetail = Booking & {
-  court: Court & {
-    venue: Venue;
+  court: {
+    id: string;
+    slug: string;
+    name: string;
+    sport: string;
+    price_per_hour: number;
+    venue_name: string | null;
+    venue_city: string | null;
+    venue_address: string | null;
   };
-  profile: Profile | null;
+  profile: {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+    phone: string | null;
+  } | null;
   review: {
     id: string;
     rating: number;
@@ -144,6 +158,7 @@ export async function getBookingDetail(
       payment_redirect_url,
       payment_token,
       payment_expired_at,
+      payment_completed_at,
       price_total,
       notes,
       created_at,
@@ -167,14 +182,6 @@ export async function getBookingDetail(
     .eq("profile_id", profileId)
     .single();
 
-  // Debug logging
-  // console.log("Raw booking query result:", {
-  //   data,
-  //   error,
-  //   bookingId,
-  //   profileId,
-  // });
-
   if (error) {
     console.error("Failed to fetch booking detail", error.message);
     return null;
@@ -187,15 +194,8 @@ export async function getBookingDetail(
     .eq("booking_id", bookingId)
     .maybeSingle();
 
-  console.log("Review query result:", { reviewData, reviewError });
-
   if (reviewError) {
     console.error("Failed to fetch review data", reviewError.message);
-  }
-
-  if (error) {
-    console.error("Failed to fetch booking detail", error.message);
-    return null;
   }
 
   const booking = data as any;
@@ -215,6 +215,8 @@ export async function getBookingDetail(
     payment_redirect_url: booking.payment_redirect_url,
     payment_token: booking.payment_token,
     payment_expired_at: booking.payment_expired_at,
+    payment_expires_at: booking.payment_expires_at,
+    payment_completed_at: booking.payment_completed_at,
     price_total: Number(booking.price_total),
     notes: booking.notes,
     created_at: booking.created_at,
@@ -227,16 +229,10 @@ export async function getBookingDetail(
       slug: booking.court.slug,
       name: booking.court.name,
       sport: booking.court.sport,
-      surface: booking.court.surface,
       price_per_hour: Number(booking.court.price_per_hour),
-      capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities)
-        ? booking.court.facilities
-        : [],
-      description: booking.court.description,
-      venue_id: booking.court.venue_id,
-      is_active: booking.court.is_active,
-      venue: booking.court.venue || null,
+      venue_name: booking.court.venue_name || null,
+      venue_city: booking.court.venue_city || null,
+      venue_address: booking.court.venue_address || null,
     },
     profile: booking.profile,
     review: reviewData
@@ -338,6 +334,8 @@ export async function getUserBookings(
     payment_redirect_url: booking.payment_redirect_url,
     payment_token: booking.payment_token,
     payment_expired_at: booking.payment_expired_at,
+    payment_expires_at: booking.payment_expires_at,
+    payment_completed_at: booking.payment_completed_at,
     price_total: Number(booking.price_total),
     notes: booking.notes,
     created_at: booking.created_at,
@@ -350,16 +348,10 @@ export async function getUserBookings(
       slug: booking.court.slug,
       name: booking.court.name,
       sport: booking.court.sport,
-      surface: booking.court.surface,
       price_per_hour: Number(booking.court.price_per_hour),
-      capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities)
-        ? booking.court.facilities
-        : [],
-      description: booking.court.description,
-      venue_id: booking.court.venue_id,
-      is_active: booking.court.is_active,
-      venue: booking.court.venue || null,
+      venue_name: booking.court.venue_name || null,
+      venue_city: booking.court.venue_city || null,
+      venue_address: booking.court.venue_address || null,
     },
     profile: null, // Not fetched in this query
     review:
@@ -490,6 +482,8 @@ export async function createBooking(
     payment_redirect_url: null,
     payment_token: null,
     payment_expired_at: null,
+    payment_expires_at: null,
+    payment_completed_at: null,
     price_total: Number(booking.price_total),
     notes: booking.notes,
     created_at: booking.created_at,
@@ -498,20 +492,14 @@ export async function createBooking(
     completed_at: booking.completed_at,
     review_submitted_at: booking.review_submitted_at,
     court: {
-      id: booking.court.id,
-      slug: booking.court.slug,
-      name: booking.court.name,
-      sport: booking.court.sport,
-      surface: booking.court.surface,
-      price_per_hour: Number(booking.court.price_per_hour),
-      capacity: booking.court.capacity,
-      facilities: Array.isArray(booking.court.facilities)
-        ? booking.court.facilities
-        : [],
-      description: booking.court.description,
-      venue_id: booking.court.venue_id,
-      is_active: booking.court.is_active,
-      venue: booking.court.venue || null,
+      id: booking.court[0].id,
+      slug: booking.court[0].slug,
+      name: booking.court[0].name,
+      sport: booking.court[0].sport,
+      price_per_hour: Number(booking.court[0].price_per_hour),
+      venue_name: booking.court[0].venue?.[0]?.name || null,
+      venue_city: booking.court[0].venue?.[0]?.city || null,
+      venue_address: booking.court[0].venue?.[0]?.address || null,
     },
     profile: null,
     review: null,
@@ -574,5 +562,3 @@ export const bookingService = {
   checkBookingAvailability,
 };
 
-// Export types
-export type { CreateBookingData, UpdateBookingStatusData };

@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/supabase/roles";
-import { bookingService } from "@/lib/services/booking.service";
-import { fetchCourtSummaries } from "@/lib/supabase/queries";
+import { UserQueries } from "@/lib/queries/user";
+import { PublicQueries } from "@/lib/queries/public";
+import type { Court } from "@/lib/queries/types";
 import {
   Card,
   CardContent,
@@ -15,8 +16,8 @@ import {
   CalendarClock,
   CreditCard,
   Sparkles,
-  Users,
   MapPin,
+  Users,
   Clock,
   Star,
   TrendingUp,
@@ -27,27 +28,53 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// Adapter function to transform Court to the expected format for recommendations
+function adaptCourtToLegacyFormat(court: Court) {
+  return {
+    id: court.id,
+    slug: court.slug,
+    name: court.name,
+    sport: court.sport,
+    surface: court.surface || null,
+    pricePerHour: court.pricePerHour,
+    capacity: court.capacity || null,
+    facilities: court.facilities,
+    description: court.description || null,
+    venueName: court.venueName,
+    venueCity: court.venueCity || null,
+    venueAddress: court.venueAddress || null,
+    venueLatitude: court.venueLatitude || null,
+    venueLongitude: court.venueLongitude || null,
+    primaryImageUrl: court.primaryImageUrl || null,
+    averageRating: court.averageRating,
+    reviewCount: court.reviewCount,
+  };
+}
+
 export default async function UserDashboardPage() {
   const profile = await requireRole(["user", "admin"]);
 
-  // Get user bookings menggunakan service layer
-  const { bookings: userBookings } = await bookingService.getUserBookings(profile.id, {
+  // Get user bookings using UserQueries
+  const userBookings = await UserQueries.getUserBookings(profile.id, {
     limit: 10,
-    upcoming: true,
+    upcoming: false,
   });
 
-  // Get recommended courts
-  const recommendedCourts = await fetchCourtSummaries();
+  // Get recommended courts using PublicQueries
+  const recommendedCourts = await PublicQueries.getActiveCourts({ limit: 20 });
+  const adaptedCourts = recommendedCourts.map(adaptCourtToLegacyFormat);
 
-  const activeBookings = userBookings.filter(
-    (booking) => ["pending", "confirmed", "checked_in"].includes(booking.status)
+  const activeBookings = userBookings.filter((booking) =>
+    ["pending", "confirmed", "checked_in"].includes(booking.status),
   ).length;
+
+  const totalBookings = userBookings.length;
 
   const pendingPayments = userBookings.filter(
-    (booking) => booking.payment_status === "pending",
+    (booking) => booking.paymentStatus === "pending",
   ).length;
 
-  const recommendations = recommendedCourts.slice(0, 6);
+  const recommendations = adaptedCourts.slice(0, 6);
   const firstName = profile.full_name?.split(" ")[0] ?? "Pemain";
 
   const stats = [
@@ -78,12 +105,10 @@ export default async function UserDashboardPage() {
       highlight: pendingPayments > 0,
     },
     {
-      title: "Rekomendasi Personal",
-      value: recommendations.length,
+      title: "Total Bookings",
+      value: totalBookings,
       description:
-        recommendations.length > 0
-          ? "Disesuaikan dengan histori tim"
-          : "Tambah review untuk ide baru",
+        totalBookings > 0 ? "Jumlah booking kamu" : "Belum ada booking",
       icon: Sparkles,
       color: "text-purple-600",
       bgColor: "bg-purple-100 dark:bg-purple-900/20",
@@ -224,8 +249,9 @@ export default async function UserDashboardPage() {
                               {booking.court?.name || "Unknown Court"}
                             </h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {booking.court?.venue?.name || "Unknown Venue"}
-                              {booking.court?.venue?.city && ` • ${booking.court.venue.city}`}
+                              {booking.court?.venueName || "Unknown Venue"}
+                              {booking.court?.venueCity &&
+                                ` • ${booking.court.venueCity}`}
                             </p>
                           </div>
                           <div className="flex flex-col gap-1 text-right">
@@ -246,26 +272,28 @@ export default async function UserDashboardPage() {
                             </Badge>
                             <Badge
                               variant={
-                                booking.payment_status === "paid"
+                                booking.paymentStatus === "paid"
                                   ? "default"
-                                  : booking.payment_status === "pending"
+                                  : booking.paymentStatus === "pending"
                                     ? "destructive"
-                                    : booking.payment_status === "cancelled"
+                                    : booking.paymentStatus === "cancelled"
                                       ? "outline"
-                                      : booking.payment_status === "waiting_confirmation"
+                                      : booking.paymentStatus ===
+                                          "waiting_confirmation"
                                         ? "secondary"
                                         : "secondary"
                               }
                             >
-                              {booking.payment_status === "pending"
+                              {booking.paymentStatus === "pending"
                                 ? "Belum Dibayar"
-                                : booking.payment_status === "paid"
+                                : booking.paymentStatus === "paid"
                                   ? "Berhasil"
-                                  : booking.payment_status === "cancelled"
+                                  : booking.paymentStatus === "cancelled"
                                     ? "Dibatalkan"
-                                    : booking.payment_status === "waiting_confirmation"
+                                    : booking.paymentStatus ===
+                                        "waiting_confirmation"
                                       ? "Menunggu Konfirmasi"
-                                      : booking.payment_status}
+                                      : booking.paymentStatus}
                             </Badge>
                           </div>
                         </div>
@@ -274,7 +302,7 @@ export default async function UserDashboardPage() {
                           <div className="flex items-center gap-4">
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
-                              {new Date(booking.start_time).toLocaleTimeString(
+                              {new Date(booking.startTime).toLocaleTimeString(
                                 "id-ID",
                                 {
                                   hour: "2-digit",
@@ -282,7 +310,7 @@ export default async function UserDashboardPage() {
                                 },
                               )}{" "}
                               -{" "}
-                              {new Date(booking.end_time).toLocaleTimeString(
+                              {new Date(booking.endTime).toLocaleTimeString(
                                 "id-ID",
                                 {
                                   hour: "2-digit",
@@ -292,7 +320,7 @@ export default async function UserDashboardPage() {
                             </span>
                             <span className="flex items-center gap-1">
                               <CalendarClock className="h-4 w-4" />
-                              {new Date(booking.start_time).toLocaleDateString(
+                              {new Date(booking.startTime).toLocaleDateString(
                                 "id-ID",
                                 {
                                   weekday: "short",
@@ -303,16 +331,19 @@ export default async function UserDashboardPage() {
                             </span>
                           </div>
                           <span className="font-semibold text-gray-900 dark:text-white">
-                            Rp {booking.price_total.toLocaleString("id-ID")}
+                            Rp{" "}
+                            {Number(booking.priceTotal || 0).toLocaleString(
+                              "id-ID",
+                            )}
                           </span>
                         </div>
 
-                        {booking.payment_reference && (
+                        {booking.paymentReference && (
                           <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                             <span className="font-semibold uppercase">
                               Invoice:
                             </span>{" "}
-                            #{booking.payment_reference}
+                            #{booking.paymentReference}
                           </div>
                         )}
 
@@ -329,20 +360,20 @@ export default async function UserDashboardPage() {
                           </Button>
                         </div>
 
-                        {booking.payment_status === "pending" &&
-                          booking.payment_expired_at && (
+                        {booking.paymentStatus === "pending" &&
+                          booking.paymentExpiredAt && (
                             <div className="mt-2 flex items-center text-xs text-orange-600 dark:text-orange-400">
                               <Timer className="h-3 w-3 mr-1" />
                               Batas Bayar:{" "}
                               {new Date(
-                                booking.payment_expired_at,
+                                booking.paymentExpiredAt,
                               ).toLocaleDateString("id-ID", {
                                 day: "numeric",
                                 month: "short",
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
-                              {new Date(booking.payment_expired_at) <
+                              {new Date(booking.paymentExpiredAt) <
                                 new Date() && (
                                 <span className="ml-1 text-red-600 dark:text-red-400 font-semibold">
                                   (Kadaluarsa)
@@ -351,14 +382,14 @@ export default async function UserDashboardPage() {
                             </div>
                           )}
 
-                        {booking.payment_status === "cancelled" &&
-                          booking.payment_expired_at &&
-                          new Date(booking.payment_expired_at) < new Date() && (
+                        {booking.paymentStatus === "cancelled" &&
+                          booking.paymentExpiredAt &&
+                          new Date(booking.paymentExpiredAt) < new Date() && (
                             <div className="mt-2 flex items-center text-xs text-red-600 dark:text-red-400">
                               <AlertCircle className="h-3 w-3 mr-1" />
                               Kadaluarsa:{" "}
                               {new Date(
-                                booking.payment_expired_at,
+                                booking.paymentExpiredAt,
                               ).toLocaleDateString("id-ID", {
                                 day: "numeric",
                                 month: "short",
@@ -429,7 +460,7 @@ export default async function UserDashboardPage() {
                       <div className="space-y-2 text-xs text-orange-700 dark:text-orange-300">
                         {userBookings
                           .filter(
-                            (booking) => booking.payment_status === "pending",
+                            (booking) => booking.paymentStatus === "pending",
                           )
                           .slice(0, 2)
                           .map((booking) => (
@@ -515,7 +546,7 @@ export default async function UserDashboardPage() {
         </div>
 
         {/* Recommendations Section */}
-        {recommendations > 0 && (
+        {recommendations.length > 0 && (
           <div className="mt-8">
             <Card>
               <CardHeader>
@@ -553,7 +584,10 @@ export default async function UserDashboardPage() {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-blue-600 dark:text-blue-400">
-                            Rp {court.pricePerHour.toLocaleString("id-ID")}
+                            Rp{" "}
+                            {Number(court.pricePerHour || 0).toLocaleString(
+                              "id-ID",
+                            )}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             /jam
@@ -564,7 +598,7 @@ export default async function UserDashboardPage() {
                         <Badge variant="outline">{court.sport}</Badge>
                         <div className="flex items-center gap-1">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span>{court.averageRating.toFixed(1)}</span>
+                          <span>{court.averageRating || "0.0"}</span>
                         </div>
                       </div>
                       <Button

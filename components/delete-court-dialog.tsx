@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { deleteCourt } from "@/lib/supabase/queries/venue-courts";
-import type { VenueCourtDetail } from "@/lib/supabase/queries/venue-courts";
+import { deleteCourtAction } from "@/app/dashboard/venue/courts/court-actions";
+import type { Court } from "@/lib/queries/types";
 
 interface DeleteCourtDialogProps {
-  court: VenueCourtDetail;
+  court: Court;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -29,7 +29,7 @@ export function DeleteCourtDialog({ court, open, onOpenChange, onSuccess }: Dele
     setError(null);
 
     try {
-      const result = await deleteCourt(court.id);
+      const result = await deleteCourtAction(court.id);
 
       if (result.success) {
         onOpenChange(false);
@@ -53,7 +53,7 @@ export function DeleteCourtDialog({ court, open, onOpenChange, onSuccess }: Dele
           <DialogDescription>
             Apakah Anda yakin ingin menghapus lapangan "{court.name}"?
             <span className="text-red-600 font-semibold"> PERINGATAN: Tindakan ini akan menghapus lapangan secara permanen dari sistem.</span>
-            Semua data terkait termasuk gambar, jadwal blackout, dan histori akan dihapus.
+            Semua data terkait termasuk gambar dan histori akan dihapus.
           </DialogDescription>
         </DialogHeader>
 

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { TrendingUp } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -9,20 +9,20 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
 const chartConfig = {
   revenue: {
     label: "Pendapatan",
     color: "var(--chart-1)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 interface RevenueBarChartProps {
   data: {
@@ -58,13 +58,16 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              tickFormatter={(value) => `Rp ${(value / 1000000).toFixed(0)}jt`}
+              tickFormatter={(value) => `Rp ${(value / 1000).toFixed(0)}rb`}
               tick={{ fontSize: 12 }}
             />
             <ChartTooltip
               cursor={true}
               content={<ChartTooltipContent />}
-              formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
+              formatter={(value: number) => [
+                `Rp ${value.toLocaleString("id-ID")}`,
+                " Pendapatan",
+              ]}
             />
             <Bar
               dataKey="revenue"
@@ -83,5 +86,5 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

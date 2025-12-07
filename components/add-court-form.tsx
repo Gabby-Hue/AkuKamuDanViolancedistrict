@@ -12,8 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createCourt } from "@/lib/supabase/queries/venue-courts";
-import type { SportType, SurfaceType } from "@/lib/api/types";
+import { createCourtAction } from "@/app/dashboard/venue/courts/court-actions";
+import type { SportType, SurfaceType } from "@/lib/queries/types";
 
 interface AddCourtFormProps {
   venueId: string;
@@ -81,14 +81,15 @@ export function AddCourtForm({ venueId, onSuccess, onClose }: AddCourtFormProps)
     setError(null);
 
     try {
-      const result = await createCourt(venueId, {
+      const result = await createCourtAction({
+        venue_id: venueId,
         name: formData.name.trim(),
-        sport: formData.sport as SportType,
-        surface: formData.surface || undefined,
-        pricePerHour: Number(formData.pricePerHour),
-        capacity: formData.capacity ? Number(formData.capacity) : undefined,
+        sport: formData.sport,
+        surface: formData.surface || null,
+        price_per_hour: Number(formData.pricePerHour),
+        capacity: formData.capacity ? Number(formData.capacity) : null,
         facilities: formData.facilities.filter(f => f.trim()),
-        description: formData.description.trim() || undefined,
+        description: formData.description.trim() || null,
       });
 
       if (result.success) {

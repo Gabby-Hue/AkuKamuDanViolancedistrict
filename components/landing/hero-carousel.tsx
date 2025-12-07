@@ -5,10 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { CourtSummary } from "@/lib/supabase/queries/courts";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { NearestCourtTiles } from "@/components/venues/nearest-courts";
 
 type Slide = {
   id: string;
@@ -73,7 +71,7 @@ function SlideIndicators({
   );
 }
 
-export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
+export function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -122,9 +120,13 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
 
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-brand-contrast">
-          <span className="rounded-full bg-brand/30 px-3 py-1 text-[10px]">Seperti Nike: headline besar, foto penuh</span>
+          <span className="rounded-full bg-brand/30 px-3 py-1 text-[10px]">
+            Seperti Nike: headline besar, foto penuh
+          </span>
           <span className="h-px w-10 bg-brand/60" aria-hidden />
-          <span className="rounded-full bg-brand/20 px-3 py-1 text-[10px]">Autoplay slider</span>
+          <span className="rounded-full bg-brand/20 px-3 py-1 text-[10px]">
+            Autoplay slider
+          </span>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
@@ -159,7 +161,6 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
 
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-3 text-sm text-brand-contrast">
-              <span className="font-semibold">Temukan lapangan paling dekat</span>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -179,15 +180,17 @@ export function HeroCarousel({ courts }: { courts: CourtSummary[] }) {
                 </button>
               </div>
             </div>
-            <div className="rounded-3xl border border-brand/40 bg-brand/10 p-4 shadow-2xl shadow-brand/30 backdrop-blur">
-              <NearestCourtTiles courts={courts} limit={3} />
-            </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between gap-4 text-xs text-brand-contrast/80">
-          <SlideIndicators activeIndex={activeIndex} onSelect={setActiveIndex} />
-          <span className="hidden sm:inline">Slide berganti otomatis setiap 6 detik</span>
+          <SlideIndicators
+            activeIndex={activeIndex}
+            onSelect={setActiveIndex}
+          />
+          <span className="hidden sm:inline">
+            Slide berganti otomatis setiap 6 detik
+          </span>
         </div>
       </div>
     </section>

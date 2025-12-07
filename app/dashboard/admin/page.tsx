@@ -16,10 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
-import {
-  getAdminDashboardData,
-  type AdminDashboardData,
-} from "@/lib/supabase/queries";
+import { AdminQueries } from "@/lib/queries";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import {
@@ -33,41 +30,44 @@ import { Badge } from "@/components/ui/badge";
 import { AdminRevenueChart } from "@/components/admin-revenue-chart";
 import { AdminVenueGrowthChart } from "@/components/admin-venue-growth-chart";
 import { AdminBookingTrendChart } from "@/components/admin-booking-trend-chart";
+import type { AdminDashboardData } from "@/lib/queries";
 
 export default async function Page() {
   const profile = await requireRole("admin");
   const identity = await getAuthenticatedProfile();
 
+  // Fetch all admin dashboard data in a single optimized query
   let dashboardData: AdminDashboardData;
   try {
-    dashboardData = await getAdminDashboardData();
+    dashboardData = await AdminQueries.getAdminDashboardData();
   } catch (error) {
     console.error("Failed to load admin dashboard data:", error);
     // Fallback data if database query fails
     dashboardData = {
-      metrics: {
+      stats: {
         totalVenues: 0,
-        totalCourts: 0,
-        totalBookings: 0,
         totalUsers: 0,
+        totalBookings: 0,
         totalRevenue: 0,
+        todayBookings: 0,
+        todayRevenue: 0,
         pendingApplications: 0,
-        totalThreads: 0,
+        averageRating: 0,
+        totalCourts: 0,
       },
-      revenueTrend: [],
-      sportBreakdown: [],
-      venueLeaders: [],
-      partnerApplications: {
-        pending: [],
-        accepted: [],
-        rejected: [],
+      charts: {
+        monthlyRevenue: [],
+        venueGrowth: [],
+        bookingTrends: [],
+        lastUpdated: new Date().toISOString(),
       },
+      topVenues: [],
+      pendingApplications: [],
     };
   }
 
-  const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
-  const email = identity?.email ?? "admin@courtease.id";
-  const avatarUrl = null;
+  const displayName = profile.full_name ?? "Admin";
+  const email = profile?.email ?? "admin@courtease.id";
 
   const navMain: NavMainItem[] = [
     {
@@ -97,50 +97,21 @@ export default async function Page() {
     },
   ];
 
-  // Prepare chart data
-  const revenueChartData = dashboardData.revenueTrend
-    .slice(-6)
-    .map((item, index) => ({
-      month:
-        item.label ||
-        new Date().toLocaleDateString("id-ID", {
-          month: "short",
-        }),
-      revenue: Math.round(item.revenue / 1000000), // Convert to millions
-    }));
+  // Prepare chart data from dashboard data
+  const revenueChartData = dashboardData.charts.monthlyRevenue.map((item) => ({
+    month: item.month,
+    revenue: Math.round(item.revenue / 1000000), // Convert to millions
+  }));
 
-  const venueGrowthData = [
-    {
-      month: "Jan",
-      venues: Math.max(0, dashboardData.metrics.totalVenues - 36),
-    },
-    {
-      month: "Feb",
-      venues: Math.max(0, dashboardData.metrics.totalVenues - 30),
-    },
-    {
-      month: "Mar",
-      venues: Math.max(0, dashboardData.metrics.totalVenues - 21),
-    },
-    {
-      month: "Apr",
-      venues: Math.max(0, dashboardData.metrics.totalVenues - 14),
-    },
-    {
-      month: "Mei",
-      venues: Math.max(0, dashboardData.metrics.totalVenues - 7),
-    },
-    { month: "Jun", venues: dashboardData.metrics.totalVenues },
-  ];
+  // Use actual venue growth data from dashboard
+  const venueGrowthData = dashboardData.charts.venueGrowth.map((item) => ({
+    month: item.month,
+    venues: item.totalVenues,
+  }));
 
-  const bookingTrendData = dashboardData.revenueTrend.slice(-7).map((item) => ({
-    date:
-      item.label ||
-      new Date()
-        .toLocaleDateString("id-ID", {
-          weekday: "short",
-        })
-        .substring(0, 3),
+  // Use actual booking trends from dashboard
+  const bookingTrendData = dashboardData.charts.bookingTrends.map((item) => ({
+    date: item.date,
     bookings: item.bookings,
   }));
 
@@ -196,10 +167,10 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.metrics.totalVenues}
+                    {dashboardData.stats.totalVenues}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {dashboardData.metrics.totalCourts} lapangan
+                    {dashboardData.stats.totalCourts} lapangan
                   </p>
                 </CardContent>
               </Card>
@@ -211,7 +182,7 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.metrics.totalUsers.toLocaleString("id-ID")}
+                    {dashboardData.stats.totalUsers.toLocaleString("id-ID")}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Registered users
@@ -226,9 +197,7 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {dashboardData.metrics.totalBookings.toLocaleString(
-                      "id-ID",
-                    )}
+                    {dashboardData.stats.totalBookings.toLocaleString("id-ID")}
                   </div>
                   <p className="text-xs text-muted-foreground">All time</p>
                 </CardContent>
@@ -241,8 +210,7 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    Rp{" "}
-                    {(dashboardData.metrics.totalRevenue / 1000000).toFixed(1)}M
+                    Rp {dashboardData.stats.totalRevenue.toFixed(1)}
                   </div>
                   <p className="text-xs text-muted-foreground">Total revenue</p>
                 </CardContent>
@@ -297,39 +265,35 @@ export default async function Page() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {dashboardData.venueLeaders.length > 0 ? (
-                      dashboardData.venueLeaders
-                        .slice(0, 5)
-                        .map((venue, index) => (
-                          <div
-                            key={venue.venueId}
-                            className="flex items-center justify-between p-3 border rounded-lg"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
-                                <span className="text-sm font-bold">
-                                  {index + 1}
-                                </span>
-                              </div>
-                              <div>
-                                <h4 className="font-medium">
-                                  {venue.venueName}
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {venue.city}
-                                </p>
-                              </div>
+                    {dashboardData.topVenues.length > 0 ? (
+                      dashboardData.topVenues.map((venue, index) => (
+                        <div
+                          key={venue.venueId}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10">
+                              <span className="text-sm font-bold">
+                                {index + 1}
+                              </span>
                             </div>
-                            <div className="text-right">
-                              <div className="font-medium">
-                                {venue.bookings} booking
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                Rp {venue.revenue.toLocaleString("id-ID")}
-                              </div>
+                            <div>
+                              <h4 className="font-medium">{venue.venueName}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {venue.city}
+                              </p>
                             </div>
                           </div>
-                        ))
+                          <div className="text-right">
+                            <div className="font-medium">
+                              {venue.bookings.toLocaleString("id-ID")} booking
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Rp {venue.revenue.toLocaleString("id-ID")}
+                            </div>
+                          </div>
+                        </div>
+                      ))
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         Belum ada data venue tersedia
@@ -344,52 +308,48 @@ export default async function Page() {
                 <CardHeader>
                   <CardTitle>Applications Terbaru</CardTitle>
                   <CardDescription>
-                    {dashboardData.partnerApplications.pending.length} pending
+                    {dashboardData.pendingApplications.length} pending
                     applications
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {dashboardData.partnerApplications.pending.length > 0 ? (
-                      dashboardData.partnerApplications.pending
-                        .slice(0, 5)
-                        .map((application) => (
-                          <div
-                            key={application.id}
-                            className="flex items-center justify-between p-3 border rounded-lg"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <div className="font-medium">
-                                {application.organization_name}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">
-                                  {application.contact_name}
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {new Date(
-                                    application.created_at,
-                                  ).toLocaleDateString("id-ID")}{" "}
-                                  • {application.contact_email}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <Badge
-                                variant={
-                                  application.status === "accepted"
-                                    ? "default"
-                                    : application.status === "rejected"
-                                      ? "destructive"
-                                      : "secondary"
-                                }
-                              >
-                                {application.status.charAt(0).toUpperCase() +
-                                  application.status.slice(1)}
-                              </Badge>
+                    {dashboardData.pendingApplications.length > 0 ? (
+                      dashboardData.pendingApplications.map((application) => (
+                        <div
+                          key={application.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div>
+                              <h4 className="font-medium">
+                                {application.organizationName ||
+                                  application.contactName}
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                {new Date(
+                                  application.createdAt,
+                                ).toLocaleDateString("id-ID")}{" "}
+                                • {application.contactEmail}
+                              </p>
                             </div>
                           </div>
-                        ))
+                          <div className="text-right">
+                            <Badge
+                              variant={
+                                application.status === "accepted"
+                                  ? "default"
+                                  : application.status === "rejected"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
+                            >
+                              {application.status.charAt(0).toUpperCase() +
+                                application.status.slice(1)}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         Belum ada aplikasi partner baru

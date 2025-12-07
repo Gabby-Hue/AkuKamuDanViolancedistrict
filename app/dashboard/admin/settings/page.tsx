@@ -14,8 +14,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { requireRole } from "@/lib/supabase/roles";
-import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,14 +38,9 @@ import {
   MapPin,
 } from "lucide-react";
 
-export default async function Page() {
-  const profile = await requireRole("admin");
-  const identity = await getAuthenticatedProfile();
-
-  const displayName = identity?.fullName ?? profile.full_name ?? "Admin";
-  const email = identity?.email ?? "admin@courtease.id";
-  const avatarUrl = null;
-
+// Komponen sekarang bersifat sinkron
+export default function Page() {
+  // Data statis untuk navigasi dan tim
   const navMain: NavMainItem[] = [
     {
       title: "Dashboard",
@@ -76,76 +69,9 @@ export default async function Page() {
     },
   ];
 
-  // Mock data for admin profile
-  const adminData = {
-    fullName: displayName,
-    email: email,
-    phone: "+62 812-3456-7890",
-    role: "Super Admin",
-    department: "IT Operations",
-    bio: "Pengelola sistem utama Courtease dengan fokus pada keamanan dan operasional venue.",
-    location: "Jakarta, Indonesia",
-    joinDate: "2024-01-15",
-    lastLogin: new Date().toISOString(),
-    securityScore: 85,
-  };
-
-  const recentActivity = [
-    {
-      action: "Approved venue application",
-      venue: "Champion Futsal Center",
-      time: "2 hours ago",
-      type: "approve",
-    },
-    {
-      action: "Updated dashboard settings",
-      venue: null,
-      time: "5 hours ago",
-      type: "settings",
-    },
-    {
-      action: "Rejected venue application",
-      venue: "Small Sports Corner",
-      time: "1 day ago",
-      type: "reject",
-    },
-    {
-      action: "Generated monthly report",
-      venue: null,
-      time: "2 days ago",
-      type: "report",
-    },
-    {
-      action: "Reviewed user complaints",
-      venue: null,
-      time: "3 days ago",
-      type: "support",
-    },
-  ];
-
-  const activeSessions = [
-    {
-      device: "Desktop",
-      browser: "Chrome",
-      os: "Windows 11",
-      ip: "192.168.1.1",
-      current: true,
-    },
-    {
-      device: "Mobile",
-      browser: "Safari",
-      os: "iOS 17",
-      ip: "192.168.1.2",
-      current: false,
-    },
-    {
-      device: "Tablet",
-      browser: "Chrome",
-      os: "iPadOS",
-      ip: "192.168.1.3",
-      current: false,
-    },
-  ];
+  // Data statis untuk pengguna
+  const displayName = "Admin User";
+  const email = "admin@courtease.id";
 
   return (
     <SidebarProvider>
@@ -197,6 +123,7 @@ export default async function Page() {
                     <div className="relative">
                       <Avatar className="h-24 w-24">
                         <AvatarFallback className="text-2xl">
+                          {/* Menggunakan displayName statis */}
                           {displayName
                             ?.split(" ")
                             .map((n) => n[0])
@@ -215,7 +142,8 @@ export default async function Page() {
                       className="flex items-center gap-2"
                     >
                       <Shield className="h-3 w-3" />
-                      {adminData.role}
+                      {/* Nilai statis */}
+                      Super Admin
                     </Badge>
                   </div>
 
@@ -223,7 +151,8 @@ export default async function Page() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-muted-foreground">Account</Label>
-                        <p className="font-medium">{adminData.fullName}</p>
+                        {/* Nilai statis */}
+                        <p className="font-medium">Admin User</p>
                       </div>
 
                       <div className="space-y-2">
@@ -240,17 +169,20 @@ export default async function Page() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Member Since</p>
-                        <p className="font-medium">{adminData.joinDate}</p>
+                        {/* Nilai statis */}
+                        <p className="font-medium">2024-01-15</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Department</p>
-                        <p className="font-medium">{adminData.department}</p>
+                        {/* Nilai statis */}
+                        <p className="font-medium">IT Operations</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground">Location</p>
                         <p className="font-medium flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
-                          {adminData.location}
+                          {/* Nilai statis */}
+                          Jakarta, Indonesia
                         </p>
                       </div>
                       <div>
@@ -280,32 +212,33 @@ export default async function Page() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="fullName">Nama Lengkap</Label>
-                          <Input
-                            id="fullName"
-                            defaultValue={adminData.fullName}
-                          />
+                          {/* Nilai statis di defaultValue */}
+                          <Input id="fullName" defaultValue="Admin User" />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
+                          {/* Nilai statis di defaultValue */}
                           <Input
                             id="email"
                             type="email"
-                            defaultValue={adminData.email}
+                            defaultValue="admin@courtease.id"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="phone">Nomor Telepon</Label>
+                          {/* Nilai statis di defaultValue */}
                           <Input
                             id="phone"
                             type="tel"
-                            defaultValue={adminData.phone}
+                            defaultValue="+62 812-3456-7890"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="location">Lokasi</Label>
+                          {/* Nilai statis di defaultValue */}
                           <Input
                             id="location"
-                            defaultValue={adminData.location}
+                            defaultValue="Jakarta, Indonesia"
                           />
                         </div>
                       </div>
@@ -315,7 +248,8 @@ export default async function Page() {
                         <Textarea
                           id="bio"
                           rows={3}
-                          defaultValue={adminData.bio}
+                          // Nilai statis di defaultValue
+                          defaultValue="Pengelola sistem utama Courtease dengan fokus pada keamanan dan operasional venue."
                         />
                       </div>
 
@@ -389,37 +323,55 @@ export default async function Page() {
                           Active Sessions
                         </h4>
                         <div className="space-y-3">
-                          {activeSessions.map((session, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-3 border rounded-lg"
-                            >
-                              <div className="flex items-center gap-3">
-                                <Smartphone className="h-4 w-4 text-muted-foreground" />
-                                <div>
-                                  <p className="text-sm font-medium flex items-center gap-2">
-                                    {session.device} • {session.browser}
-                                    {session.current && (
-                                      <Badge
-                                        variant="default"
-                                        className="text-xs"
-                                      >
-                                        Current
-                                      </Badge>
-                                    )}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {session.os} • IP: {session.ip}
-                                  </p>
-                                </div>
+                          {/* Data sesi langsung ditulis di sini */}
+                          <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Smartphone className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm font-medium flex items-center gap-2">
+                                  Desktop • Chrome
+                                  <Badge variant="default" className="text-xs">
+                                    Current
+                                  </Badge>
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Windows 11 • IP: 192.168.1.1
+                                </p>
                               </div>
-                              {!session.current && (
-                                <Button variant="outline" size="sm">
-                                  Revoke
-                                </Button>
-                              )}
                             </div>
-                          ))}
+                          </div>
+                          <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Smartphone className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm font-medium flex items-center gap-2">
+                                  Mobile • Safari
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  iOS 17 • IP: 192.168.1.2
+                                </p>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              Revoke
+                            </Button>
+                          </div>
+                          <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Smartphone className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm font-medium flex items-center gap-2">
+                                  Tablet • Chrome
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  iPadOS • IP: 192.168.1.3
+                                </p>
+                              </div>
+                            </div>
+                            <Button variant="outline" size="sm">
+                              Revoke
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -430,37 +382,78 @@ export default async function Page() {
                       <h3 className="text-lg font-medium">Recent Activity</h3>
 
                       <div className="space-y-3">
-                        {recentActivity.map((activity, index) => (
-                          <div
-                            key={index}
-                            className="flex items-start gap-3 p-3 border rounded-lg"
-                          >
-                            <div
-                              className={`mt-1 ${activity.type === "approve" ? "text-green-600" : activity.type === "reject" ? "text-red-600" : "text-blue-600"}`}
-                            >
-                              {activity.type === "approve" ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : activity.type === "reject" ? (
-                                <AlertCircle className="h-4 w-4" />
-                              ) : (
-                                <Activity className="h-4 w-4" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">
-                                {activity.action}
-                              </p>
-                              {activity.venue && (
-                                <p className="text-xs text-muted-foreground">
-                                  {activity.venue}
-                                </p>
-                              )}
-                              <p className="text-xs text-muted-foreground">
-                                {activity.time}
-                              </p>
-                            </div>
+                        {/* Data aktivitas langsung ditulis di sini */}
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <div className="mt-1 text-green-600">
+                            <CheckCircle className="h-4 w-4" />
                           </div>
-                        ))}
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Approved venue application
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Champion Futsal Center
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              2 hours ago
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <div className="mt-1 text-blue-600">
+                            <Activity className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Updated dashboard settings
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              5 hours ago
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <div className="mt-1 text-red-600">
+                            <AlertCircle className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Rejected venue application
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Small Sports Corner
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              1 day ago
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <div className="mt-1 text-blue-600">
+                            <Activity className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Generated monthly report
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              2 days ago
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <div className="mt-1 text-blue-600">
+                            <Activity className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Reviewed user complaints
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              3 days ago
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </TabsContent>

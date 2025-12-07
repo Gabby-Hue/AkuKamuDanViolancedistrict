@@ -171,55 +171,20 @@ function PartnerApplicationForm() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <div>
-          <label
-            htmlFor="facilityTypes"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Jenis Olahraga
-          </label>
-          <input
-            type="text"
-            id="facilityTypes"
-            name="facilityTypes"
-            required
-            className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="Futsal, Bulutangkis"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="facilityCount"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Jumlah Lapangan
-          </label>
-          <input
-            type="number"
-            id="facilityCount"
-            name="facilityCount"
-            required
-            min="1"
-            className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="3"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="existingSystem"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Sistem Booking Saat Ini
-          </label>
-          <input
-            type="text"
-            id="existingSystem"
-            name="existingSystem"
-            className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="WhatsApp, Manual, dll"
-          />
-        </div>
+      <div>
+        <label
+          htmlFor="existingSystem"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Sistem Booking Saat Ini (Opsional)
+        </label>
+        <input
+          type="text"
+          id="existingSystem"
+          name="existingSystem"
+          className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          placeholder="WhatsApp, Manual, dll"
+        />
       </div>
 
       <div>

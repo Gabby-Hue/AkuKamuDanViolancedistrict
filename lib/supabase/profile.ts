@@ -4,7 +4,7 @@ export type AuthenticatedProfile = {
   id: string;
   email: string;
   phone: string | null;
-  fullName: string | null;
+  full_name: string | null;
 };
 
 // Note: This function should only be used in Server Components
@@ -47,6 +47,6 @@ export async function getAuthenticatedProfile(): Promise<AuthenticatedProfile | 
     id: user.id,
     email: user.email ?? "",
     phone: user.phone ?? null,
-    fullName,
+    full_name: fullName,
   };
 }

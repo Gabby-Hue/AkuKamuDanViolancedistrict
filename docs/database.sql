@@ -1,4 +1,86 @@
--- ENUM
+-- Functions
+-- get_court_images
+BEGIN
+ RETURN QUERY
+ -- Note: Replace [YOUR-PROJECT-REF] with your actual project reference
+ SELECT
+   'https://dvpbypfecdccvwqkavgj.supabase.co/storage/v1/object/public/' || s.bucket_id || '/' || s.name as image_url,
+   c.primary_image_url = 'https://dvpbypfecdccvwqkavgj.supabase.co/storage/v1/object/public/' || s.bucket_id || '/' || s.name as is_primary
+ FROM storage.objects s
+ -- Fixed: Cast text to UUID for comparison
+ JOIN courts c ON (split_part(s.name, '/', 2))::uuid = c.id
+ WHERE s.bucket_id = 'court-images'
+ AND (split_part(s.name, '/', 2))::uuid = court_uuid
+ ORDER BY s.created_at ASC;
+END;
+
+-- set_current_timestamp_updated_at
+begin
+  new.updated_at := timezone('utc'::text, now());
+  return new;
+end;
+
+-- update_court_primary_image
+BEGIN
+ -- When a new file is uploaded, if there's no primary image, set this as primary
+ IF TG_OP = 'INSERT' THEN
+   -- Check if court has no primary image
+   -- Fixed: Cast text to UUID for comparison
+   PERFORM 1 FROM courts WHERE id = (split_part(NEW.name, '/', 2))::uuid AND primary_image_url IS NULL;
+   IF FOUND THEN
+     -- Set this image as primary
+     -- Note: Replace [YOUR-PROJECT-REF] with your actual project reference
+     UPDATE courts
+     SET primary_image_url = 'https://dvpbypfecdccvwqkavgj.supabase.co/storage/v1/object/public/' || NEW.bucket_id || '/' || NEW.name
+     WHERE id = (split_part(NEW.name, '/', 2))::uuid;
+   END IF;
+   RETURN NEW;
+ END IF;
+
+ -- When a file is deleted and it was the primary image, try to set another one as primary
+ IF TG_OP = 'DELETE' THEN
+   -- Check if this was the primary image
+   -- Note: Replace [YOUR-PROJECT-REF] with your actual project reference
+   PERFORM 1 FROM courts WHERE primary_image_url = 'https://dvpbypfecdccvwqkavgj.supabase.co/storage/v1/object/public/' || OLD.bucket_id || '/' || OLD.name;
+   IF FOUND THEN
+     -- Try to set another image as primary, or null if no more images
+     DECLARE
+       new_primary_url TEXT;
+       -- Fixed: Cast text to UUID
+       court_id UUID := (split_part(OLD.name, '/', 2))::uuid;
+       venue_id UUID := (split_part(OLD.name, '/', 1))::uuid;
+     BEGIN
+       -- Try to get the first remaining image
+       -- Note: Replace [YOUR-PROJECT-REF] with your actual project reference
+       SELECT 'https://dvpbypfecdccvwqkavgj.supabase.co/storage/v1/object/public/' || bucket_id || '/' || name
+       INTO new_primary_url
+       FROM storage.objects
+       WHERE bucket_id = 'court-images'
+       AND name LIKE venue_id::text || '/' || court_id::text || '/%'
+       ORDER BY created_at ASC
+       LIMIT 1;
+
+       -- Update court with new primary or null
+       UPDATE courts
+       SET primary_image_url = new_primary_url
+       WHERE id = court_id;
+     END;
+   END IF;
+   RETURN OLD;
+ END IF;
+
+ RETURN NULL;
+END;
+
+-- is_admin
+select exists (
+  select 1
+  from public.profiles
+  where id = uid and role = 'admin'
+);
+
+
+-- ENUMS
 app_role	user, venue_partner, admin
 booking_status	pending, confirmed, checked_in, completed, cancelled
 payment_status	pending, waiting_confirmation, paid, expired, cancelled
@@ -7,6 +89,7 @@ blackout_scope	time_range, full_day
 blackout_frequency	once, weekly, monthly, yearly
 sport_types	futsal, basket, basketball, soccer, volleyball, badminton, tennis, padel
 surface_types	vinyl, rubber, parquet, wood, synthetic, cement, turf, grass, hard_court, clay
+
 
 -- TABLE bookings
 create table public.bookings (
@@ -27,6 +110,8 @@ create table public.bookings (
   updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
   checked_in_at timestamp with time zone null,
   completed_at timestamp with time zone null,
+  payment_completed_at timestamp with time zone null,
+  review_submitted_at timestamp with time zone null,
   constraint bookings_pkey primary key (id),
   constraint bookings_payment_reference_key unique (payment_reference),
   constraint bookings_court_id_fkey foreign KEY (court_id) references courts (id) on delete CASCADE,
@@ -34,11 +119,23 @@ create table public.bookings (
   constraint bookings_time_range check ((end_time > start_time))
 ) TABLESPACE pg_default;
 
+create index IF not exists bookings_payment_completed_at_idx on public.bookings using btree (payment_completed_at) TABLESPACE pg_default;
+
+create index IF not exists bookings_review_submitted_at_idx on public.bookings using btree (review_submitted_at) TABLESPACE pg_default
+where
+  (review_submitted_at is not null);
+
 create index IF not exists bookings_profile_id_idx on public.bookings using btree (profile_id) TABLESPACE pg_default;
 
 create index IF not exists bookings_court_id_idx on public.bookings using btree (court_id) TABLESPACE pg_default;
 
 create index IF not exists bookings_start_time_idx on public.bookings using btree (start_time desc) TABLESPACE pg_default;
+
+create index IF not exists idx_bookings_court_id_start_time on public.bookings using btree (court_id, start_time) TABLESPACE pg_default;
+
+create index IF not exists idx_bookings_status on public.bookings using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_bookings_court_id_status on public.bookings using btree (court_id, status) TABLESPACE pg_default;
 
 create trigger set_bookings_updated_at BEFORE
 update on bookings for EACH row
@@ -90,7 +187,7 @@ create trigger set_court_blackouts_updated_at BEFORE
 update on court_blackouts for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- VIEW court_booking_slot
+-- VIEW court_booking_slots
 create view public.court_booking_slots as
 select
   id,
@@ -104,7 +201,80 @@ from
 where
   status <> 'cancelled'::booking_status
   and payment_status <> 'cancelled'::payment_status;
--- STORAGE court_image at supabase storage
+
+-- VIEW court_booking_stats
+create view public.court_booking_stats as
+select
+  c.id as court_id,
+  c.name as court_name,
+  c.venue_id,
+  count(b.id) filter (
+    where
+      b.status <> all (
+        array[
+          'pending'::booking_status,
+          'cancelled'::booking_status
+        ]
+      )
+  ) as total_bookings,
+  count(b.id) filter (
+    where
+      (
+        b.status <> all (
+          array[
+            'pending'::booking_status,
+            'cancelled'::booking_status
+          ]
+        )
+      )
+      and date (b.start_time) = CURRENT_DATE
+  ) as today_bookings,
+  COALESCE(
+    sum(b.price_total) filter (
+      where
+        (
+          b.status <> all (
+            array[
+              'pending'::booking_status,
+              'cancelled'::booking_status
+            ]
+          )
+        )
+        and date (b.start_time) = CURRENT_DATE
+    ),
+    0::bigint
+  ) as today_revenue,
+  COALESCE(
+    sum(b.price_total) filter (
+      where
+        b.status <> all (
+          array[
+            'pending'::booking_status,
+            'cancelled'::booking_status
+          ]
+        )
+    ),
+    0::bigint
+  ) as total_revenue,
+  count(b.id) filter (
+    where
+      b.status = 'confirmed'::booking_status
+  ) as confirmed_bookings,
+  count(b.id) filter (
+    where
+      b.status = 'pending'::booking_status
+  ) as pending_bookings,
+  count(b.id) filter (
+    where
+      b.status = 'cancelled'::booking_status
+  ) as cancelled_bookings
+from
+  courts c
+  left join bookings b on c.id = b.court_id
+group by
+  c.id,
+  c.name,
+  c.venue_id;
 
 -- VIEW court_review_summary
 create view public.court_review_summary as
@@ -118,7 +288,7 @@ from
 group by
   c.id;
 
--- TABLE courts_review
+-- TABLE court_reviews
 create table public.court_reviews (
   id uuid not null default gen_random_uuid (),
   court_id uuid not null,
@@ -151,6 +321,96 @@ create index IF not exists court_reviews_booking_id_idx on public.court_reviews 
 
 create index IF not exists court_reviews_forum_thread_id_idx on public.court_reviews using btree (forum_thread_id) TABLESPACE pg_default;
 
+-- VIEW court_summaries
+create view public.court_summaries as
+select
+  c.id,
+  c.slug,
+  c.name,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.venue_id,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.district as venue_district,
+  v.latitude as venue_latitude,
+  v.longitude as venue_longitude,
+  COALESCE(r.average_rating, 0::numeric) as average_rating,
+  COALESCE(r.review_count, 0) as review_count,
+  (
+    select
+      jsonb_build_object(
+        'bucket',
+        o.bucket_id,
+        'path',
+        o.name,
+        'metadata',
+        o.metadata,
+        'updated_at',
+        o.updated_at
+      ) as jsonb_build_object
+    from
+      storage.objects o
+    where
+      o.bucket_id = 'court_images'::text
+      and (
+        (o.metadata ->> 'court_id'::text) = c.id::text
+        or o.name ~~* concat('%', c.id::text, '%')
+      )
+    order by
+      (
+        case
+          when ((o.metadata ->> 'is_primary'::text)::boolean) is true then 0
+          else 1
+        end
+      ),
+      o.updated_at desc
+    limit
+      1
+  ) as primary_image_info
+from
+  courts c
+  join venues v on v.id = c.venue_id
+  left join court_review_summary r on r.court_id = c.id
+where
+  c.is_active = true;
+
+-- VIEW court_summaries_with_stats
+create view public.court_summaries_with_stats as
+select
+  cs.id,
+  cs.slug,
+  cs.name,
+  cs.sport,
+  cs.surface,
+  cs.price_per_hour,
+  cs.capacity,
+  cs.facilities,
+  cs.description,
+  cs.venue_id,
+  cs.venue_name,
+  cs.venue_city,
+  cs.venue_district,
+  cs.venue_latitude,
+  cs.venue_longitude,
+  cs.average_rating,
+  cs.review_count,
+  cs.primary_image_info,
+  cbs.total_bookings,
+  cbs.today_bookings,
+  cbs.today_revenue,
+  cbs.total_revenue,
+  cbs.confirmed_bookings,
+  cbs.pending_bookings,
+  cbs.cancelled_bookings
+from
+  court_summaries cs
+  left join court_booking_stats cbs on cs.id = cbs.court_id;
+
 -- TABLE courts
 create table public.courts (
   id uuid not null default gen_random_uuid (),
@@ -172,6 +432,8 @@ create table public.courts (
   is_active boolean not null default true,
   created_at timestamp with time zone not null default timezone ('utc'::text, now()),
   updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
+  primary_image_url text null,
+  court_images_url_array text[] null default '{}'::text[],
   constraint courts_pkey primary key (id),
   constraint courts_venue_id_fkey foreign KEY (venue_id) references venues (id) on delete CASCADE,
   constraint courts_capacity_nonneg check (
@@ -229,7 +491,7 @@ order by
   thread_id,
   created_at desc;
 
--- TABLE forum_thread
+-- TABLE forum_threads
 create table public.forum_threads (
   id uuid not null default gen_random_uuid (),
   slug text not null,

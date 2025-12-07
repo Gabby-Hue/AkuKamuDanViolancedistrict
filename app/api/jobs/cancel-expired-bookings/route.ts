@@ -16,14 +16,16 @@ export async function POST(request: NextRequest) {
 
     const { data: pendingBookings, error: fetchError } = await supabase
       .from("bookings")
-      .select(`
+      .select(
+        `
         id,
         payment_reference,
         payment_status,
         status,
         payment_expired_at,
         created_at
-      `)
+      `,
+      )
       .eq("status", "pending")
       .eq("payment_status", "pending")
       .lt("created_at", expiredTime.toISOString())
@@ -33,7 +35,7 @@ export async function POST(request: NextRequest) {
       console.error("Failed to fetch expired bookings:", fetchError);
       return NextResponse.json(
         { error: "Failed to fetch expired bookings" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -57,20 +59,30 @@ export async function POST(request: NextRequest) {
       processedCount++;
 
       try {
-        console.log(`Processing expired booking: ${booking.id}, payment_ref: ${booking.payment_reference}`);
+        console.log(
+          `Processing expired booking: ${booking.id}, payment_ref: ${booking.payment_reference}`,
+        );
 
         // Check if payment was actually completed via Midtrans
         let actualPaymentStatus = "expired"; // Default to expired
 
         if (booking.payment_reference) {
           try {
-            const midtransStatus = await getMidtransTransactionStatus(booking.payment_reference);
+            const midtransStatus = await getMidtransTransactionStatus(
+              booking.payment_reference,
+            );
 
             if (midtransStatus) {
-              const transactionStatus = (midtransStatus.transaction_status || "").toLowerCase();
-              const fraudStatus = (midtransStatus.fraud_status || "").toLowerCase();
+              const transactionStatus = (
+                midtransStatus.transaction_status || ""
+              ).toLowerCase();
+              const fraudStatus = (
+                midtransStatus.fraud_status || ""
+              ).toLowerCase();
 
-              console.log(`Midtrans status for booking ${booking.id}: ${transactionStatus}, fraud: ${fraudStatus}`);
+              console.log(
+                `Midtrans status for booking ${booking.id}: ${transactionStatus}, fraud: ${fraudStatus}`,
+              );
 
               // Map to actual status
               switch (transactionStatus) {
@@ -92,10 +104,15 @@ export async function POST(request: NextRequest) {
                   actualPaymentStatus = "expired"; // cancel, deny, failure, etc.
               }
             } else {
-              console.log(`Could not check Midtrans status for booking ${booking.id}`);
+              console.log(
+                `Could not check Midtrans status for booking ${booking.id}`,
+              );
             }
           } catch (midtransError) {
-            console.error(`Error checking Midtrans status for booking ${booking.id}:`, midtransError);
+            console.error(
+              `Error checking Midtrans status for booking ${booking.id}:`,
+              midtransError,
+            );
           }
         }
 
@@ -110,13 +127,17 @@ export async function POST(request: NextRequest) {
           updateData.status = "confirmed";
           updateData.payment_completed_at = new Date().toISOString();
 
-          console.log(`✅ Booking ${booking.id} was actually paid - updating to confirmed/paid`);
+          console.log(
+            `✅ Booking ${booking.id} was actually paid - updating to confirmed/paid`,
+          );
         } else {
           // Cancel the expired booking
           updateData.payment_status = "cancelled";
           updateData.status = "cancelled";
 
-          console.log(`❌ Booking ${booking.id} expired - updating to cancelled/cancelled`);
+          console.log(
+            `❌ Booking ${booking.id} expired - updating to cancelled/cancelled`,
+          );
         }
 
         const { error: updateError } = await supabase
@@ -128,15 +149,18 @@ export async function POST(request: NextRequest) {
           console.error(`Failed to update booking ${booking.id}:`, updateError);
         } else {
           updatedCount++;
-          console.log(`✅ Successfully updated booking ${booking.id} to ${actualPaymentStatus}/${updateData.status}`);
+          console.log(
+            `✅ Successfully updated booking ${booking.id} to ${actualPaymentStatus}/${updateData.status}`,
+          );
         }
-
       } catch (bookingError) {
         console.error(`Error processing booking ${booking.id}:`, bookingError);
       }
     }
 
-    console.log(`Expired bookings cleanup completed. Processed: ${processedCount}, Updated: ${updatedCount}`);
+    console.log(
+      `Expired bookings cleanup completed. Processed: ${processedCount}, Updated: ${updatedCount}`,
+    );
 
     return NextResponse.json({
       success: true,
@@ -145,20 +169,21 @@ export async function POST(request: NextRequest) {
       updated: updatedCount,
       run_time: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error("Error in expired bookings cleanup job:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error"
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 // Also allow GET for manual testing
 export async function GET() {
-  return POST(new Request("http://localhost", { method: "POST" }));
+  // Perbaikan: Gunakan NextRequest untuk membuat objek permintaan tiruan
+  const mockRequest = new NextRequest("http://localhost", { method: "POST" });
+  return POST(mockRequest);
 }

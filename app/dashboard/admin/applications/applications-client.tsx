@@ -47,36 +47,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApplicationActions } from "./application-actions";
 import { useRouter } from "next/navigation";
-
-interface Application {
-  id: string;
-  name: string;
-  owner: string;
-  email: string;
-  phone: string;
-  city: string;
-  sport: string;
-  status: string;
-  submittedDate: string;
-  description: string;
-  facilities: string[];
-  operatingHours: string;
-  courts: number;
-  businessName: string;
-  address: string;
-  decisionNote: string;
-  facilityCount: number;
-  existingSystem: string;
-  notes: string;
-  reviewedAt: string;
-  handledBy: string;
-}
+import type { VenuePartnerApplication } from "@/lib/queries";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 interface ApplicationsClientProps {
-  allApplications: Application[];
-  pendingApplications: Application[];
-  acceptedApplications: Application[];
-  rejectedApplications: Application[];
+  allApplications: VenuePartnerApplication[];
+  pendingApplications: VenuePartnerApplication[];
+  acceptedApplications: VenuePartnerApplication[];
+  rejectedApplications: VenuePartnerApplication[];
 }
 
 export function ApplicationsClient({
@@ -181,9 +160,9 @@ export function ApplicationsClient({
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-                    <TableHead>Venue Name</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Sport</TableHead>
+                    <TableHead>Organization</TableHead>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead>Status</TableHead>
@@ -207,9 +186,9 @@ export function ApplicationsClient({
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-                    <TableHead>Venue Name</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Sport</TableHead>
+                    <TableHead>Organization</TableHead>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead>Approved Date</TableHead>
@@ -223,6 +202,7 @@ export function ApplicationsClient({
                       key={application.id}
                       application={application}
                       onActionComplete={refreshData}
+                      showReviewedDate={true}
                     />
                   ))}
                 </TableBody>
@@ -234,9 +214,9 @@ export function ApplicationsClient({
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-                    <TableHead>Venue Name</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Sport</TableHead>
+                    <TableHead>Organization</TableHead>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead>Rejected Date</TableHead>
@@ -250,6 +230,7 @@ export function ApplicationsClient({
                       key={application.id}
                       application={application}
                       onActionComplete={refreshData}
+                      showReviewedDate={true}
                     />
                   ))}
                 </TableBody>
@@ -261,9 +242,9 @@ export function ApplicationsClient({
                 <TableHeader>
                   <TableRow>
                     <TableHead>ID</TableHead>
-                    <TableHead>Venue Name</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Sport</TableHead>
+                    <TableHead>Organization</TableHead>
+                    <TableHead>Contact Person</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead>Submitted</TableHead>
                     <TableHead>Status</TableHead>
@@ -346,35 +327,32 @@ export function ApplicationsClient({
 function ApplicationRow({
   application,
   onActionComplete,
+  showReviewedDate = false,
 }: {
-  application: Application;
+  application: VenuePartnerApplication;
   onActionComplete?: () => void;
+  showReviewedDate?: boolean;
 }) {
   return (
     <TableRow>
       <TableCell className="font-medium">
         {application.id.substring(0, 8)}...
       </TableCell>
-      <TableCell>{application.name}</TableCell>
-      <TableCell>{application.owner}</TableCell>
-      <TableCell>
-        <Badge variant="outline">{application.sport}</Badge>
-      </TableCell>
+      <TableCell>{application.organizationName || "N/A"}</TableCell>
+      <TableCell>{application.contactName}</TableCell>
+      <TableCell>{application.contactEmail}</TableCell>
       <TableCell>{application.city}</TableCell>
       <TableCell>
-        {new Date(application.submittedDate).toLocaleDateString("id-ID")}
+        {format(new Date(application.createdAt), "dd MMM yyyy, HH:mm", { locale: id })}
       </TableCell>
-      {application.status === "accepted" && (
+      {showReviewedDate && (
         <TableCell>
-          {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("id-ID") : "-"}
+          {application.reviewedAt
+            ? format(new Date(application.reviewedAt), "dd MMM yyyy, HH:mm", { locale: id })
+            : "-"
+          }
         </TableCell>
       )}
-      {application.status === "rejected" && (
-        <TableCell>
-          {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("id-ID") : "-"}
-        </TableCell>
-      )}
-      {application.status === "pending" && <TableCell>-</TableCell>}
       <TableCell>
         <Badge
           variant={
@@ -399,13 +377,13 @@ function ApplicationRow({
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{application.name}</DialogTitle>
+                <DialogTitle>{application.organizationName || application.contactName}</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Application ID</Label>
-                    <p className="text-sm font-medium">{application.id}...</p>
+                    <p className="text-sm font-medium">{application.id.substring(0, 8)}...</p>
                   </div>
                   <div>
                     <Label>Status</Label>
@@ -425,63 +403,24 @@ function ApplicationRow({
                 </div>
 
                 <div>
-                  <Label>Owner Information</Label>
+                  <Label>Contact Information</Label>
                   <div className="mt-2 space-y-1">
                     <p className="text-sm">
-                      <strong>Name:</strong> {application.owner}
+                      <strong>Organization:</strong> {application.organizationName || "N/A"}
                     </p>
                     <p className="text-sm">
-                      <strong>Email:</strong> {application.email}
+                      <strong>Contact Person:</strong> {application.contactName}
                     </p>
                     <p className="text-sm">
-                      <strong>Phone:</strong> {application.phone}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Business Information</Label>
-                  <div className="mt-2 space-y-1">
-                    <p className="text-sm">
-                      <strong>Business Name:</strong>{" "}
-                      {application.businessName || "N/A"}
+                      <strong>Email:</strong> {application.contactEmail}
                     </p>
                     <p className="text-sm">
-                      <strong>Sport Type:</strong> {application.sport}
+                      <strong>Phone:</strong> {application.contactPhone}
                     </p>
                     <p className="text-sm">
                       <strong>City:</strong> {application.city}
                     </p>
-                    <p className="text-sm">
-                      <strong>Courts:</strong> {application.courts}
-                    </p>
-                    {application.facilityCount && (
-                      <p className="text-sm">
-                        <strong>Facility Count:</strong>{" "}
-                        {application.facilityCount}
-                      </p>
-                    )}
-                    {application.existingSystem && (
-                      <p className="text-sm">
-                        <strong>Existing System:</strong>{" "}
-                        {application.existingSystem}
-                      </p>
-                    )}
-                    <p className="text-sm">
-                      <strong>Operating Hours:</strong>{" "}
-                      {application.operatingHours}
-                    </p>
-                    {application.address && (
-                      <p className="text-sm">
-                        <strong>Address:</strong> {application.address}
-                      </p>
-                    )}
                   </div>
-                </div>
-
-                <div>
-                  <Label>Description</Label>
-                  <p className="text-sm mt-2">{application.description}</p>
                 </div>
 
                 {application.notes && (
@@ -492,50 +431,25 @@ function ApplicationRow({
                 )}
 
                 <div>
-                  <Label>Facilities</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {application.facilities.length > 0 ? (
-                      application.facilities.map(
-                        (facility: string, index: number) => (
-                          <Badge key={index} variant="outline">
-                            {facility}
-                          </Badge>
-                        ),
-                      )
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        No facilities listed
-                      </span>
+                  <Label>Application Information</Label>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-sm">
+                      <strong>Applied Date:</strong>{" "}
+                      {format(new Date(application.createdAt), "dd MMM yyyy, HH:mm", { locale: id })}
+                    </p>
+                    {application.reviewedAt && (
+                      <p className="text-sm">
+                        <strong>Reviewed Date:</strong>{" "}
+                        {format(new Date(application.reviewedAt), "dd MMM yyyy, HH:mm", { locale: id })}
+                      </p>
+                    )}
+                    {application.handledBy && (
+                      <p className="text-sm">
+                        <strong>Handled By:</strong> {application.handledBy}
+                      </p>
                     )}
                   </div>
                 </div>
-
-                {application.status === "accepted" && (
-                  <div>
-                    <Label>Approval Information</Label>
-                    <p className="text-sm mt-2">
-                      Approved on{" "}
-                      {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("id-ID") : "Not available"}
-                    </p>
-                  </div>
-                )}
-
-                {application.status === "rejected" && (
-                  <div>
-                    <Label>Rejection Information</Label>
-                    <div className="mt-2 space-y-1">
-                      <p className="text-sm">
-                        <strong>Rejected Date:</strong>{" "}
-                        {application.reviewedAt ? new Date(application.reviewedAt).toLocaleDateString("id-ID") : "Not available"}
-                      </p>
-                      {application.decisionNote && (
-                        <p className="text-sm">
-                          <strong>Reason:</strong> {application.decisionNote}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
 
                 {application.status === "pending" && (
                   <div className="flex justify-end space-x-2 pt-4">

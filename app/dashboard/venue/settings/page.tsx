@@ -15,10 +15,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { requireRole } from "@/lib/supabase/roles";
-import { fetchVenueDashboardData } from "@/lib/supabase/queries";
+import { VenueQueries } from "@/lib/queries/venue";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
 import type { NavProject } from "@/components/nav-projects";
+import { VenueSettingsForm } from "./venue-settings-form";
 import {
   Card,
   CardContent,
@@ -43,7 +44,9 @@ import { Settings, Building2 } from "lucide-react";
 
 export default async function SettingsPage() {
   const profile = await requireRole("venue_partner");
-  const dashboardData = await fetchVenueDashboardData(profile);
+
+  // Get venue dashboard data using the new query system
+  const venueDashboardData = await VenueQueries.getVenueDashboardData(profile.id);
 
   const displayName = profile.full_name ?? "Partner";
   const email = "partner@courtease.id";
@@ -66,11 +69,6 @@ export default async function SettingsPage() {
       icon: "CalendarClock",
     },
     {
-      title: "Blackout Schedule",
-      url: "/dashboard/venue/blackout",
-      icon: "CalendarX",
-    },
-    {
       title: "Pengaturan",
       url: "/dashboard/venue/settings",
       icon: "Settings2",
@@ -78,18 +76,15 @@ export default async function SettingsPage() {
     },
   ];
 
-  const teams: TeamOption[] = (
-    dashboardData.venues.length
-      ? dashboardData.venues
-      : [
-          {
-            id: "placeholder",
-            name: "Venue belum tersedia",
-            city: null,
-            district: null,
-          },
-        ]
-  ).map((venue) => ({
+  // Transform venues array for compatibility
+  const venues = [{
+    id: venueDashboardData.venue.id,
+    name: venueDashboardData.venue.name,
+    city: venueDashboardData.venue.city,
+    district: venueDashboardData.venue.district
+  }];
+
+  const teams: TeamOption[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
     description:
@@ -97,7 +92,7 @@ export default async function SettingsPage() {
     icon: "MapPin",
   }));
 
-  const navProjects: NavProject[] = dashboardData.venues.map((venue) => ({
+  const navProjects: NavProject[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
     url: `/dashboard/venue/venues/${venue.id}`,
@@ -140,232 +135,7 @@ export default async function SettingsPage() {
         </header>
 
         <div className="flex-1 space-y-4 p-4 pt-6">
-          <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Pengaturan</h2>
-          </div>
-
-          <Tabs defaultValue="general" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="general">Umum</TabsTrigger>
-              <TabsTrigger value="venue">Venue</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="general" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informasi Profil</CardTitle>
-                  <CardDescription>
-                    Perbarui informasi profil venue partner Anda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nama Lengkap</Label>
-                      <Input id="name" defaultValue={displayName} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" defaultValue={email} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Nomor Telepon</Label>
-                      <Input id="phone" defaultValue="+6281234567890" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Nama Perusahaan</Label>
-                      <Input
-                        id="company"
-                        defaultValue="PT Courtease Venue Partner"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio/Deskripsi</Label>
-                    <Textarea
-                      id="bio"
-                      placeholder="Ceritakan tentang venue Anda..."
-                      defaultValue="Venue partner terpercaya dengan fasilitas lengkap dan pelayanan terbaik."
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button>Simpan Perubahan</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Preferensi Bahasa & Waktu</CardTitle>
-                  <CardDescription>
-                    Atur bahasa dan zona waktu yang Anda inginkan
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="language">Bahasa</Label>
-                      <Select defaultValue="id">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="id">Bahasa Indonesia</SelectItem>
-                          <SelectItem value="en">English</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="timezone">Zona Waktu</Label>
-                      <Select defaultValue="jakarta">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="jakarta">WIB (GMT+7)</SelectItem>
-                          <SelectItem value="bali">WITA (GMT+8)</SelectItem>
-                          <SelectItem value="papua">WIT (GMT+9)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="24hour" defaultChecked />
-                    <Label htmlFor="24hour">Gunakan format 24 jam</Label>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="venue" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informasi Venue</CardTitle>
-                  <CardDescription>
-                    Kelola informasi dasar venue Anda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="venue-name">Nama Venue</Label>
-                      <Input
-                        id="venue-name"
-                        defaultValue="Courtease Sports Center"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="venue-type">Tipe Venue</Label>
-                      <Select defaultValue="sports">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sports">Sports Complex</SelectItem>
-                          <SelectItem value="futsal">Futsal Center</SelectItem>
-                          <SelectItem value="badminton">
-                            Badminton Hall
-                          </SelectItem>
-                          <SelectItem value="basketball">
-                            Basketball Court
-                          </SelectItem>
-                          <SelectItem value="tennis">Tennis Court</SelectItem>
-                          <SelectItem value="multipurpose">
-                            Multipurpose
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="capacity">Kapasitas Total</Label>
-                      <Input id="capacity" type="number" defaultValue="150" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="courts">Jumlah Lapangan</Label>
-                      <Input id="courts" type="number" defaultValue="8" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Alamat Lengkap</Label>
-                      <Input
-                        id="address"
-                        defaultValue="Jl. Olahraga No. 123, Jakarta Selatan"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="city">Kota</Label>
-                      <Input id="city" defaultValue="Jakarta" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Deskripsi Venue</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Deskripsikan venue Anda..."
-                      defaultValue="Fasilitas olahraga lengkap dengan lapangan futsal, badminton, basket, dan tenis. Dilengkapi dengan ruang ganti, kafe, dan area parkir luas."
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button>Simpan Perubahan</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Jam Operasional</CardTitle>
-                  <CardDescription>
-                    Atur jam buka dan tutup venue Anda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      "Senin",
-                      "Selasa",
-                      "Rabu",
-                      "Kamis",
-                      "Jumat",
-                      "Sabtu",
-                      "Minggu",
-                    ].map((day) => (
-                      <div
-                        key={day}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id={`open-${day.toLowerCase()}`}
-                            defaultChecked
-                          />
-                          <Label
-                            htmlFor={`open-${day.toLowerCase()}`}
-                            className="w-20"
-                          >
-                            {day}
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="time"
-                            defaultValue="06:00"
-                            className="w-24"
-                          />
-                          <span>sampai</span>
-                          <Input
-                            type="time"
-                            defaultValue="23:00"
-                            className="w-24"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <VenueSettingsForm />
         </div>
       </SidebarInset>
     </SidebarProvider>
