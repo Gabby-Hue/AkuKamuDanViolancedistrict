@@ -158,7 +158,7 @@ export default async function BookingDetailPage({
               </h1>
               <p className="text-slate-600 dark:text-slate-300">
                 {booking.venueName || booking.court?.venueName}
-                {(booking.court?.venueCity) && `, ${booking.court?.venueCity}`}
+                {booking.court?.venueCity && `, ${booking.court?.venueCity}`}
               </p>
               {booking.court?.venueAddress ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -212,12 +212,7 @@ export default async function BookingDetailPage({
                       Tanggal
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {startTime.toLocaleDateString("id-ID", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {startTime}
                     </p>
                   </div>
                   <div>
@@ -225,15 +220,7 @@ export default async function BookingDetailPage({
                       Waktu
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {startTime.toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}{" "}
-                      -{" "}
-                      {endTime.toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {startTime} - {endTime}
                     </p>
                   </div>
                   <div>
@@ -285,18 +272,29 @@ export default async function BookingDetailPage({
                           Pembayaran Selesai
                         </label>
                         <p className="text-slate-900 dark:text-white">
-                          {new Date(booking.paymentCompletedAt).toLocaleString("id-ID", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {new Date(booking.paymentCompletedAt).toLocaleString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </p>
                       </div>
                       <div className="text-green-600 dark:text-green-400">
-                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        <svg
+                          className="h-5 w-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                     </div>
@@ -504,7 +502,8 @@ export default async function BookingDetailPage({
                     </div>
                   )}
 
-                  {booking.paymentStatus === "paid" && booking.paymentCompletedAt && (
+                  {booking.paymentStatus === "paid" &&
+                    booking.paymentCompletedAt && (
                       <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
                         <div className="flex items-center text-green-800 dark:text-green-200">
                           <CheckCircle className="h-4 w-4 mr-2" />
@@ -631,14 +630,26 @@ export default async function BookingDetailPage({
               </CardHeader>
               <CardContent className="space-y-3">
                 {booking.court?.slug ? (
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link href={`/court/${booking.court?.slug || booking.courtId}`}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    size="sm"
+                    asChild
+                  >
+                    <Link
+                      href={`/court/${booking.court?.slug || booking.courtId}`}
+                    >
                       <MapPin className="mr-2 h-4 w-4" />
                       Lihat Court
                     </Link>
                   </Button>
                 ) : (
-                  <Button variant="outline" className="w-full" size="sm" disabled>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    size="sm"
+                    disabled
+                  >
                     <MapPin className="mr-2 h-4 w-4" />
                     Court tidak tersedia
                   </Button>

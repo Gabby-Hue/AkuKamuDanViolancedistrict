@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, X } from "lucide-react";
 import Image from "next/image";
-import type { BookingStatus, PaymentStatus, BookingDetail, Court } from "@/lib/queries/types";
+import type {
+  BookingStatus,
+  PaymentStatus,
+  BookingDetail,
+  Court,
+} from "@/lib/queries/types";
 
 const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   pending: "Menunggu Konfirmasi",
@@ -228,7 +233,7 @@ export default function TicketModal({
                   fontWeight="600"
                   fill="hsl(var(--brand-strong))"
                 >
-                  {"Futsal"}
+                  {court.sport}
                 </text>
                 <text
                   x="129"

@@ -21,8 +21,6 @@ export class AdminQueries {
     const supabase = await createClient();
 
     try {
-      console.log("🔍 AdminDashboard: Starting data fetch...");
-
       // Get active courts first
       const { data: activeCourts } = await supabase
         .from("courts")

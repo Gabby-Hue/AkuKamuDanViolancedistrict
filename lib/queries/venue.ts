@@ -392,19 +392,32 @@ export class VenueQueries {
       };
     }
 
+    // Transform settings from camelCase to snake_case for database
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    // Map fields properly
+    if (settings.name !== undefined) updateData.name = settings.name;
+    if (settings.city !== undefined) updateData.city = settings.city;
+    if (settings.address !== undefined) updateData.address = settings.address;
+    if (settings.description !== undefined) updateData.description = settings.description;
+    if (settings.latitude !== undefined) updateData.latitude = settings.latitude;
+    if (settings.longitude !== undefined) updateData.longitude = settings.longitude;
+    if (settings.contactPhone !== undefined) updateData.contact_phone = settings.contactPhone;
+    if (settings.contactEmail !== undefined) updateData.contact_email = settings.contactEmail;
+
     // Update venue
     const { error } = await supabase
       .from("venues")
-      .update({
-        ...settings,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", venueId);
 
     if (error) {
+      console.error("Database error updating venue:", error);
       return {
         success: false,
-        error: "Failed to update venue settings",
+        error: `Failed to update venue settings: ${error.message}`,
       };
     }
 

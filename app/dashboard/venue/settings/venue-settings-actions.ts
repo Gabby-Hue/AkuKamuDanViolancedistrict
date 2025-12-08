@@ -150,6 +150,7 @@ export async function updateVenue(data: {
       };
     }
 
+// Helper function to convert null to undefined but keep values
 const clean = <T>(v: T | null | undefined): T | undefined =>
   v === null ? undefined : v;
 
@@ -157,14 +158,14 @@ const result = await VenueQueries.updateVenueSettings(
   profile.id,
   venueDashboardData.venue.id,
   {
-    name: data.name ?? undefined,
-    city: data.city ?? undefined,
-    address: data.address ?? undefined,
-    latitude: data.latitude ?? undefined,
-    longitude: data.longitude ?? undefined,
-    description: data.description ?? undefined,
-    contactPhone: data.contactPhone ?? undefined,
-    contactEmail: data.contactEmail ?? undefined,
+    name: clean(data.name),
+    city: clean(data.city),
+    address: clean(data.address),
+    latitude: clean(data.latitude),
+    longitude: clean(data.longitude),
+    description: clean(data.description),
+    contactPhone: clean(data.contactPhone),
+    contactEmail: clean(data.contactEmail),
   },
 );
 
