@@ -125,8 +125,16 @@ export default async function BookingDetailPage({
 
   const startTime = new Date(booking.startTime);
   const endTime = new Date(booking.endTime);
-  const startTimeStr = startTime.toLocaleString('id-ID');
-  const endTimeStr = endTime.toLocaleString('id-ID');
+  const startTimeStr = startTime.toLocaleString("id-ID");
+  const endTimeStr = endTime.toLocaleString("id-ID");
+  const startTimeShort = startTime.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const endTimeShort = endTime.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   const paymentExpiresAt = booking.paymentExpiredAt
     ? new Date(booking.paymentExpiredAt)
     : null;
@@ -222,7 +230,7 @@ export default async function BookingDetailPage({
                       Waktu
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {startTimeStr} - {endTimeStr}
+                      {startTimeShort} - {endTimeShort}
                     </p>
                   </div>
                   <div>
@@ -341,7 +349,7 @@ export default async function BookingDetailPage({
                     {(booking.review || reviewData)?.comment && (
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left">
                         <p className="text-gray-700 dark:text-gray-300 italic">
-                          "{(booking.review || reviewData)?.comment}"
+                          {(booking.review || reviewData)?.comment}
                         </p>
                       </div>
                     )}
