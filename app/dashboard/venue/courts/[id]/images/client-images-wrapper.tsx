@@ -54,18 +54,13 @@ import {
   Upload,
   Star,
   Trash2,
-  Loader2,
   ArrowLeft,
   Plus,
-  Edit,
   Eye,
   Download,
-  X,
-  MoreHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import type { VenueCourtDetail } from "@/lib/supabase/queries/venue-courts";
 
 interface CourtImage {
   id: string;
