@@ -21,7 +21,6 @@ import { requireRole } from "@/lib/supabase/roles";
 import { VenueQueries } from "@/lib/queries/venue";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
-import type { NavProject } from "@/components/nav-projects";
 import { VenueSettingsForm } from "./venue-settings-form";
 import {
   Card,
@@ -97,20 +96,12 @@ export default async function SettingsPage() {
     icon: "MapPin",
   }));
 
-  const navProjects: NavProject[] = venues.map((venue) => ({
-    id: venue.id,
-    name: venue.name,
-    url: `/dashboard/venue/venues/${venue.id}`,
-    icon: "MapPin",
-  }));
-
   return (
     <SidebarProvider>
       <AppSidebar
         user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
-        navProjects={navProjects}
       />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

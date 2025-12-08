@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sidebar";
 import type { NavMainItem } from "@/components/nav-main";
 import type { TeamOption } from "@/components/team-switcher";
-import type { NavProject } from "@/components/nav-projects";
 import type { Booking } from "@/lib/queries/types";
 import {
   Card,

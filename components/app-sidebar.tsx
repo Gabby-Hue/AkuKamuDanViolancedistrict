@@ -1,7 +1,6 @@
 "use client";
 
 import { NavMain, type NavMainItem } from "@/components/nav-main";
-import { NavProjects, type NavProject } from "@/components/nav-projects";
 import { NavUser, type SidebarUser } from "@/components/nav-user";
 import { TeamSwitcher, type TeamOption } from "@/components/team-switcher";
 import {
@@ -16,14 +15,12 @@ export type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   user: SidebarUser;
   teams?: TeamOption[];
   navMain: NavMainItem[];
-  navProjects?: NavProject[];
 };
 
 export function AppSidebar({
   user,
   teams = [],
   navMain,
-  navProjects = [],
   ...props
 }: AppSidebarProps) {
   return (
@@ -33,7 +30,6 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        {navProjects.length ? <NavProjects projects={navProjects} /> : null}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
