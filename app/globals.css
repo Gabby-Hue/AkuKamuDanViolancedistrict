@@ -96,7 +96,7 @@
     --brand-contrast: 0 0% 100%;
     --background: hsl(184 36% 9%);
     --foreground: hsl(180 30% 93%);
-    --card: hsl(186 32% 14%);
+    --card:  rgb(15 23 42) ;
     --card-foreground: hsl(180 30% 93%);
     --popover: hsl(186 32% 14%);
     --popover-foreground: hsl(180 30% 93%);

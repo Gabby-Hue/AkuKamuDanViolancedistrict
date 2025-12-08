@@ -131,54 +131,6 @@ export function ForumThreadComposer({
     );
   }
 
-  const guidelinesItems = [
-    {
-      title: "Mulai dengan konteks jelas",
-      description:
-        "Tulis satu kalimat pembuka yang menjelaskan situasi tim atau pertanyaan utama kamu.",
-    },
-    {
-      title: "Gunakan kategori & tag",
-      description:
-        "Pilih kategori paling relevan dan tambahkan 2-3 tag agar diskusi mudah ditemukan.",
-    },
-    {
-      title: "Beri detail actionable",
-      description:
-        "Ceritakan pengalaman, jadwal latihan, atau hambatan supaya komunitas bisa memberi jawaban spesifik.",
-    },
-  ];
-
-  const guidelinesPanel = (
-    <Card className="border-brand/20 bg-gradient-to-br from-white via-white/90 to-[hsl(var(--brand-soft))]/25">
-      <CardHeader>
-        <div className="flex items-start gap-3"></div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {guidelinesItems.map((item) => (
-          <div
-            key={item.title}
-            className="flex gap-3 rounded-2xl bg-white/70 p-3 shadow-inner shadow-slate-200/40 dark:bg-slate-900/60"
-          >
-            <CheckCircle2 className="mt-0.5 h-5 w-5 text-brand flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-slate-900 dark:text-white">
-                {item.title}
-              </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                {item.description}
-              </p>
-            </div>
-          </div>
-        ))}
-        <p className="text-xs text-slate-500 dark:text-slate-400 pt-2">
-          Setelah dipublikasikan, thread akan dipantau moderator. Revisi bisa
-          dilakukan melalui komentar.
-        </p>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
       {showConfirm && (
@@ -302,7 +254,7 @@ category: threadRow.category
           isLoading={isSubmitting}
         />
       )}
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6">
         <Card className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <CardHeader className="px-0 pt-0 pb-6">
@@ -407,19 +359,6 @@ category: threadRow.category
             </CardContent>
           </form>
         </Card>
-
-        <div className="hidden lg:block">{guidelinesPanel}</div>
-      </div>
-      <div className="lg:hidden">
-        <details className="group overflow-hidden rounded-3xl border border-brand/20 bg-white/90 shadow-sm transition dark:border-brand/40 dark:bg-slate-900/70">
-          <summary className="flex cursor-pointer items-center justify-between gap-3 px-6 py-4 text-sm font-semibold text-slate-700 marker:hidden dark:text-slate-200">
-            <span>Panduan menulis thread</span>
-            <ChevronDown className="h-4 w-4 text-brand-strong transition group-open:rotate-180" />
-          </summary>
-          <div className="border-t border-brand/10 px-6 py-5 dark:border-brand/20">
-            {guidelinesPanel}
-          </div>
-        </details>
       </div>
     </div>
   );
