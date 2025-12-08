@@ -43,10 +43,10 @@ interface Venue {
   latitude: number | null;
   longitude: number | null;
   description: string | null;
-  contact_phone: string | null;
-  contact_email: string | null;
-  facility_types: string[];
-  facility_count: number | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  facilityTypes: string[];
+  facilityCount: number | null;
   website: string | null;
   business_license_url: string | null;
   venue_status: string;
@@ -121,8 +121,8 @@ export function VenueSettingsForm() {
             name: settingsData.venue.name || "",
             city: settingsData.venue.city || "",
             address: settingsData.venue.address || "",
-            contactPhone: settingsData.venue.contact_phone || "",
-            contactEmail: settingsData.venue.contact_email || "",
+            contactPhone: settingsData.venue.contactPhone || "",
+            contactEmail: settingsData.venue.contactEmail || "",
             description: settingsData.venue.description || "",
           });
 
@@ -370,7 +370,7 @@ export function VenueSettingsForm() {
                     <Label htmlFor="contact-phone">Telepon Kontak</Label>
                     <Input
                       id="contact-phone"
-                      value={venueData.contactPhone}
+                      value={venueData.contactPhone || ""}
                       onChange={(e) =>
                         setVenueData((prev) => ({
                           ...prev,
@@ -385,7 +385,7 @@ export function VenueSettingsForm() {
                     <Input
                       id="contact-email"
                       type="email"
-                      value={venueData.contactEmail}
+                      value={venueData.contactEmail || ""}
                       onChange={(e) =>
                         setVenueData((prev) => ({
                           ...prev,
