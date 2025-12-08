@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, X } from "lucide-react";
 import Image from "next/image";
+import { formatTime, formatShortDate } from "@/lib/time-helper";
 import type {
   BookingStatus,
   PaymentStatus,
@@ -40,8 +41,8 @@ const getBookingStatusVariant = (status: BookingStatus) => {
 interface TicketModalProps {
   booking: BookingDetail;
   court: Court;
-  startTime: Date;
-  endTime: Date;
+  startTime: string;
+  endTime: string;
 }
 
 export default function TicketModal({
@@ -75,8 +76,9 @@ export default function TicketModal({
   }, [showTicketModal]);
 
   // Generate booking code
-  const generateBookingCode = (id: string, date: Date, courtName: string) => {
-    const dateStr = `${date.getFullYear().toString().slice(2)}${(date.getMonth() + 1).toString().padStart(2, "0")}${date.getDate().toString().padStart(2, "0")}`;
+  const generateBookingCode = (id: string, date: string, courtName: string) => {
+    const dateObj = new Date(date);
+    const dateStr = `${dateObj.getFullYear().toString().slice(2)}${(dateObj.getMonth() + 1).toString().padStart(2, "0")}${dateObj.getDate().toString().padStart(2, "0")}`;
     const courtCode = courtName.slice(-1).toUpperCase();
     return `SPV-${dateStr}-${courtCode}`;
   };
@@ -86,18 +88,14 @@ export default function TicketModal({
     return `Rp${(price / 1000).toFixed(0)}K`;
   };
 
-  // Format date
-  const formatDate = (date: Date) => {
-    return `${date.getDate()}/${date.getMonth() + 1}`;
-  };
-
+  
   const bookingCode = generateBookingCode(
     booking.id,
     startTime,
     booking.court?.name || "",
   );
   const duration = Math.round(
-    (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60),
+    (new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60 * 60),
   );
 
   return (
@@ -242,7 +240,7 @@ export default function TicketModal({
                   fontWeight="600"
                   fill="hsl(var(--brand-strong))"
                 >
-                  {formatDate(startTime)}
+                  {formatShortDate(startTime)}
                 </text>
                 <text
                   x="237"
@@ -251,12 +249,7 @@ export default function TicketModal({
                   fontWeight="600"
                   fill="hsl(var(--brand-strong))"
                 >
-                  {startTime
-                    .toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                    .slice(0, 2)}
+                  {formatTime(startTime)}
                 </text>
 
                 {/* Info Table 2 */}

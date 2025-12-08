@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { requireRole } from "@/lib/supabase/roles";
 import { UserQueries } from "@/lib/queries/user";
 import { PublicQueries } from "@/lib/queries/public";
+import { formatTime } from "@/lib/time-helper";
 import type { Court } from "@/lib/queries/types";
 import {
   Card,
@@ -305,21 +306,7 @@ export default async function UserDashboardPage() {
                           <div className="flex items-center gap-4">
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
-                              {new Date(booking.startTime).toLocaleTimeString(
-                                "id-ID",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}{" "}
-                              -{" "}
-                              {new Date(booking.endTime).toLocaleTimeString(
-                                "id-ID",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
+                              {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
                             </span>
                             <span className="flex items-center gap-1">
                               <CalendarClock className="h-4 w-4" />

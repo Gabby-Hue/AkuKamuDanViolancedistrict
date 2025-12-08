@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
+import { formatTime } from "@/lib/time-helper";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -497,17 +498,7 @@ export default function VenueBookingsClient({
                           <div>
                             <h4 className="font-medium">
                               {booking.startTime && booking.endTime
-                                ? `${new Date(
-                                    booking.startTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })} - ${new Date(
-                                    booking.endTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}`
+                                ? `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`
                                 : "Waktu tidak tersedia"}
                             </h4>
                             <p className="text-sm text-muted-foreground">
@@ -594,17 +585,7 @@ export default function VenueBookingsClient({
                           <div>
                             <h4 className="font-medium">
                               {booking.startTime && booking.endTime
-                                ? `${new Date(
-                                    booking.startTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })} - ${new Date(
-                                    booking.endTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}`
+                                ? `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`
                                 : "Waktu tidak tersedia"}
                             </h4>
                             <p className="text-sm text-muted-foreground">
@@ -729,17 +710,7 @@ export default function VenueBookingsClient({
                             </p>
                             <p className="text-sm">
                               {booking.startTime && booking.endTime
-                                ? `${new Date(
-                                    booking.startTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })} - ${new Date(
-                                    booking.endTime,
-                                  ).toLocaleTimeString("id-ID", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}`
+                                ? `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`
                                 : "Waktu tidak tersedia"}
                             </p>
                           </div>

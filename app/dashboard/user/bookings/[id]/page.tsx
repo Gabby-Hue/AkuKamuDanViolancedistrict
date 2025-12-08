@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireRole } from "@/lib/supabase/roles";
 import { UserQueries } from "@/lib/queries/user";
 import { PublicQueries } from "@/lib/queries/public";
+import { formatTime, formatDate, formatShortDate } from "@/lib/time-helper";
 import type {
   BookingStatus,
   PaymentStatus,
@@ -125,16 +126,10 @@ export default async function BookingDetailPage({
 
   const startTime = new Date(booking.startTime);
   const endTime = new Date(booking.endTime);
-  const startTimeStr = startTime.toLocaleString("id-ID");
-  const endTimeStr = endTime.toLocaleString("id-ID");
-  const startTimeShort = startTime.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const endTimeShort = endTime.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const startTimeStr = formatDate(booking.startTime);
+  const endTimeStr = formatDate(booking.endTime);
+  const startTimeShort = formatTime(booking.startTime);
+  const endTimeShort = formatTime(booking.endTime);
   const paymentExpiresAt = booking.paymentExpiredAt
     ? new Date(booking.paymentExpiredAt)
     : null;
@@ -186,8 +181,8 @@ export default async function BookingDetailPage({
                 <TicketModal
                   booking={booking}
                   court={booking.court}
-                  startTime={startTime}
-                  endTime={endTime}
+                  startTime={booking.startTime}
+                  endTime={booking.endTime}
                 />
               )}
               {booking.paymentStatus === "pending" && booking.paymentToken && (
