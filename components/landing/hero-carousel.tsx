@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -83,14 +82,14 @@ export function HeroCarousel() {
 
     // Use both custom event and direct DOM approach for reliability
     const event = new CustomEvent("hero-slide-change", {
-      detail: { isDarkBackground: isDark }
+      detail: { isDarkBackground: isDark },
     });
     window.dispatchEvent(event);
 
     // Also set a data attribute directly on the hero section as fallback
     const heroSection = document.querySelector('[data-hero-section="true"]');
     if (heroSection) {
-      heroSection.setAttribute('data-slide-is-dark', isDark.toString());
+      heroSection.setAttribute("data-slide-is-dark", isDark.toString());
     }
   }, [activeIndex]);
 
@@ -166,17 +165,12 @@ export function HeroCarousel() {
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
-              asChild
               variant="secondary"
               className="w-full bg-brand text-white shadow-lg shadow-brand/30 transition hover:bg-brand-strong hover:shadow-brand/40 sm:w-auto"
             >
               <Link href="/explore">Mulai jelajahi</Link>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="w-full border-brand/60 text-white hover:bg-brand/20 hover:text-white sm:w-auto"
-            >
+            <Button variant="link" className="w-full dark:text-white sm:w-auto">
               <Link href="/venue-partner">Daftar sebagai venue partner</Link>
             </Button>
           </div>

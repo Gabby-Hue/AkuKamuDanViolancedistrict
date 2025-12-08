@@ -65,10 +65,16 @@ export function ExploreView({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Update sport filter when URL parameter changes
+  // Update sport filter when URL parameter changes
   useEffect(() => {
     const currentSport = searchParams.get("sport");
-    setSportFilter(currentSport || "all");
-  }, [searchParams]);
+    const newSport = currentSport || "all";
+
+    // Only update if the sport has actually changed
+    if (sportFilter !== newSport) {
+      setSportFilter(newSport);
+    }
+  }, [searchParams.toString()]);
 
   // Update URL when sport filter changes
   const handleSportFilterChange = (newSport: string) => {

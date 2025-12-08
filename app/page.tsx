@@ -3,7 +3,13 @@ export const runtime = "nodejs";
 
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { ChevronRight, Ghost, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ChevronRight,
+  MessageSquareDot,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicQueries } from "@/lib/queries/public";
 import type { Court, ForumThread } from "@/lib/queries/types";
@@ -321,21 +327,9 @@ export default async function Home() {
           <div className="text-center pt-8">
             <Link
               href="/forum"
-              className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-brand to-brand-strong px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand/30 transition hover:shadow-xl hover:scale-105"
+              className="inline-flex items-center gap-3 rounded-full px-8 py-4 text-base font-semibold dark:text-white shadow-lg shadow-brand/30 transition hover:shadow-xl hover:scale-105"
             >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-                />
-              </svg>
+              <MessageSquareDot />
               Join Forum Komunitas
             </Link>
           </div>
@@ -389,13 +383,13 @@ export default async function Home() {
 
             <div className="pt-6">
               <Button variant="ghost">
-              <Link
-                href="/venue-partner"
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 "
-              >
-                Ajukan Kemitraan
-                <ChevronRight />
-              </Link>
+                <Link
+                  href="/venue-partner"
+                  className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 "
+                >
+                  Ajukan Kemitraan
+                  <ChevronRight />
+                </Link>
               </Button>
             </div>
           </div>
