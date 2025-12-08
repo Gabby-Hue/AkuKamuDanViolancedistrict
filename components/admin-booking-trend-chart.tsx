@@ -70,7 +70,7 @@ export function AdminBookingTrendChart({ data }: AdminBookingTrendChartProps) {
             <ChartTooltip
               cursor={true}
               content={<ChartTooltipContent />}
-              formatter={(value: number) => [`${value} booking`, "Total"]}
+              formatter={(value: number) => [`${value} booking`, " total"]}
             />
             <Line
               dataKey="bookings"

@@ -57,7 +57,7 @@ export function AdminRevenueChart({ data }: AdminRevenueChartProps) {
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent />}
-              formatter={(value: number) => [`Rp ${value} juta`, "Revenue"]}
+              formatter={(value: number) => [`Rp ${value} juta`, " revenue"]}
             />
             <Bar dataKey="revenue" fill="var(--color-revenue)" radius={8} />
           </BarChart>

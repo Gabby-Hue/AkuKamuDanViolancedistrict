@@ -59,7 +59,7 @@ export function AdminVenueGrowthChart({ data }: AdminVenueGrowthChartProps) {
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent />}
-              formatter={(value: number) => [`${value} venue`, "Total"]}
+              formatter={(value: number) => [`${value} venue`, " total"]}
             />
             <Line
               dataKey="venues"
