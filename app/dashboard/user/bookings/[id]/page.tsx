@@ -125,6 +125,8 @@ export default async function BookingDetailPage({
 
   const startTime = new Date(booking.startTime);
   const endTime = new Date(booking.endTime);
+  const startTimeStr = startTime.toLocaleString('id-ID');
+  const endTimeStr = endTime.toLocaleString('id-ID');
   const paymentExpiresAt = booking.paymentExpiredAt
     ? new Date(booking.paymentExpiredAt)
     : null;
@@ -212,7 +214,7 @@ export default async function BookingDetailPage({
                       Tanggal
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {startTime}
+                      {startTimeStr}
                     </p>
                   </div>
                   <div>
@@ -220,7 +222,7 @@ export default async function BookingDetailPage({
                       Waktu
                     </label>
                     <p className="text-slate-900 dark:text-white">
-                      {startTime} - {endTime}
+                      {startTimeStr} - {endTimeStr}
                     </p>
                   </div>
                   <div>

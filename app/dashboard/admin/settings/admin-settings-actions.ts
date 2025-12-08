@@ -148,7 +148,7 @@ export async function getAdminStats(): Promise<{
     const totalRevenue = revenueData?.reduce(
       (sum, booking) => sum + Number(booking.price_total || 0),
       0
-    );
+    ) || 0;
 
     return {
       success: true,

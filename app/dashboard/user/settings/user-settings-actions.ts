@@ -24,7 +24,7 @@ export async function getUserSettingsData(): Promise<{
 }> {
   try {
     // Allow both user and venue_partner roles to access user settings
-    const profile = await requireRole("user", "venue_partner");
+    const profile = await requireRole(["user", "venue_partner"]);
     const supabase = await createClient();
 
     // Get profile data
@@ -72,7 +72,7 @@ export async function updateUserProfile(data: {
 }> {
   try {
     // Allow both user and venue_partner roles
-    const profile = await requireRole("user", "venue_partner");
+    const profile = await requireRole(["user", "venue_partner"]);
     const supabase = await createClient();
 
     const { error } = await supabase
