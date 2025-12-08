@@ -133,6 +133,9 @@ export default async function BookingDetailPage({
   const paymentExpiresAt = booking.paymentExpiredAt
     ? new Date(booking.paymentExpiredAt)
     : null;
+  const paymentExpiresAtStr = booking.paymentExpiredAt
+    ? formatDate(booking.paymentExpiredAt)
+    : null;
 
   return (
     <div className="min-h-screen py-10">
@@ -277,16 +280,7 @@ export default async function BookingDetailPage({
                           Pembayaran Selesai
                         </label>
                         <p className="text-slate-900 dark:text-white">
-                          {new Date(booking.paymentCompletedAt).toLocaleString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
+                          {formatDate(booking.paymentCompletedAt)}
                         </p>
                       </div>
                       <div className="text-green-600 dark:text-green-400">
@@ -544,14 +538,7 @@ export default async function BookingDetailPage({
                         </span>
                       </div>
                       <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                        {paymentExpiresAt.toLocaleDateString("id-ID", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {paymentExpiresAtStr}
                       </p>
                       <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
                         Sisa waktu:{" "}
@@ -594,14 +581,7 @@ export default async function BookingDetailPage({
                         </div>
                         <p className="text-xs text-red-700 dark:text-red-300">
                           Waktu pembayaran telah habis pada{" "}
-                          {paymentExpiresAt.toLocaleDateString("id-ID", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {paymentExpiresAtStr}
                         </p>
                         <p className="text-xs text-red-600 dark:text-red-400 mt-1">
                           Silakan buat booking baru jika masih ingin menggunakan
