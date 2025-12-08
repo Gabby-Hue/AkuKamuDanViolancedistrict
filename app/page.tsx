@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { ChevronRight, Ghost, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicQueries } from "@/lib/queries/public";
 import type { Court, ForumThread } from "@/lib/queries/types";
@@ -388,25 +388,15 @@ export default async function Home() {
             </div>
 
             <div className="pt-6">
+              <Button variant="ghost">
               <Link
                 href="/venue-partner"
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-brand-strong hover:shadow-lg"
+                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 "
               >
                 Ajukan Kemitraan
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
+                <ChevronRight />
               </Link>
+              </Button>
             </div>
           </div>
         </div>

@@ -114,13 +114,6 @@ export default function VenueDashboardView({
         },
       ];
 
-  const navProjects: NavProject[] = venues.map((venue) => ({
-    id: venue.id,
-    name: venue.name,
-    url: `/dashboard/venue/venues/${venue.id}`,
-    icon: "MapPin",
-  }));
-
   // Real-time statistics state
   const [realTimeStats, setRealTimeStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -156,7 +149,7 @@ export default function VenueDashboardView({
       // Prepare monthly chart data (convert to millions)
       const monthlyData = monthly.map((item: any) => ({
         month: item.month,
-        revenue: item.revenue / 1000000,
+        revenue: item.revenue,
         bookingCount: item.bookingCount,
       }));
 
@@ -230,7 +223,6 @@ export default function VenueDashboardView({
           user={{ name: displayName, email }}
           teams={teams}
           navMain={navMain}
-          navProjects={navProjects}
         />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -284,7 +276,6 @@ export default function VenueDashboardView({
         user={{ name: displayName, email }}
         teams={teams}
         navMain={navMain}
-        navProjects={navProjects}
       />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">

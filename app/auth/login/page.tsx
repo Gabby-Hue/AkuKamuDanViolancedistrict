@@ -46,9 +46,9 @@ function LoginPageInner() {
         <div className="flex justify-center gap-2 md:justify-start">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 font-medium text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 font-medium dark:text-white dark:hover:text-white/80 text-black"
           >
-            <div className="bg-orange-500 text-white flex size-6 items-center justify-center rounded-md">
+            <div className="bg-orange-500 dark:bg-teal-500 text-white flex size-6 items-center justify-center rounded-md">
               <ChevronLeft className="size-4" />
             </div>
             {showBackButton ? "Kembali" : "Back to home"}

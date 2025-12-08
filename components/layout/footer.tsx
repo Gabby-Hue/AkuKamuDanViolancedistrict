@@ -11,9 +11,6 @@ export default function Footer() {
           <div className="lg:col-span-4 space-y-6">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-brand text-white flex items-center justify-center font-bold text-lg">
-                  C
-                </div>
                 <h3 className="text-2xl font-bold">CourtEase</h3>
               </div>
               <p className="text-sm text-slate-300 leading-relaxed max-w-sm">
@@ -84,11 +81,11 @@ export default function Footer() {
         <div className="mt-16 pt-8 border-t border-slate-700">
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             <div className="text-sm text-slate-400">
-              © 2024 CourtEase. All rights reserved.
+              © 2025 CourtEase. All rights reserved.
             </div>
             <div className="flex items-center space-x-6 text-sm text-slate-400">
               <span className="flex items-center gap-1">
-                Made with <span className="text-red-500">❤️</span> in Indonesia
+                Made with <span className="text-red-500">❤️</span> in SMEKDA 
               </span>
               <span className="hidden lg:inline">•</span>
               <Link href="/dashboard" className="hover:text-brand transition-colors">Dashboard</Link>

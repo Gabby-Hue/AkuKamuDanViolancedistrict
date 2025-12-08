@@ -91,14 +91,14 @@ export function RegisterForm({
         toast.success("Akun berhasil dibuat", {
           description: "Anda sudah dapat masuk menggunakan akun tersebut.",
         });
-        router.replace("/auth/login");
+        router.replace("/");
         return;
       }
 
       toast.success("Registrasi berhasil", {
         description: "Silakan periksa email Anda untuk konfirmasi.",
       });
-      router.replace("/auth/login");
+      router.replace("/");
     } catch (error: unknown) {
       const message =
         error instanceof Error
@@ -181,7 +181,7 @@ export function RegisterForm({
         <Field>
           <Button
             type="submit"
-            className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 dark:text-white"
+            className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 text-white"
             disabled={isLoading}
           >
             {isLoading ? "Memproses..." : "Daftar"}
