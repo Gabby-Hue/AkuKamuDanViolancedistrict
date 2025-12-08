@@ -26,29 +26,6 @@ function formatDate(dateString: string | null | undefined): string {
   }
 }
 
-// Helper function to get display name for author
-function getAuthorName(profile: any): string {
-  if (!profile || !profile.full_name || profile.full_name.trim() === "") {
-    return "Member CourtEase";
-  }
-
-  // Check for common anonymous patterns
-  const anonymousPatterns = [
-    "anonymous",
-    "anonim",
-    "tidak diketahui",
-    "user",
-    "pengguna",
-  ];
-
-  const lowerAuthor = profile.full_name.toLowerCase().trim();
-  if (anonymousPatterns.some((pattern) => lowerAuthor.includes(pattern))) {
-    return "Member CourtEase";
-  }
-
-  return profile.full_name.trim();
-}
-
 export default async function CourtDetailPage({
   params,
 }: {
@@ -298,7 +275,7 @@ export default async function CourtDetailPage({
                 >
                   <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                     <span className="font-semibold text-slate-700 dark:text-slate-200">
-                      {getAuthorName(review.author_name)}
+                      {review.author_name}
                     </span>
                     <span>{formatDate(review.createdAt)}</span>
                   </div>

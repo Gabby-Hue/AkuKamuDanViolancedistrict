@@ -87,9 +87,209 @@ payment_status	pending, waiting_confirmation, paid, expired, cancelled
 partner_application_status	pending, accepted, rejected
 blackout_scope	time_range, full_day
 blackout_frequency	once, weekly, monthly, yearly
-sport_types	futsal, basket, basketball, soccer, volleyball, badminton, tennis, padel
+sport_types	futsal, basketball, soccer, volleyball, badminton, tennis, padel
 surface_types	vinyl, rubber, parquet, wood, synthetic, cement, turf, grass, hard_court, clay
 
+-- VIEW active_courts
+create view public.active_courts as
+select
+  c.id,
+  c.slug,
+  c.name,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.venue_id,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.address as venue_address,
+  v.latitude as venue_latitude,
+  v.longitude as venue_longitude,
+  c.primary_image_url,
+  count(distinct b.id) filter (
+    where
+      b.status <> all (
+        array[
+          'pending'::booking_status,
+          'cancelled'::booking_status
+        ]
+      )
+  ) as total_bookings,
+  count(distinct b.id) filter (
+    where
+      (
+        b.status <> all (
+          array[
+            'pending'::booking_status,
+            'cancelled'::booking_status
+          ]
+        )
+      )
+      and date (b.start_time) = CURRENT_DATE
+  ) as today_bookings,
+  COALESCE(
+    sum(b.price_total) filter (
+      where
+        b.status <> all (
+          array[
+            'pending'::booking_status,
+            'cancelled'::booking_status
+          ]
+        )
+    ),
+    0::bigint
+  ) as total_revenue,
+  COALESCE(avg(distinct cr.rating), 0::numeric) as average_rating,
+  count(distinct cr.id) as review_count,
+  c.is_active
+from
+  courts c
+  left join venues v on v.id = c.venue_id
+  left join bookings b on b.court_id = c.id
+  left join court_reviews cr on cr.court_id = c.id
+group by
+  c.id,
+  c.slug,
+  c.name,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.venue_id,
+  v.name,
+  v.city,
+  v.address,
+  v.latitude,
+  v.longitude,
+  c.primary_image_url,
+  c.is_active;
+
+-- VIEW all_courts_with_stats
+create view public.all_courts_with_stats as
+with
+  booking_stats as (
+    select
+      bookings.court_id,
+      count(bookings.id) filter (
+        where
+          bookings.status <> all (
+            array[
+              'pending'::booking_status,
+              'cancelled'::booking_status
+            ]
+          )
+      ) as total_bookings,
+      count(bookings.id) filter (
+        where
+          (
+            bookings.status <> all (
+              array[
+                'pending'::booking_status,
+                'cancelled'::booking_status
+              ]
+            )
+          )
+          and date (bookings.start_time) = CURRENT_DATE
+      ) as today_bookings,
+      COALESCE(
+        sum(bookings.price_total) filter (
+          where
+            bookings.status <> all (
+              array[
+                'pending'::booking_status,
+                'cancelled'::booking_status
+              ]
+            )
+        ),
+        0::bigint
+      ) as total_revenue,
+      COALESCE(
+        sum(bookings.price_total) filter (
+          where
+            (
+              bookings.status <> all (
+                array[
+                  'pending'::booking_status,
+                  'cancelled'::booking_status
+                ]
+              )
+            )
+            and date (bookings.start_time) = CURRENT_DATE
+        ),
+        0::bigint
+      ) as today_revenue
+    from
+      bookings
+    group by
+      bookings.court_id
+  ),
+  review_stats as (
+    select
+      court_reviews.court_id,
+      COALESCE(avg(court_reviews.rating), 0::numeric) as average_rating,
+      count(court_reviews.id) as review_count
+    from
+      court_reviews
+    group by
+      court_reviews.court_id
+  )
+select
+  c.id,
+  c.slug,
+  c.name,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.venue_id,
+  c.is_active,
+  c.primary_image_url,
+  c.created_at,
+  c.updated_at,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.district as venue_district,
+  v.latitude as venue_latitude,
+  v.longitude as venue_longitude,
+  v.contact_phone as venue_contact_phone,
+  v.contact_email as venue_contact_email,
+  v.address as venue_address,
+  case
+    when c.is_active = true then COALESCE(rs.average_rating, 0::numeric)
+    else 0::numeric
+  end as average_rating,
+  case
+    when c.is_active = true then COALESCE(rs.review_count, 0::bigint)
+    else 0::bigint
+  end as review_count,
+  case
+    when c.is_active = true then COALESCE(bs.total_bookings, 0::bigint)
+    else 0::bigint
+  end as total_bookings,
+  case
+    when c.is_active = true then COALESCE(bs.today_bookings, 0::bigint)
+    else 0::bigint
+  end as today_bookings,
+  case
+    when c.is_active = true then COALESCE(bs.total_revenue, 0::bigint)
+    else 0::bigint
+  end as total_revenue,
+  case
+    when c.is_active = true then COALESCE(bs.today_revenue, 0::bigint)
+    else 0::bigint
+  end as today_revenue
+from
+  courts c
+  left join venues v on v.id = c.venue_id
+  left join booking_stats bs on bs.court_id = c.id
+  left join review_stats rs on rs.court_id = c.id;
 
 -- TABLE bookings
 create table public.bookings (
@@ -141,51 +341,46 @@ create trigger set_bookings_updated_at BEFORE
 update on bookings for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- TABLE court_blackout
-create table public.court_blackouts (
-  id uuid not null default gen_random_uuid (),
-  court_id uuid not null,
-  title text not null,
-  notes text null,
-  scope public.blackout_scope not null default 'time_range'::blackout_scope,
-  frequency public.blackout_frequency not null default 'once'::blackout_frequency,
-  start_date date not null,
-  end_date date not null,
-  start_time time without time zone null,
-  end_time time without time zone null,
-  repeat_day_of_week smallint null,
-  created_by uuid null,
-  created_at timestamp with time zone not null default timezone ('utc'::text, now()),
-  updated_at timestamp with time zone not null default timezone ('utc'::text, now()),
-  constraint court_blackouts_pkey primary key (id),
-  constraint court_blackouts_court_id_fkey foreign KEY (court_id) references courts (id) on delete CASCADE,
-  constraint court_blackouts_created_by_fkey foreign KEY (created_by) references profiles (id) on delete set null,
-  constraint blackout_date_range check ((end_date >= start_date)),
-  constraint blackout_dow_range check (
-    (
-      (repeat_day_of_week is null)
-      or (
-        (repeat_day_of_week >= 0)
-        and (repeat_day_of_week <= 6)
-      )
-    )
-  ),
-  constraint blackout_time_range check (
-    (
-      (start_time is null)
-      or (end_time is null)
-      or (end_time > start_time)
-    )
-  )
-) TABLESPACE pg_default;
-
-create index IF not exists court_blackouts_court_id_idx on public.court_blackouts using btree (court_id) TABLESPACE pg_default;
-
-create index IF not exists court_blackouts_date_idx on public.court_blackouts using btree (start_date, end_date) TABLESPACE pg_default;
-
-create trigger set_court_blackouts_updated_at BEFORE
-update on court_blackouts for EACH row
-execute FUNCTION set_current_timestamp_updated_at ();
+-- VIEW bookings_with_courts
+create view public.bookings_with_courts as
+select
+  b.id,
+  b.court_id,
+  b.profile_id,
+  b.start_time,
+  b.end_time,
+  b.status,
+  b.payment_status,
+  b.price_total,
+  b.notes,
+  b.created_at,
+  b.checked_in_at,
+  b.completed_at,
+  b.payment_completed_at,
+  b.payment_reference,
+  b.payment_token,
+  b.payment_redirect_url,
+  b.payment_expired_at,
+  b.review_submitted_at,
+  c.name as court_name,
+  c.slug as court_slug,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.primary_image_url,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.district as venue_district,
+  v.address as venue_address,
+  v.latitude as venue_latitude,
+  v.longitude as venue_longitude
+from
+  bookings b
+  join courts c on c.id = b.court_id
+  join venues v on v.id = c.venue_id;
 
 -- VIEW court_booking_slots
 create view public.court_booking_slots as
@@ -201,92 +396,6 @@ from
 where
   status <> 'cancelled'::booking_status
   and payment_status <> 'cancelled'::payment_status;
-
--- VIEW court_booking_stats
-create view public.court_booking_stats as
-select
-  c.id as court_id,
-  c.name as court_name,
-  c.venue_id,
-  count(b.id) filter (
-    where
-      b.status <> all (
-        array[
-          'pending'::booking_status,
-          'cancelled'::booking_status
-        ]
-      )
-  ) as total_bookings,
-  count(b.id) filter (
-    where
-      (
-        b.status <> all (
-          array[
-            'pending'::booking_status,
-            'cancelled'::booking_status
-          ]
-        )
-      )
-      and date (b.start_time) = CURRENT_DATE
-  ) as today_bookings,
-  COALESCE(
-    sum(b.price_total) filter (
-      where
-        (
-          b.status <> all (
-            array[
-              'pending'::booking_status,
-              'cancelled'::booking_status
-            ]
-          )
-        )
-        and date (b.start_time) = CURRENT_DATE
-    ),
-    0::bigint
-  ) as today_revenue,
-  COALESCE(
-    sum(b.price_total) filter (
-      where
-        b.status <> all (
-          array[
-            'pending'::booking_status,
-            'cancelled'::booking_status
-          ]
-        )
-    ),
-    0::bigint
-  ) as total_revenue,
-  count(b.id) filter (
-    where
-      b.status = 'confirmed'::booking_status
-  ) as confirmed_bookings,
-  count(b.id) filter (
-    where
-      b.status = 'pending'::booking_status
-  ) as pending_bookings,
-  count(b.id) filter (
-    where
-      b.status = 'cancelled'::booking_status
-  ) as cancelled_bookings
-from
-  courts c
-  left join bookings b on c.id = b.court_id
-group by
-  c.id,
-  c.name,
-  c.venue_id;
-
--- VIEW court_review_summary
-create view public.court_review_summary as
-select
-  c.id as court_id,
-  COALESCE(avg(r.rating), 0::numeric)::numeric(3, 2) as average_rating,
-  count(r.*)::integer as review_count
-from
-  courts c
-  left join court_reviews r on r.court_id = c.id
-group by
-  c.id;
 
 -- TABLE court_reviews
 create table public.court_reviews (
@@ -321,8 +430,24 @@ create index IF not exists court_reviews_booking_id_idx on public.court_reviews 
 
 create index IF not exists court_reviews_forum_thread_id_idx on public.court_reviews using btree (forum_thread_id) TABLESPACE pg_default;
 
--- VIEW court_summaries
-create view public.court_summaries as
+-- VIEW court_reviews_with_authors
+create view public.court_reviews_with_authors as
+select
+  cr.id,
+  cr.court_id,
+  cr.profile_id,
+  cr.rating,
+  cr.comment,
+  cr.created_at,
+  cr.booking_id,
+  cr.forum_thread_id,
+  COALESCE(p.full_name, 'Member CourtEase'::text) as author_name
+from
+  court_reviews cr
+  left join profiles p on cr.profile_id = p.id;
+
+-- VIEW court_summaries_with_stats
+create view public.court_summaries_with_stats as
 select
   c.id,
   c.slug,
@@ -334,80 +459,66 @@ select
   c.facilities,
   c.description,
   c.venue_id,
+  c.primary_image_url,
+  c.is_active,
   v.name as venue_name,
   v.city as venue_city,
+  v.address as venue_address,
   v.latitude as venue_latitude,
   v.longitude as venue_longitude,
-  COALESCE(r.average_rating, 0::numeric) as average_rating,
-  COALESCE(r.review_count, 0) as review_count,
-  (
-    select
-      jsonb_build_object(
-        'bucket',
-        o.bucket_id,
-        'path',
-        o.name,
-        'metadata',
-        o.metadata,
-        'updated_at',
-        o.updated_at
-      ) as jsonb_build_object
-    from
-      storage.objects o
+  v.owner_profile_id,
+  COALESCE(avg(cr.rating), 0::numeric) as average_rating,
+  count(distinct cr.id) as review_count,
+  count(distinct b.id) as total_bookings,
+  count(distinct b.id) filter (
     where
-      o.bucket_id = 'court_images'::text
-      and (
-        (o.metadata ->> 'court_id'::text) = c.id::text
-        or o.name ~~* concat('%', c.id::text, '%')
-      )
-    order by
-      (
-        case
-          when ((o.metadata ->> 'is_primary'::text)::boolean) is true then 0
-          else 1
-        end
-      ),
-      o.updated_at desc
-    limit
-      1
-  ) as primary_image_info
+      date (b.start_time) = CURRENT_DATE
+  ) as today_bookings,
+  COALESCE(
+    sum(b.price_total) filter (
+      where
+        date (b.start_time) = CURRENT_DATE
+    ),
+    0::bigint
+  ) as today_revenue,
+  COALESCE(sum(b.price_total), 0::bigint) as total_revenue,
+  count(distinct b.id) filter (
+    where
+      b.status = 'confirmed'::booking_status
+  ) as confirmed_bookings,
+  count(distinct b.id) filter (
+    where
+      b.status = 'pending'::booking_status
+  ) as pending_bookings,
+  count(distinct b.id) filter (
+    where
+      b.status = 'cancelled'::booking_status
+  ) as cancelled_bookings
 from
   courts c
-  join venues v on v.id = c.venue_id
-  left join court_review_summary r on r.court_id = c.id
-where
-  c.is_active = true;
-
--- VIEW court_summaries_with_stats
-create view public.court_summaries_with_stats as
-select
-  cs.id,
-  cs.slug,
-  cs.name,
-  cs.sport,
-  cs.surface,
-  cs.price_per_hour,
-  cs.capacity,
-  cs.facilities,
-  cs.description,
-  cs.venue_id,
-  cs.venue_name,
-  cs.venue_city,
-  cs.venue_latitude,
-  cs.venue_longitude,
-  cs.average_rating,
-  cs.review_count,
-  cs.primary_image_info,
-  cbs.total_bookings,
-  cbs.today_bookings,
-  cbs.today_revenue,
-  cbs.total_revenue,
-  cbs.confirmed_bookings,
-  cbs.pending_bookings,
-  cbs.cancelled_bookings
-from
-  court_summaries cs
-  left join court_booking_stats cbs on cs.id = cbs.court_id;
+  left join venues v on v.id = c.venue_id
+  left join bookings b on b.court_id = c.id
+  left join court_reviews cr on cr.court_id = c.id
+group by
+  c.id,
+  c.slug,
+  c.name,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.venue_id,
+  c.primary_image_url,
+  c.is_active,
+  v.id,
+  v.name,
+  v.city,
+  v.address,
+  v.latitude,
+  v.longitude,
+  v.owner_profile_id;
 
 -- TABLE courts
 create table public.courts (
@@ -477,17 +588,12 @@ create table public.forum_replies (
 
 create index IF not exists forum_replies_thread_idx on public.forum_replies using btree (thread_id) TABLESPACE pg_default;
 
--- VIEW forum_thread_latest_activity
-create view public.forum_thread_latest_activity as
-select distinct
-  on (thread_id) thread_id,
-  body as latest_reply_body,
-  created_at as latest_reply_created_at
-from
-  forum_replies r
-order by
-  thread_id,
-  created_at desc;
+create trigger trigger_update_reply_count
+after INSERT
+or DELETE
+or
+update on forum_replies for EACH row
+execute FUNCTION update_forum_thread_reply_count ();
 
 -- TABLE forum_threads
 create table public.forum_threads (
@@ -515,6 +621,31 @@ create trigger set_forum_threads_updated_at BEFORE
 update on forum_threads for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
+-- VIEW forum_threads_with_authors
+create view public.forum_threads_with_authors as
+select
+  ft.id,
+  ft.slug,
+  ft.title,
+  ft.body,
+  ft.excerpt,
+  ft.category_id,
+  ft.author_profile_id,
+  COALESCE(p.full_name, 'Anonymous'::text) as author_name,
+  ft.reply_count,
+  ft.tags,
+  ft.status,
+  ft.created_at,
+  ft.updated_at,
+  fc.name as category_name,
+  fc.slug as category_slug
+from
+  forum_threads ft
+  left join profiles p on p.id = ft.author_profile_id
+  left join forum_categories fc on fc.id = ft.category_id
+where
+  ft.status = 'published'::text;
+
 -- TABLE profiles
 create table public.profiles (
   id uuid not null,
@@ -539,7 +670,53 @@ create trigger set_profiles_updated_at BEFORE
 update on profiles for EACH row
 execute FUNCTION set_current_timestamp_updated_at ();
 
--- TABLE venue_partner_application
+-- VIEW venue_bookings_with_details
+create view public.venue_bookings_with_details as
+select
+  b.id,
+  b.court_id,
+  b.profile_id,
+  b.start_time,
+  b.end_time,
+  b.status,
+  b.payment_status,
+  b.price_total,
+  b.notes,
+  b.created_at,
+  b.checked_in_at,
+  b.completed_at,
+  b.payment_completed_at,
+  b.payment_reference,
+  b.payment_token,
+  b.payment_redirect_url,
+  b.payment_expired_at,
+  b.review_submitted_at,
+  c.name as court_name,
+  c.slug as court_slug,
+  c.sport,
+  c.surface,
+  c.price_per_hour,
+  c.capacity,
+  c.facilities,
+  c.description,
+  c.primary_image_url,
+  v.id as venue_id,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.address as venue_address,
+  v.latitude as venue_latitude,
+  v.longitude as venue_longitude,
+  v.owner_profile_id,
+  p.full_name as customer_full_name,
+  p.email as customer_email,
+  p.phone as customer_phone
+from
+  bookings b
+  join courts c on c.id = b.court_id
+  join venues v on v.id = c.venue_id
+  join profiles p on p.id = b.profile_id;
+
+-- TABLE venue_partner_applications
 create table public.venue_partner_applications (
   id uuid not null default gen_random_uuid (),
   organization_name text not null,
@@ -547,20 +724,111 @@ create table public.venue_partner_applications (
   contact_email text not null,
   contact_phone text null,
   city text null,
-  facility_types text[] null default array[]::text[],
-  facility_count integer null,
   existing_system text null,
   notes text null,
   status public.partner_application_status not null default 'pending'::partner_application_status,
-  handled_by uuid null,
-  decision_note text null,
   created_at timestamp with time zone not null default timezone ('utc'::text, now()),
   reviewed_at timestamp with time zone null,
+  handled_by text null,
   constraint venue_partner_applications_pkey primary key (id),
-  constraint venue_partner_applications_handled_by_fkey foreign KEY (handled_by) references profiles (id) on delete set null
+  constraint venue_partner_applications_handled_by_fkey foreign KEY (handled_by) references profiles (email) on update CASCADE on delete set null
 ) TABLESPACE pg_default;
 
 create index IF not exists venue_partner_applications_status_idx on public.venue_partner_applications using btree (status, created_at desc) TABLESPACE pg_default;
+
+-- VIEW venue_stats
+create view public.venue_stats as
+with
+  booking_data as (
+    select
+      c.venue_id,
+      count(distinct c.id) as total_courts,
+      count(b.id) filter (
+        where
+          b.status <> all (
+            array[
+              'pending'::booking_status,
+              'cancelled'::booking_status
+            ]
+          )
+      ) as total_bookings,
+      count(b.id) filter (
+        where
+          (
+            b.status <> all (
+              array[
+                'pending'::booking_status,
+                'cancelled'::booking_status
+              ]
+            )
+          )
+          and date (b.start_time) = CURRENT_DATE
+      ) as today_bookings,
+      COALESCE(
+        sum(b.price_total) filter (
+          where
+            b.status <> all (
+              array[
+                'pending'::booking_status,
+                'cancelled'::booking_status
+              ]
+            )
+        ),
+        0::bigint
+      ) as total_revenue,
+      COALESCE(
+        sum(b.price_total) filter (
+          where
+            (
+              b.status <> all (
+                array[
+                  'pending'::booking_status,
+                  'cancelled'::booking_status
+                ]
+              )
+            )
+            and date (b.start_time) = CURRENT_DATE
+        ),
+        0::bigint
+      ) as today_revenue
+    from
+      courts c
+      left join bookings b on b.court_id = c.id
+    where
+      c.is_active = true
+    group by
+      c.venue_id
+  ),
+  rating_data as (
+    select
+      c.venue_id,
+      COALESCE(avg(cr.rating), 0::numeric) as average_rating
+    from
+      courts c
+      left join court_reviews cr on cr.court_id = c.id
+    where
+      c.is_active = true
+    group by
+      c.venue_id
+  )
+select
+  v.id as venue_id,
+  v.slug,
+  v.name as venue_name,
+  v.city as venue_city,
+  v.district as venue_district,
+  v.owner_profile_id,
+  COALESCE(bd.total_courts, 0::bigint) as total_courts,
+  COALESCE(bd.total_bookings, 0::bigint) as total_bookings,
+  COALESCE(bd.today_bookings, 0::bigint) as today_bookings,
+  COALESCE(bd.total_revenue, 0::bigint) as total_revenue,
+  COALESCE(bd.today_revenue, 0::bigint) as today_revenue,
+  COALESCE(rd.average_rating, 0::numeric) as average_rating,
+  v.venue_status
+from
+  venues v
+  left join booking_data bd on v.id = bd.venue_id
+  left join rating_data rd on v.id = rd.venue_id;
 
 -- TABLE venues
 create table public.venues (
@@ -574,6 +842,7 @@ create table public.venues (
     )
   ) STORED null,
   city text null,
+  district text null,
   address text null,
   latitude double precision null,
   longitude double precision null,

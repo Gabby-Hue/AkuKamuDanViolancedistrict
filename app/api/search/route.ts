@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
   const [courtsRes, venuesRes, threadsRes] = await Promise.all([
     supabase
-      .from("court_summaries")
+      .from("active_courts")
       .select("id, slug, name, sport, venue_name, venue_city")
       .or(
         [
