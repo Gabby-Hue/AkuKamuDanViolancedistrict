@@ -7,6 +7,7 @@ import type {
   CourtDetail,
   Venue,
   ForumThread,
+  ForumReply,
   ForumCategory,
   VenuePartnerApplication,
   ReviewData,
@@ -442,7 +443,7 @@ export class PublicQueries {
       reviewCount: Number(court.review_count || 0),
       primaryImageUrl:
         court.primary_image_info?.image_url ||
-        images.find((img) => img.isPrimary)?.imageUrl ||
+        images.find((img: any) => img.isPrimary)?.imageUrl ||
         null,
       images: images,
       reviews: (court.reviews || []).map((review: any) => ({
@@ -483,6 +484,7 @@ export class PublicQueries {
       todayRevenue: Number(venue.today_revenue || 0),
       averageRating: Number(venue.average_rating || 0),
       verifiedAt: undefined, // Not in current view
+      createdAt: venue.created_at,
     }));
   }
 

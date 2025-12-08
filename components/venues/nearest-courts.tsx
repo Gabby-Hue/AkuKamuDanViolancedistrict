@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { CourtSummary } from "@/lib/supabase/queries/courts";
 import { formatDistance } from "@/lib/geo";
 import type { Coordinates } from "@/lib/geo";
 import { cn } from "@/lib/utils";
 import { useProximitySort } from "@/components/location/use-proximity-sort";
 import type { LocationState } from "@/components/location/use-user-geolocation";
 import { LeafletMap } from "@/components/location/leaflet-map";
+import { CourtSummary } from "@/lib/queries/types";
 
 type Props = {
   courts: CourtSummary[];

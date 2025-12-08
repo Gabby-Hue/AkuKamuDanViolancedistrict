@@ -1,6 +1,6 @@
 import { ExploreView } from "@/components/explore/explore-view";
 import { PublicQueries } from "@/lib/queries/public";
-import type { Court, ForumThread } from "@/lib/queries/types";
+import type { Court, ForumThread, CourtSummary } from "@/lib/queries/types";
 
 export const revalidate = 0;
 
@@ -20,6 +20,7 @@ function adaptCourtToSummary(court: Court) {
     venueCity: court.venueCity || null,
     venueLatitude: court.venueLatitude || null,
     venueLongitude: court.venueLongitude || null,
+    image: court.images,
     primaryImageUrl: court.primaryImageUrl || null,
     averageRating: court.averageRating,
     reviewCount: court.reviewCount,
@@ -62,7 +63,7 @@ export default async function ExplorePage({
   ]);
 
   // Transform data to match component expectations
-  const adaptedCourts = courts.map(adaptCourtToSummary);
+  const adaptedCourts: CourtSummary[] = courts.map(adaptCourtToSummary);
   const adaptedThreads = threads.map(adaptThreadToSummary);
 
   // Calculate total replies from threads

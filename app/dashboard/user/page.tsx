@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { requireRole } from "@/lib/supabase/roles";
 import { UserQueries } from "@/lib/queries/user";
 import { PublicQueries } from "@/lib/queries/public";

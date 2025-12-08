@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import type { CourtSummary, ForumThreadSummary } from "@/lib/queries/types";
 
 const priceOptions = [
   { id: "all", label: "Semua harga", predicate: () => true },

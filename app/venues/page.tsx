@@ -5,14 +5,10 @@ import type { Venue, Court } from "@/lib/queries/types";
 import {
   Building2,
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  DollarSign,
-  Search,
 } from "lucide-react";
 
 // Adapter function to transform Venue to VenueSummary interface
-function adaptVenueToSummary(venue: Venue, courts: Court[] = []): VenueSummary {
+function adaptVenueToSummary(venue: Venue, courts: Court[] = []) {
   return {
     id: venue.id,
     slug: venue.slug,
@@ -24,6 +20,7 @@ function adaptVenueToSummary(venue: Venue, courts: Court[] = []): VenueSummary {
     description: venue.description || null,
     contactPhone: venue.contactPhone || null,
     contactEmail: venue.contactEmail || null,
+    createdAt: venue.createdAt,
     courts: courts.map((court) => ({
       id: court.id,
       slug: court.slug,

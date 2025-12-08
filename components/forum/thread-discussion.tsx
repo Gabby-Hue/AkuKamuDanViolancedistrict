@@ -43,22 +43,13 @@ export function ThreadDiscussion({ thread, replies }: { thread: ForumThread; rep
           </div>
           <span>Dibuat {createdAt}</span>
         </div>
-        {thread.reviewCourt && (
-          <Link
-            href={`/court/${thread.reviewCourt.slug}`}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-strong/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-brand-strong transition hover:bg-brand/10 dark:bg-brand/20 dark:text-brand"
-          >
-            <MapPin className="h-3.5 w-3.5" />
-            <span>Review lapangan: {thread.reviewCourt.name}</span>
-          </Link>
-        )}
 
         <div className="space-y-3">
           <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
             {thread.title}
           </h1>
           <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-            <span>Oleh {thread.author_name ?? "Member CourtEase"}</span>
+            <span>Oleh {thread.author ?? "Member CourtEase"}</span>
             <span className="hidden text-slate-300 dark:text-slate-600 sm:inline">
               •
             </span>

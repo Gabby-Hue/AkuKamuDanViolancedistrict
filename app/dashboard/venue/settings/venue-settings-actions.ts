@@ -150,20 +150,25 @@ export async function updateVenue(data: {
       };
     }
 
-    const result = await VenueQueries.updateVenueSettings(
-      profile.id,
-      venueDashboardData.venue.id,
-      {
-        name: data.name,
-        city: data.city,
-        address: data.address,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        description: data.description,
-        contact_phone: data.contactPhone,
-        contact_email: data.contactEmail,
-      },
-    );
+const clean = <T>(v: T | null | undefined): T | undefined =>
+  v === null ? undefined : v;
+
+const result = await VenueQueries.updateVenueSettings(
+  profile.id,
+  venueDashboardData.venue.id,
+  {
+    name: data.name ?? undefined,
+    city: data.city ?? undefined,
+    address: data.address ?? undefined,
+    latitude: data.latitude ?? undefined,
+    longitude: data.longitude ?? undefined,
+    description: data.description ?? undefined,
+    contactPhone: data.contactPhone ?? undefined,
+    contactEmail: data.contactEmail ?? undefined,
+  },
+);
+
+
 
     if (result.success) {
       revalidatePath("/dashboard/venue/settings");

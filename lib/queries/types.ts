@@ -64,6 +64,27 @@ export interface Court {
   isActive: boolean;
 }
 
+// Lightweight type for public explore page
+export interface CourtSummary {
+  id: string;
+  slug: string;
+  name: string;
+  sport: SportType;
+  surface?: SurfaceType | null;
+  pricePerHour: number;
+  capacity?: number | null;
+  facilities: string[];
+  description?: string | null;
+  venueName: string;
+  venueCity?: string | null;
+  venueLatitude?: number | null;
+  venueLongitude?: number | null;
+  primaryImageUrl?: string | null;
+  averageRating: number;
+  reviewCount: number;
+}
+
+
 export interface CourtDetail extends Court {
   venueContactPhone?: string;
   venueContactEmail?: string;
@@ -97,23 +118,34 @@ export interface Venue {
   id: string;
   slug: string;
   name: string;
-  city?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  description?: string;
+
+  city?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  description?: string | null;
+
   ownerProfileId?: string;
-  contactPhone?: string;
-  contactEmail?: string;
-  venueStatus: "active" | "inactive";
-  totalCourts: number;
-  totalBookings: number;
-  todayBookings: number;
-  totalRevenue: number;
-  todayRevenue: number;
-  averageRating: number;
-  verifiedAt?: string;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+
+  venueStatus?: "active" | "inactive";
+  totalCourts?: number;
+  totalBookings?: number;
+  todayBookings?: number;
+  totalRevenue?: number;
+  todayRevenue?: number;
+
+  // ✅ WAJIB DIJADIKAN OPTIONAL KARENA ADMIN QUERY TIDAK MENYEDIAKAN
+  averageRating?: number;
+
+  verifiedAt?: string | null;
+  createdAt: string;
+
+  // ✅ WAJIB OPTIONAL KARENA ADMIN QUERY TIDAK PUNYA COURTS
+  courts?: CourtSummary[];
 }
+
 
 export interface Booking {
   id: string;
@@ -303,9 +335,10 @@ export interface CourtQueryOptions {
   offset?: number;
   minRating?: number;
   maxPrice?: number;
-  sortBy?: "rating" | "price" | "name" | "bookings";
+  sortBy?: "rating" | "price" | "name" | "bookings" | "revenue";
   sortOrder?: "asc" | "desc";
 }
+
 
 export interface BookingQueryOptions {
   status?: BookingStatus;

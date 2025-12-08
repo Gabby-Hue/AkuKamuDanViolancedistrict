@@ -2,16 +2,6 @@
 
 /**
  * SearchBar component
- *
- * This component encapsulates the search UI for both desktop and mobile
- * views. On desktop (md and above), the search input sits in the
- * navbar and reveals a dropdown directly beneath it when a query is
- * entered. On mobile, clicking the search icon opens a full-screen
- * overlay with its own input and a cancel button. The search results
- * are filtered from a small sample dataset defined within this file.
- * You can replace the mock data and filtering logic with real API
- * integration as needed. Import this component into your Navbar and
- * remove the old search logic from there.
  */
 
 import { useState, useEffect, useCallback } from "react";

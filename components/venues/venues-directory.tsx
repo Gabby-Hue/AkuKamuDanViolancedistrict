@@ -6,10 +6,9 @@ import Link from "next/link";
 
 import { calculateDistanceKm, formatDistance } from "@/lib/geo";
 import type { Coordinates } from "@/lib/geo";
-import type { CourtSummary, VenueSummary } from "@/lib/supabase/queries/courts";
-
 import { useProximitySort } from "@/components/location/use-proximity-sort";
 import type { LocationState } from "@/components/location/use-user-geolocation";
+import type { CourtSummary, Venue } from "@/lib/queries/types";
 
 function resolveMessage(
   status: LocationState["status"],
@@ -73,7 +72,7 @@ function sortCourtsByDistance(
 }
 
 type VenuesDirectoryProps = {
-  venues: VenueSummary[];
+  venues: Venue[];
   initialFocusSlug: string | null;
 };
 
@@ -141,7 +140,7 @@ export function VenuesDirectory({
       {orderedVenues.map(({ item: venue, distanceKm }) => {
         const open = activeSlug === venue.slug;
         const distanceLabel = formatDistance(distanceKm);
-        const courts = sortCourtsByDistance(venue.courts, coords);
+        const courts = sortCourtsByDistance(venue.courts ?? [], coords);
         const sectionId = `venue-${venue.slug}`;
         const panelId = `${sectionId}-panel`;
         const triggerId = `${sectionId}-trigger`;
@@ -227,7 +226,7 @@ export function VenuesDirectory({
               <div className="flex flex-col items-end gap-3 text-right">
                 <div className="text-right">
                   <p className="text-sm font-semibold text-brand">
-                    {venue.courts.length}
+                    {venue.courts?.length ?? 0}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Lapangan
@@ -320,7 +319,7 @@ export function VenuesDirectory({
                       </article>
                     ))}
                   </div>
-                  {!venue.courts.length && (
+                  {!venue.courts?.length && (
                     <div className="rounded-xl border border-dashed border-slate-200/60 bg-slate-50/60 p-8 text-center text-sm text-slate-500 dark:border-slate-700/40 dark:bg-slate-900/40 dark:text-slate-400">
                       <svg
                         className="h-12 w-12 mx-auto text-slate-300 mb-3"

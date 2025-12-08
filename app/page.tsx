@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { MapPin, ShieldCheck, Sparkles } from "lucide-react";

@@ -223,7 +223,12 @@ export function ForumThreadComposer({
               created_at: string;
               reply_count: number | null;
               tags: string[] | null;
-              category: { id: string; slug: string; name: string } | null;
+              category: {
+                id: string;
+                slug: string;
+                name: string;
+                created_at: string;
+              } | null;
               author: { full_name: string | null } | null;
             };
 
@@ -240,7 +245,7 @@ export function ForumThreadComposer({
               })
               .select(
                 `id, slug, title, excerpt, created_at, reply_count, tags,
-                 category:forum_categories(id, slug, name),
+                 category:forum_categories(id, slug, name, created_at),
                  author:profiles(full_name)`,
               )
               .maybeSingle();
@@ -265,13 +270,15 @@ export function ForumThreadComposer({
               reply_count: Number(threadRow.reply_count ?? 0),
               created_at: threadRow.created_at,
               tags: Array.isArray(threadRow.tags) ? threadRow.tags : [],
-              category: threadRow.category
-                ? {
-                    id: threadRow.category.id,
-                    slug: threadRow.category.slug,
-                    name: threadRow.category.name,
-                  }
-                : null,
+category: threadRow.category
+  ? {
+      id: threadRow.category.id,
+      slug: threadRow.category.slug,
+      name: threadRow.category.name,
+      createdAt: threadRow.category.created_at,
+    }
+  : null,
+
               author_name: threadRow.author?.full_name ?? null,
               latestReplyBody: null,
               latestReplyAt: null,

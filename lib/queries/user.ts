@@ -415,13 +415,18 @@ export class UserQueries {
   }
 
   private static transformUserReviews(data: any[]): CourtReview[] {
-    return data.map((review) => ({
-      id: review.id,
-      rating: Number(review.rating),
-      comment: review.comment,
-      author: "You", // User's own reviews
-      createdAt: review.created_at,
-      bookingId: review.booking_id,
-    }));
-  }
-}
+  return data.map((review) => ({
+    id: review.id,
+    rating: Number(review.rating),
+    comment: review.comment,
+
+    // ✅ WAJIB ada sesuai CourtReview
+    created_at: review.created_at,
+    profile_id: review.profile_id,
+    author_name: "You",
+
+    // ✅ field opsional dari interface
+    createdAt: review.created_at,
+    bookingId: review.booking_id,
+  }));
+}}

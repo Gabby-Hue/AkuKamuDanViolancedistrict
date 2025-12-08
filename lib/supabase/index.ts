@@ -15,8 +15,7 @@ export {
   sanitizeSupabaseData,
 } from "./utils";
 
-// Query exports
-export * from "./queries";
+
 
 // Legacy exports (for backward compatibility)
 // Database type export removed until types/supabase is available

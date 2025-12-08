@@ -424,6 +424,7 @@ export class AdminQueries {
       todayRevenue: Number(venue.today_revenue || 0),
       averageRating: Number(venue.average_rating || 0),
       verifiedAt: undefined, // Not in current view
+      createdAt: venue.created_at,
     }));
   }
 

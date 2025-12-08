@@ -92,8 +92,11 @@ export function ThreadReplyForm({
     const mappedReply: ForumReply = {
       id: replyRow.id,
       body: replyRow.body,
-      created_at: replyRow.created_at,
-      author_name: replyRow.author?.full_name ?? null,
+      createdAt: replyRow.created_at,
+      authorId: user.id,
+      authorName: replyRow.author?.full_name || "Member CourtEase",
+      updatedAt: replyRow.created_at,
+      threadId: threadId,
     };
 
     setBody("");

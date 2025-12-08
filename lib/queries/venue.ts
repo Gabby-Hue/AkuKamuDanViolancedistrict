@@ -461,7 +461,6 @@ export class VenueQueries {
       averageRating: Number(data.average_rating || 0),
       verifiedAt: data.verified_at,
       createdAt: data.created_at,
-      updatedAt: data.updated_at
     };
   }
 

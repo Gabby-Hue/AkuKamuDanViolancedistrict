@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { ForumView } from "@/components/forum/forum-view";
 import { PublicQueries } from "@/lib/queries/public";
 import type { ForumThread, ForumCategory, ForumThreadSummary } from "@/lib/queries/types";
