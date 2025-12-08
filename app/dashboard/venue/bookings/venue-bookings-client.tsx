@@ -120,12 +120,11 @@ export default function VenueBookingsClient({
 
   // Action buttons renderer
   const renderBookingActions = (
-    booking: VenueBooking,
+    booking: Booking,
     showCancel: boolean = true,
   ) => {
     const isPaid = booking.paymentStatus === "paid";
-    const canConfirm =
-      booking.status === "pending" || booking.status === "awaiting_information";
+    const canConfirm = booking.status === "pending";
 
     switch (booking.status) {
       case "confirmed":
@@ -181,7 +180,6 @@ export default function VenueBookingsClient({
         );
 
       case "pending":
-      case "awaiting_information":
         return (
           <>
             <Button
@@ -264,7 +262,7 @@ export default function VenueBookingsClient({
   ).map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description: [venue.city] || null,
+    description: venue.city || null,
     icon: "MapPin",
   }));
 
@@ -330,7 +328,7 @@ export default function VenueBookingsClient({
   };
 
   // View booking details
-  const viewBookingDetails = (booking: VenueBooking) => {
+  const viewBookingDetails = (booking: Booking) => {
     setSelectedBooking(booking);
     setDetailModalOpen(true);
   };
@@ -343,8 +341,7 @@ export default function VenueBookingsClient({
 
   // Get pending bookings for the card
   const pendingBookings = bookings.filter(
-    (booking) =>
-      booking.status === "pending" || booking.status === "awaiting_information",
+    (booking) => booking.status === "pending",
   );
 
   // Filter bookings based on selected tab

@@ -61,7 +61,7 @@ export default function ClientFormWrapper({
   const teams: TeamOption[] = venues.map((venue) => ({
     id: venue.id,
     name: venue.name,
-    description: [venue.city] || null,
+    description: venue.city || null,
     icon: "MapPin",
   }));
 

@@ -121,8 +121,8 @@ export function VenueSettingsForm() {
             name: settingsData.venue.name || "",
             city: settingsData.venue.city || "",
             address: settingsData.venue.address || "",
-            contactPhone: settingsData.venue.contactPhone || "",
-            contactEmail: settingsData.venue.contactEmail || "",
+            contactPhone: settingsData.venue.contact_phone || "",
+            contactEmail: settingsData.venue.contact_email || "",
             description: settingsData.venue.description || "",
           });
 

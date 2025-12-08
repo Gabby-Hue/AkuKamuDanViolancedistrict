@@ -370,8 +370,8 @@ export class UserQueries {
       paymentRedirectUrl: data.payment_redirect_url,
       reviewSubmittedAt: data.review_submitted_at,
       venueName: data.venue_name,
-      venueAddress: data.venue_address,
-      venueCity: data.venue_city,
+      // venueAddress: data.venue_address, // Property doesn't exist in BookingDetail
+      // venueCity: data.venue_city, // Property doesn't exist in BookingDetail
       courtName: data.court_name,
       sport: data.sport,
       surface: data.surface,

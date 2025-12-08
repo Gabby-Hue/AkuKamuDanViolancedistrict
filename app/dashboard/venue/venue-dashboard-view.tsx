@@ -104,7 +104,7 @@ export default function VenueDashboardView({
     ? venues.map((venue) => ({
         id: venue.id,
         name: venue.name,
-        description: [venue.city] || null,
+        description: venue.city || null,
         icon: "MapPin",
       }))
     : [
