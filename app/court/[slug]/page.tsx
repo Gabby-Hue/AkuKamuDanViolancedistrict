@@ -67,10 +67,10 @@ export default async function CourtDetailPage({
     <div className="mx-auto max-w-6xl space-y-12 px-3 pb-24 pt-16 sm:px-4 lg:px-6">
       <nav className="text-xs text-slate-500 dark:text-slate-400">
         <Link
-          href="/venues"
+          href="/explore"
           className="hover:text-brand dark:hover:text-brand-muted"
         >
-          Venues
+          Courts
         </Link>
         <span className="mx-2">/</span>
         <span className="text-slate-700 dark:text-slate-200">{court.name}</span>
@@ -116,45 +116,47 @@ export default async function CourtDetailPage({
         {/* Image Gallery - Desktop: 1 primary + 3 supporting, Mobile: 1 primary full */}
         <div className="lg:grid lg:grid-cols-[2fr_1fr] lg:gap-6">
           {/* Primary Image - Larger */}
-          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-slate-100 shadow-lg dark:bg-slate-900 lg:aspect-[3/2]">
+          <div className="relative group overflow-hidden rounded-3xl bg-slate-100 shadow-xl dark:bg-slate-900 lg:aspect-[3/2] aspect-[4/3]">
             {heroImage ? (
               <Image
                 src={heroImage}
                 alt={court.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-500 group-hover:scale-102"
                 priority
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                <div className="text-center">
-                  <div className="mb-2">📷</div>
+                <div className="text-center p-6">
+                  <div className="mb-3 text-4xl">📷</div>
                   <div>Preview coming soon</div>
+                  <div className="text-xs mt-2 font-normal normal-case">Venue akan mengunggah foto segera</div>
                 </div>
               </div>
             )}
           </div>
 
           {/* Supporting Images - Desktop only, 2x2 grid */}
-          <div className="hidden lg:grid lg:grid-cols-2 lg:gap-3 lg:h-full">
+          <div className="hidden lg:grid lg:grid-rows-2 lg:gap-3 h-full">
             {otherImages.slice(0, 4).map((image, index) => (
               <div
                 key={image.imageUrl}
-                className="relative overflow-hidden rounded-2xl bg-slate-100 shadow-md dark:bg-slate-900 aspect-[4/3]"
+                className="relative group overflow-hidden rounded-2xl bg-slate-100 shadow-md dark:bg-slate-900 cursor-pointer"
               >
                 <Image
                   src={image.imageUrl}
                   alt={`${court.name} preview ${index + 1}`}
                   fill
-                  className="object-cover transition-transform duration-300 hover:scale-105"
+                  className="object-cover transition-transform duration-500 group-hover:scale-102"
                 />
               </div>
             ))}
             {otherImages.length === 0 && (
-              <div className="col-span-2 flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200/70 bg-white/70 text-xs text-slate-500 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-400 p-4 text-center">
-                <div className="mb-2 text-lg">🖼️</div>
-                <div>
-                  Galeri tambahan akan tampil setelah venue mengunggah foto
+              <div className="col-span-2 row-span-2 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200/70 bg-white/70 dark:border-slate-700/60 dark:bg-slate-900/60 p-6 text-center">
+                <div className="mb-3 text-3xl">🖼️</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">
+                  <div className="font-semibold mb-1">Galeri tambahan</div>
+                  <div>Akan tampil setelah venue mengunggah foto</div>
                 </div>
               </div>
             )}
@@ -164,20 +166,25 @@ export default async function CourtDetailPage({
         {/* Mobile Supporting Images - Horizontal scroll */}
         {otherImages.length > 0 && (
           <div className="lg:hidden">
-            <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Galeri tambahan
-            </h3>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-hide">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Galeri tambahan
+              </h3>
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {otherImages.length} foto
+              </span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {otherImages.map((image, index) => (
                 <div
                   key={image.imageUrl}
-                  className="relative flex-shrink-0 w-32 aspect-[4/3] overflow-hidden rounded-xl bg-slate-100 shadow-md dark:bg-slate-900"
+                  className="relative flex-shrink-0 w-32 aspect-[4/3] overflow-hidden rounded-xl bg-slate-100 shadow-md dark:bg-slate-900 group"
                 >
                   <Image
                     src={image.imageUrl}
                     alt={`${court.name} preview ${index + 1}`}
                     fill
-                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    className="object-cover transition-transform duration-500 group-hover:scale-102"
                   />
                 </div>
               ))}
@@ -185,7 +192,7 @@ export default async function CourtDetailPage({
           </div>
         )}
       </section>
-
+      
       <section className="space-y-8 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:space-y-0">
         <div className="space-y-8">
           <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70 sm:p-6">
