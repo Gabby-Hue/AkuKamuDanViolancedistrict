@@ -92,7 +92,8 @@ export function LoginForm({
       }
 
       // Use custom redirect URL if provided, otherwise use role-based default
-      const redirectUrl = redirectTo ?? DASHBOARD_BY_ROLE[role] ?? DASHBOARD_BY_ROLE.user;
+      const redirectUrl =
+        redirectTo ?? DASHBOARD_BY_ROLE[role] ?? DASHBOARD_BY_ROLE.user;
 
       router.replace(redirectUrl);
     } catch (error: unknown) {
@@ -112,66 +113,60 @@ export function LoginForm({
       onSubmit={handleSubmit}
       {...props}
     >
-        <FieldGroup>
-          <div className="flex flex-col items-center gap-1 text-center">
-            <h1 className="text-2xl font-bold">Masuk ke akun anda</h1>
-            <p className="text-muted-foreground text-sm">
-              Masuk untuk melanjutkan pemesanan lapangan atau ikuti diskusi
-              komunitas.
-            </p>
+      <FieldGroup>
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h1 className="text-2xl font-bold">Masuk ke akun anda</h1>
+          <p className="text-muted-foreground text-sm">
+            Masuk untuk melanjutkan pemesanan lapangan atau ikuti diskusi
+            komunitas.
+          </p>
+        </div>
+        <Field>
+          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            autoComplete="email"
+            required
+            disabled={isLoading}
+          />
+        </Field>
+        <Field>
+          <div className="flex items-center">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
           </div>
-          <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="m@example.com"
-              autoComplete="email"
-              required
-              disabled={isLoading}
-            />
-          </Field>
-          <Field>
-            <div className="flex items-center">
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <a
-                href="/auth/forgot-password"
-                className="ml-auto text-sm underline-offset-4 hover:underline"
-              >
-                Forgot your password?
-              </a>
-            </div>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              disabled={isLoading}
-            />
-          </Field>
-          <Field>
-            <Button
-              type="submit"
-              className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 text-white"
-              disabled={isLoading}
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            disabled={isLoading}
+          />
+        </Field>
+        <Field>
+          <Button
+            type="submit"
+            className="bg-orange-500 dark:bg-teal-500 hover:bg-orange-600 dark:hover:bg-teal-600 text-white"
+            disabled={isLoading}
+          >
+            {isLoading ? "Memproses..." : "Login"}
+          </Button>
+        </Field>
+        <Field>
+          <FieldDescription className="text-center">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/auth/register"
+              className="underline underline-offset-4"
             >
-              {isLoading ? "Memproses..." : "Login"}
-            </Button>
-          </Field>
-          <Field>
-            <FieldDescription className="text-center">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/register"
-                className="underline underline-offset-4"
-              >
-                Sign up
-              </Link>
-            </FieldDescription>
-          </Field>
-        </FieldGroup>
-      </form>
+              Sign up
+            </Link>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }
