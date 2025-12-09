@@ -94,14 +94,6 @@ export function BookingLineChart({ data }: BookingLineChartProps) {
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Trending up <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Menampilkan total booking harian dalam 30 hari terakhir
-        </div>
-      </CardFooter>
     </Card>
   );
 }

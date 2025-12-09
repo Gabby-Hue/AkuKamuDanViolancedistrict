@@ -364,11 +364,6 @@ export function NavbarAuthMenu({
             <LayoutDashboard className="h-4 w-4" /> Dashboard
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/profile" className="flex items-center gap-2">
-            <UserRound className="h-4 w-4" /> Profil
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-red-600 focus:text-red-600 dark:text-red-400"

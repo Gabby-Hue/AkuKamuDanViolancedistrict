@@ -12,6 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { User, Mail, Phone } from "lucide-react";
 import {
   getUserSettingsData,
@@ -79,7 +82,7 @@ export function UserSettingsForm() {
     };
 
     loadData();
-  }, []); // Dependency array kosong memastikan ini hanya berjalan sekali
+  }, []);
 
   // Handler untuk memperbarui profil
   const handleProfileUpdate = async () => {
@@ -109,23 +112,58 @@ export function UserSettingsForm() {
     }
   };
 
-  // --- Tampilan Loading dan Error ---
+  // --- Tampilan Loading ---
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="animate-pulse bg-muted rounded-lg h-32"></div>
-        <div className="animate-pulse bg-muted rounded-lg h-64"></div>
-        <div className="text-center py-12 text-muted-foreground">
-          Memuat data pengaturan...
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="h-4 w-64" />
         </div>
+
+        <Card>
+          <CardHeader className="space-y-3">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-72" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-16 w-16 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full md:col-span-2" />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-3 w-48" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+
+            <div className="flex justify-end">
+              <Skeleton className="h-9 w-40" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
+      <div className="max-w-3xl mx-auto text-center py-12 text-muted-foreground">
         Tidak ada data tersedia.
       </div>
     );
@@ -136,35 +174,63 @@ export function UserSettingsForm() {
   // --- Tampilan Utama ---
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <User className="h-6 w-6 text-muted-foreground" />
-        <h1 className="text-2xl font-semibold">Pengaturan Profil</h1>
+    <div className="max-w-3xl mx-auto space-y-6 py-16">
+        <div className="flex items-center gap-2">
+          <div className="rounded-xl bg-primary/10 p-2">
+            <User className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Pengaturan Profil
+          </h1>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="border-border/60 shadow-sm">
+        <CardHeader className="pb-4">
           <CardTitle>Informasi Profil</CardTitle>
           <CardDescription>
-            Perbarui informasi profil Anda
+            Perbarui data profil agar akun Anda tetap up to date.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+
+        <CardContent className="space-y-8">
           {/* Profile Info Section */}
-          <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-primary" />
+          <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 rounded-xl bg-muted/60 border border-dashed border-border/60">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-lg font-semibold text-primary">
+                {profile?.full_name
+                  ? profile.full_name.charAt(0).toUpperCase()
+                  : "U"}
+              </span>
             </div>
-            <div>
-              <h3 className="font-medium">{profile?.full_name || "User"}</h3>
-              <p className="text-sm text-muted-foreground capitalize">
-                {profile?.role || "user"}
+
+            <div className="flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-semibold text-base">
+                  {profile?.full_name || "User"}
+                </h3>
+                {profile?.role && (
+                  <Badge variant="outline" className="rounded-full text-xs">
+                    {profile.role}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                <Mail className="w-4 h-4" />
+                {profile?.email || "Email belum tersedia"}
               </p>
+              {profile?.phone && (
+                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                  <Phone className="w-4 h-4" />
+                  {profile.phone}
+                </p>
+              )}
             </div>
           </div>
 
+          <Separator />
+
           {/* Form Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
@@ -182,6 +248,9 @@ export function UserSettingsForm() {
                 disabled={saving}
                 placeholder="Masukkan nama lengkap"
               />
+              <p className="text-xs text-muted-foreground">
+                Nama ini akan tampil di seluruh aplikasi.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -194,8 +263,12 @@ export function UserSettingsForm() {
                 value={profile?.email || ""}
                 disabled
                 type="email"
+                className="bg-muted/60"
                 placeholder="Email tidak dapat diubah"
               />
+              <p className="text-xs text-muted-foreground">
+                Email digunakan untuk login dan keperluan notifikasi.
+              </p>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -213,18 +286,30 @@ export function UserSettingsForm() {
                   }))
                 }
                 disabled={saving}
-                placeholder="Masukkan nomor telepon"
+                placeholder="Contoh: 081234567890"
               />
+              <p className="text-xs text-muted-foreground">
+                Opsional, tapi membantu jika kami perlu menghubungi Anda.
+              </p>
             </div>
           </div>
 
+          <Separator />
+
           {/* Account Info */}
-          <div className="pt-4 border-t">
-            <h4 className="font-medium mb-2">Informasi Akun</h4>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>ID Pengguna: {profile?.id}</p>
+          <div className="space-y-3 text-sm">
+            <h4 className="font-medium">Informasi Akun</h4>
+            <div className="grid gap-2 md:grid-cols-2 text-muted-foreground">
               <p>
-                Bergabung sejak:{" "}
+                <span className="font-medium text-foreground">
+                  ID Pengguna:
+                </span>{" "}
+                {profile?.id}
+              </p>
+              <p>
+                <span className="font-medium text-foreground">
+                  Bergabung sejak:
+                </span>{" "}
                 {profile?.created_at
                   ? new Date(profile.created_at).toLocaleDateString("id-ID", {
                       year: "numeric",
@@ -233,8 +318,10 @@ export function UserSettingsForm() {
                     })
                   : "N/A"}
               </p>
-              <p>
-                Terakhir diperbarui:{" "}
+              <p className="md:col-span-2">
+                <span className="font-medium text-foreground">
+                  Terakhir diperbarui:
+                </span>{" "}
                 {profile?.updated_at
                   ? new Date(profile.updated_at).toLocaleDateString("id-ID", {
                       year: "numeric",
@@ -246,8 +333,12 @@ export function UserSettingsForm() {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <Button onClick={handleProfileUpdate} disabled={saving}>
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              onClick={handleProfileUpdate}
+              disabled={saving}
+            >
               {saving ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </div>

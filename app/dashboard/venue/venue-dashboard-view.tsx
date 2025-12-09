@@ -456,23 +456,6 @@ export default function VenueDashboardView({
                     ]
               }
             />
-
-            {/* Last Updated */}
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <span>Terakhir diperbarui:</span>
-              <span className="font-medium">
-                {new Date().toLocaleString("id-ID", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                (Auto-refresh setiap visit)
-              </span>
-            </div>
           </div>
         </div>
       </SidebarInset>

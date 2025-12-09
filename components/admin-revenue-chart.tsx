@@ -63,14 +63,6 @@ export function AdminRevenueChart({ data }: AdminRevenueChartProps) {
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Revenue meningkat 15.2% bulan ini <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Menampilkan total revenue platform untuk 6 bulan terakhir
-        </div>
-      </CardFooter>
     </Card>
   )
 }

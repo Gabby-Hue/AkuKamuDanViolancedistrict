@@ -9,8 +9,10 @@ type CourtSummary = {
   slug: string;
   name: string;
   sport: string;
-  venue_name: string;
-  venue_city: string | null;
+  venue: {
+    name: string;
+    city: string | null;
+  } | null;
 };
 
 type VenueRow = {
@@ -55,16 +57,21 @@ export async function GET(request: Request) {
 
   const [courtsRes, venuesRes, threadsRes] = await Promise.all([
     supabase
-      .from("active_courts")
-      .select("id, slug, name, sport, venue_name, venue_city")
-      .or(
-        [
-          `name.ilike.${ilike}`,
-          `sport.ilike.${ilike}`,
-          `venue_name.ilike.${ilike}`,
-          `venue_city.ilike.${ilike}`,
-        ].join(","),
+      .from("courts")
+      .select(
+        `
+        id,
+        slug,
+        name,
+        sport,
+        venue:venues (
+          name,
+          city
+        )
+      `
       )
+      // hanya filter di name (text), biar aman dari enum dan kolom yang nggak ada
+      .ilike("name", ilike)
       .limit(5)
       .returns<CourtSummary[]>(),
 
@@ -92,12 +99,18 @@ export async function GET(request: Request) {
 
   if (!courtsRes.error) {
     for (const court of courtsRes.data ?? []) {
+      const venueName = court.venue?.name ?? "";
+      const venueCity = court.venue?.city ?? "";
+
+      const venuePart =
+        venueName || venueCity
+          ? ` • ${venueName}${venueCity ? ` • ${venueCity}` : ""}`
+          : "";
+
       results.push({
         type: "court",
         title: court.name,
-        description: `${court.sport} • ${court.venue_name}${
-          court.venue_city ? ` • ${court.venue_city}` : ""
-        }`,
+        description: `${court.sport}${venuePart}`,
         href: `/court/${court.slug}`,
       });
     }

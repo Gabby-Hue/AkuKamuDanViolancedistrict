@@ -93,14 +93,6 @@ export function AdminBookingTrendChart({ data }: AdminBookingTrendChartProps) {
           </LineChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Rata-rata 22 booking per hari <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Menampilkan total booking harian untuk 7 hari terakhir
-        </div>
-      </CardFooter>
     </Card>
   )
 }

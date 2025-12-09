@@ -36,7 +36,7 @@ export async function GET(_: Request, { params }: Params) {
     );
   }
 
-  const bookings = (data ?? []).map((slot) => ({
+  const bookings = (data ?? []).map((slot: any) => ({
     id: slot.id,
     start_time: slot.start_time,
     end_time: slot.end_time,
