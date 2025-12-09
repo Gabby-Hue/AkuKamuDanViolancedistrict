@@ -249,7 +249,7 @@ export default function TicketModal({
                   fontWeight="600"
                   fill="hsl(var(--brand-strong))"
                 >
-                  {formatTime(startTime)}
+                  {new Date(startTime).getHours()}
                 </text>
 
                 {/* Info Table 2 */}
@@ -300,7 +300,7 @@ export default function TicketModal({
                   fontSize="14"
                   fill="hsl(var(--brand-strong))"
                 >
-                  {booking.customer?.fullName || "User"}
+                  {booking.customer?.fullName?.trim().split(" ")[0] || "User"}
                 </text>
 
                 {/* Dashed line */}

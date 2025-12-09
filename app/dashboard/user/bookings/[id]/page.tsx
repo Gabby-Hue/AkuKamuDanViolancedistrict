@@ -176,10 +176,6 @@ export default async function BookingDetailPage({
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button variant="outline">
-                <Share2 className="mr-2 h-4 w-4" />
-                Bagikan
-              </Button>
               {booking.court && (
                 <TicketModal
                   booking={booking}
@@ -500,34 +496,6 @@ export default async function BookingDetailPage({
                       </div>
                     </div>
                   )}
-
-                  {booking.paymentStatus === "paid" &&
-                    booking.paymentCompletedAt && (
-                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg space-y-2">
-                        <div className="flex items-center text-green-800 dark:text-green-200">
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          <span className="text-sm font-medium">
-                            Pembayaran Berhasil
-                          </span>
-                        </div>
-                        <div className="grid gap-1 text-xs text-green-700 dark:text-green-300">
-                          <div className="flex justify-between">
-                            <span>Waktu Bayar:</span>
-                            <span>
-                              {new Date(
-                                booking.paymentCompletedAt,
-                              ).toLocaleString("id-ID", {
-                                day: "numeric",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                          </div>
-                          {/* Payment method would need to be tracked separately if needed */}
-                        </div>
-                      </div>
-                    )}
 
                   {paymentExpiresAt && booking.paymentStatus === "pending" && (
                     <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
