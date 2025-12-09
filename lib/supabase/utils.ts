@@ -1,14 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function handleSupabaseError(error: any, context: string = "operation") {
-  const errorMessage = error?.message || "Unknown error occurred";
-  const errorCode = error?.code || "UNKNOWN_ERROR";
+export function handleSupabaseError(error: unknown, context: string = "operation") {
+  const errorMessage = error && typeof error === 'object' && 'message' in error
+    ? String(error.message)
+    : "Unknown error occurred";
+  const errorCode = error && typeof error === 'object' && 'code' in error
+    ? String(error.code)
+    : "UNKNOWN_ERROR";
 
   console.error(`Supabase error in ${context}:`, {
     message: errorMessage,
     code: errorCode,
-    details: error?.details,
-    hint: error?.hint,
+    details: error && typeof error === 'object' && 'details' in error ? error.details : undefined,
+    hint: error && typeof error === 'object' && 'hint' in error ? error.hint : undefined,
   });
 
   // Map common Supabase errors to user-friendly messages
@@ -35,9 +39,9 @@ export function handleSupabaseError(error: any, context: string = "operation") {
 export function createSupabaseError(
   message: string,
   code?: string,
-  originalError?: any
-): Error & { code?: string; originalError?: any } {
-  const error = new Error(message) as Error & { code?: string; originalError?: any };
+  originalError?: unknown
+): Error & { code?: string; originalError?: unknown } {
+  const error = new Error(message) as Error & { code?: string; originalError?: unknown };
   if (code) error.code = code;
   if (originalError) error.originalError = originalError;
   return error;
@@ -52,7 +56,7 @@ export function isValidSupabaseUrl(url: string): boolean {
   }
 }
 
-export function sanitizeSupabaseData<T extends Record<string, any>>(data: T): T {
+export function sanitizeSupabaseData<T extends Record<string, unknown>>(data: T): T {
   const sanitized = { ...data };
 
   // Remove potential sensitive fields

@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedProfile } from "@/lib/supabase/profile";
 import { createClient } from "@/lib/supabase/server";
 import type { PaymentStatus, BookingStatus } from "@/lib/supabase/status";
-import {
-  getMidtransTransactionStatus,
-  mapMidtransStatusToBooking,
-} from "@/lib/payments/midtrans";
+import { getMidtransTransactionStatus } from "@/lib/payments/midtrans";
 
 export async function GET(
   request: NextRequest,
@@ -139,7 +136,12 @@ export async function GET(
                 old_booking_status: booking.status,
               });
 
-              const updateData: any = {
+              const updateData: {
+                payment_status: PaymentStatus;
+                status: BookingStatus;
+                updated_at: string;
+                payment_completed_at?: string;
+              } = {
                 payment_status: statusMapping.payment_status,
                 status: statusMapping.booking_status,
                 updated_at: new Date().toISOString(),

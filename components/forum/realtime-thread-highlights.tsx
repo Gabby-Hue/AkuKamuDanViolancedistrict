@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { truncateText } from "@/lib/strings";
 import type { ForumThreadSummary } from "@/lib/queries/types";
+
+const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + "...";
+};
 
 type RealtimeThreadHighlightsProps = {
   threads: ForumThreadSummary[];

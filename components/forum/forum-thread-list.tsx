@@ -7,12 +7,16 @@ import { MapPin } from "lucide-react";
 
 import type { ForumCategory, ForumThreadSummary } from "@/lib/queries/types";
 import { cn } from "@/lib/utils";
-import { truncateText } from "@/lib/strings";
 
 const sortOptions = [
   { id: "latest", label: "Latest" },
   { id: "popular", label: "Popular" },
 ];
+
+const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength).trim() + "...";
+};
 
 type ForumThreadListProps = {
   categories: ForumCategory[];

@@ -4,7 +4,7 @@ import { normalizeBookingStatus } from "@/lib/supabase/status";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_: Request, { params }: Params) {
+export async function GET(request: Request, { params }: Params) {
   const supabase = await createClient();
   const { id } = await params;
 
@@ -36,7 +36,7 @@ export async function GET(_: Request, { params }: Params) {
     );
   }
 
-  const bookings = (data ?? []).map((slot: any) => ({
+  const bookings = (data ?? []).map((slot) => ({
     id: slot.id,
     start_time: slot.start_time,
     end_time: slot.end_time,
