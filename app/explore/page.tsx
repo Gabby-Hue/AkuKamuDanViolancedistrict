@@ -1,49 +1,9 @@
 import { ExploreView } from "@/components/explore/explore-view";
 import { PublicQueries } from "@/lib/queries/public";
-import type { Court, ForumThread, CourtSummary } from "@/lib/queries/types";
+import { toCourtSummary, toForumThreadSummary } from "@/lib/queries/adapters";
+import type { CourtSummary } from "@/lib/queries/types";
 
 export const revalidate = 0;
-
-// Adapter function to transform Court to CourtSummary interface
-function adaptCourtToSummary(court: Court) {
-  return {
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface || null,
-    pricePerHour: court.pricePerHour,
-    capacity: court.capacity || null,
-    facilities: court.facilities,
-    description: court.description || null,
-    venueName: court.venueName,
-    venueCity: court.venueCity || null,
-    venueLatitude: court.venueLatitude || null,
-    venueLongitude: court.venueLongitude || null,
-    image: court.images,
-    primaryImageUrl: court.primaryImageUrl || null,
-    averageRating: court.averageRating,
-    reviewCount: court.reviewCount,
-  };
-}
-
-// Adapter function to transform ForumThread to ForumThreadSummary interface
-function adaptThreadToSummary(thread: ForumThread) {
-  return {
-    id: thread.id,
-    slug: thread.slug,
-    title: thread.title,
-    excerpt: thread.excerpt || null,
-    reply_count: thread.replyCount,
-    created_at: thread.createdAt,
-    tags: thread.tags,
-    category: thread.category || null,
-    author_name: thread.author || null,
-    latestReplyBody: null, // Would need additional data fetching
-    latestReplyAt: null, // Would need additional data fetching
-    reviewCourt: null, // Would need additional data fetching
-  };
-}
 
 export default async function ExplorePage({
   searchParams,
@@ -63,8 +23,8 @@ export default async function ExplorePage({
   ]);
 
   // Transform data to match component expectations
-  const adaptedCourts: CourtSummary[] = courts.map(adaptCourtToSummary);
-  const adaptedThreads = threads.map(adaptThreadToSummary);
+  const adaptedCourts: CourtSummary[] = courts.map(toCourtSummary);
+  const adaptedThreads = threads.map(toForumThreadSummary);
 
   // Calculate total replies from threads
   const totalReplies = threads.reduce(

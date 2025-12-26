@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/supabase/roles";
 import { UserQueries } from "@/lib/queries/user";
 import { PublicQueries } from "@/lib/queries/public";
 import { formatTime } from "@/lib/time-helper";
+import { toCourtSummary } from "@/lib/queries/adapters";
 import type { Court } from "@/lib/queries/types";
 import {
   Card,
@@ -36,23 +37,8 @@ import Link from "next/link";
 // Adapter function to transform Court to the expected format for recommendations
 function adaptCourtToLegacyFormat(court: Court) {
   return {
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface || null,
-    pricePerHour: court.pricePerHour,
-    capacity: court.capacity || null,
-    facilities: court.facilities,
-    description: court.description || null,
-    venueName: court.venueName,
-    venueCity: court.venueCity || null,
-    venueAddress: court.venueAddress || null,
-    venueLatitude: court.venueLatitude || null,
-    venueLongitude: court.venueLongitude || null,
-    primaryImageUrl: court.primaryImageUrl || null,
-    averageRating: court.averageRating,
-    reviewCount: court.reviewCount,
+    ...toCourtSummary(court),
+    venueAddress: court.venueAddress ?? null,
   };
 }
 

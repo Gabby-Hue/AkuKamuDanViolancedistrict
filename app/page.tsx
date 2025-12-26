@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicQueries } from "@/lib/queries/public";
-import type { Court, ForumThread } from "@/lib/queries/types";
 import { NearestCourtSpotlight } from "@/components/venues/nearest-courts";
 import { HeroCarousel } from "@/components/landing/hero-carousel";
+import { toCourtSummary, toForumThreadSummary } from "@/lib/queries/adapters";
 import {
   SportsTabs,
   type SportCategory,
@@ -211,46 +211,6 @@ const sportsCategories: SportCategory[] = [
   },
 ];
 
-// Adapter function to transform Court to CourtSummary-like interface
-function adaptCourtToSummary(court: Court) {
-  return {
-    id: court.id,
-    slug: court.slug,
-    name: court.name,
-    sport: court.sport,
-    surface: court.surface || null,
-    pricePerHour: court.pricePerHour,
-    capacity: court.capacity || null,
-    facilities: court.facilities,
-    description: court.description || null,
-    venueName: court.venueName,
-    venueCity: court.venueCity || null,
-    venueLatitude: court.venueLatitude || null,
-    venueLongitude: court.venueLongitude || null,
-    primaryImageUrl: court.primaryImageUrl || null,
-    averageRating: court.averageRating,
-    reviewCount: court.reviewCount,
-  };
-}
-
-// Adapter function to transform ForumThread to ForumThreadSummary-like interface
-function adaptThreadToSummary(thread: ForumThread) {
-  return {
-    id: thread.id,
-    slug: thread.slug,
-    title: thread.title,
-    excerpt: thread.excerpt || null,
-    reply_count: thread.replyCount,
-    created_at: thread.createdAt,
-    tags: thread.tags,
-    category: thread.category || null,
-    author_name: thread.author || null,
-    latestReplyBody: null, // Would need additional data fetching
-    latestReplyAt: null, // Would need additional data fetching
-    reviewCourt: null, // Would need additional data fetching
-  };
-}
-
 export default async function Home() {
   const [courts, threads] = await Promise.all([
     PublicQueries.getActiveCourts({ limit: 50 }), // Fetch courts for spotlight
@@ -258,8 +218,8 @@ export default async function Home() {
   ]);
 
   // Transform data to match component expectations
-  const adaptedCourts = courts.map(adaptCourtToSummary);
-  const adaptedThreads = threads.map(adaptThreadToSummary);
+  const adaptedCourts = courts.map(toCourtSummary);
+  const adaptedThreads = threads.map(toForumThreadSummary);
 
   // Add animation styles to head
   const animationStyles = `

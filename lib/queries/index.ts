@@ -5,6 +5,7 @@ export { AdminQueries } from './admin';
 export { UserQueries } from './user';
 export { VenueQueries } from './venue';
 export { PublicQueries } from './public';
+export { toCourtSummary, toForumThreadSummary } from './adapters';
 
 // Export all types for convenience
 export type {
